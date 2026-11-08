@@ -5,30 +5,79 @@
  * 컴포넌트에서는 임의 값(bg-[#123456]) 대신 이 토큰 클래스(bg-primary 등)만 쓴다.
  */
 :root {
-  --background: oklch(100% 0 0);
-  --foreground: oklch(20% 0 0);
-  --surface: oklch(100% 0 0);
-  --muted: oklch(96% 0 0);
-  --muted-foreground: oklch(50% 0 0);
-  --border: oklch(90% 0 0);
-  --primary: oklch(55% 0.2 260);
-  --primary-foreground: oklch(100% 0 0);
-}
+  /* Static */
+  --white: oklch(1 0 0); /* #FFFFFF */
+  --black: oklch(0.1435 0.0018 196.96); /* #090A0A */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: oklch(16% 0 0);
-    --foreground: oklch(95% 0 0);
-    --surface: oklch(20% 0 0);
-    --muted: oklch(25% 0 0);
-    --muted-foreground: oklch(70% 0 0);
-    --border: oklch(30% 0 0);
-    --primary: oklch(65% 0.18 260);
-    --primary-foreground: oklch(100% 0 0);
-  }
+  /* Ivory */
+  --ivory100: oklch(0.9811 0.0068 67.75); /* #FCF8F4 */
+  --ivory200: oklch(0.9559 0.0223 67.56); /* #FBEEE1 */
+
+  /* Opacity */
+  --black90: oklch(0.1435 0.0018 196.96 / 56.5%); /* #090A0A90 */
+
+  /* Red */
+  --red100: oklch(0.9596 0.02 28.9); /* #FFEDEA */
+  --red200: oklch(0.89 0.0578 27.52); /* #FFCDC6 */
+  --red300: oklch(0.7893 0.1221 28.07); /* #FF9B8E */
+  --red400: oklch(0.6903 0.1994 28); /* #FF5D50 */
+  --red500: oklch(0.6342 0.2512 26.5); /* #FF1627 */
+  --red600: oklch(0.5409 0.2212 28.1); /* #D1000D */
+  --red700: oklch(0.4598 0.188 28.12); /* #A80008 */
+  --red800: oklch(0.3706 0.1516 28.17); /* #7D0004 */
+  --red900: oklch(0.2803 0.1146 28); /* #540002 */
+
+  /* Gray */
+  --gray50: oklch(0.9841 0.0017 145.56); /* #F9FAF9 */
+  --gray100: oklch(0.9601 0.0017 145.56); /* #F1F2F1 */
+  --gray200: oklch(0.8904 0.0017 145.56); /* #DADBDA */
+  --gray300: oklch(0.7688 0.0018 145.56); /* #B3B4B3 */
+  --gray400: oklch(0.5885 0.0019 145.55); /* #7C7D7C */
+  --gray500: oklch(0.4712 0 0); /* #5B5B5B */
+  --gray600: oklch(0.3587 0.0022 145.53); /* #3C3D3C */
+  --gray700: oklch(0.2984 0.0045 145.46); /* #2C2E2C */
+  --gray800: oklch(0.1897 0.0025 145.47); /* #131413 */
+  --gray900: oklch(0.1496 0 0); /* #0B0B0B */
+
+  --background: var(--gray900);
+  --foreground: var(--gray50);
+  --surface: var(--gray800);
+  --muted: var(--gray700);
+  --muted-foreground: var(--gray200);
+  --border: var(--gray600);
+  --primary: var(--red500);
+  --primary-foreground: var(--white);
 }
 
 @theme inline {
+  /* Color */
+  --color-white: var(--white);
+  --color-black: var(--black);
+  --color-ivory100: var(--ivory100);
+  --color-ivory200: var(--ivory200);
+  --color-black90: var(--black90);
+
+  --color-red100: var(--red100);
+  --color-red200: var(--red200);
+  --color-red300: var(--red300);
+  --color-red400: var(--red400);
+  --color-red500: var(--red500);
+  --color-red600: var(--red600);
+  --color-red700: var(--red700);
+  --color-red800: var(--red800);
+  --color-red900: var(--red900);
+
+  --color-gray50: var(--gray50);
+  --color-gray100: var(--gray100);
+  --color-gray200: var(--gray200);
+  --color-gray300: var(--gray300);
+  --color-gray400: var(--gray400);
+  --color-gray500: var(--gray500);
+  --color-gray600: var(--gray600);
+  --color-gray700: var(--gray700);
+  --color-gray800: var(--gray800);
+  --color-gray900: var(--gray900);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-surface: var(--surface);
