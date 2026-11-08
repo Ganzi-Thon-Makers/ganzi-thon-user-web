@@ -5,8 +5,8 @@ import "@/styles/globals.css";
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "FE Boilerplate",
-  description: "Next.js + TanStack Query + Base UI",
+  title: "간지톤 사용자 웹",
+  description: "간지톤 사용자 웹",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
