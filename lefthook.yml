@@ -1,0 +1,29 @@
+# 커밋 전에 pnpm check(포맷·린트·타입체크)와 관련 테스트를 돌린다.
+# 포맷은 staged 파일을 자동으로 고쳐서 다시 stage하고, 나머지는 실패하면 커밋을 막는다.
+# 급할 때 건너뛰기: LEFTHOOK=0 git commit ... (CI에서 다시 검사됨)
+pre-commit:
+  piped: true # 포맷 → 린트 → 타입체크 → 테스트 순서로 실행
+  jobs:
+    - name: format
+      glob: "*.{js,jsx,ts,tsx,mjs,cjs,mts,json,jsonc,md,css,yml,yaml}"
+      run: pnpm exec oxfmt --no-error-on-unmatched-pattern {staged_files}
+      stage_fixed: true
+
+    - name: lint
+      glob: "*.{js,jsx,ts,tsx,mjs,cjs,mts}"
+      run: pnpm exec oxlint {staged_files}
+
+    - name: typecheck
+      glob: "*.{ts,tsx,mts}"
+      run: pnpm typecheck
+
+    - name: test
+      glob: "src/**/*.{ts,tsx}"
+      # 바뀐 파일과 관련된 테스트만 실행한다.
+      run: pnpm exec vitest related --run --passWithNoTests {staged_files}
+
+# 커밋 메시지는 Conventional Commits 규칙을 따른다. (commitlint.config.mjs)
+commit-msg:
+  jobs:
+    - name: commitlint
+      run: pnpm exec commitlint --edit {1}

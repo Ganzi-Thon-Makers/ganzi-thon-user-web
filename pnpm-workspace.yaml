@@ -1,0 +1,5 @@
+# lefthook 훅 설치는 package.json의 prepare 스크립트가 담당한다.
+ignoredBuiltDependencies:
+  - lefthook
+  - sharp
+  - unrs-resolver

@@ -1,0 +1,86 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "react", "nextjs", "import", "jsx-a11y", "vitest"],
+  "categories": {
+    "correctness": "error",
+    "suspicious": "warn"
+  },
+  "env": {
+    "builtin": true,
+    "browser": true
+  },
+  "ignorePatterns": [".next/**", "next-env.d.ts"],
+  "rules": {
+    "react/rules-of-hooks": "error",
+    "react/exhaustive-deps": "warn",
+    "react/react-in-jsx-scope": "off",
+    "import/no-cycle": "error",
+    "import/no-unassigned-import": [
+      "warn",
+      {
+        "allow": ["**/*.css", "@testing-library/jest-dom/vitest"]
+      }
+    ],
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "ky",
+            "message": "HTTP 요청은 @/shared/api/client의 api 인스턴스를 사용하세요."
+          }
+        ],
+        "patterns": [
+          {
+            "group": ["@base-ui/react", "@base-ui/react/*"],
+            "message": "Base UI는 @/shared/ui에서 래핑한 컴포넌트를 사용하세요."
+          }
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/shared/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/features/**", "@/app/**"],
+                "message": "shared는 도메인을 몰라야 합니다. (의존 방향: app → features → shared)"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/features/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "ky",
+                "message": "HTTP 요청은 @/shared/api/client의 api 인스턴스를 사용하세요."
+              }
+            ],
+            "patterns": [
+              {
+                "group": ["@base-ui/react", "@base-ui/react/*"],
+                "message": "Base UI는 @/shared/ui에서 래핑한 컴포넌트를 사용하세요."
+              },
+              {
+                "group": ["@/features/**", "@/app/**"],
+                "message": "feature 내부는 상대 경로로 import하고, 다른 feature는 import하지 마세요. 공유가 필요하면 shared로 올리세요."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}
