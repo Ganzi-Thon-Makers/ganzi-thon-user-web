@@ -29,9 +29,12 @@ describe("Button", () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
-  it("variant 클래스가 적용된다", () => {
-    render(<Button variant="secondary">취소</Button>);
+  it.each([
+    ["primary", "저장", "bg-primary active:bg-red600 data-disabled:bg-red300"],
+    ["secondary", "취소", "bg-gray700 active:bg-gray800 data-disabled:bg-gray300"],
+  ] as const)("%s variant의 클래스가 적용된다", (variant, buttonName, className) => {
+    render(<Button variant={variant}>{buttonName}</Button>);
 
-    expect(screen.getByRole("button", { name: "취소" })).toHaveClass("border");
+    expect(screen.getByRole("button", { name: buttonName })).toHaveClass(className);
   });
 });
