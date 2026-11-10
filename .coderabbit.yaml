@@ -1,0 +1,113 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "ko-KR"
+early_access: false
+
+tone_instructions: >-
+  파일명·함수명·타입명·변수명·코드·명령어·URL·에러 메시지만 원문을 유지한다.
+  버그·보안·접근성·성능·유지보수 위험을 최우선으로 하고, 근거가 명확한 중복·네이밍·복잡도 문제도 짚는다.
+  oxlint·oxfmt가 이미 잡는 것(포맷, any, console, import 경계)과 근거 없는 취향 차이는 지적하지 않는다.
+  각 코멘트는 문제·이유·최소 수정 방향만 짧게 쓴다.
+
+reviews:
+  profile: "assertive"
+  high_level_summary: true
+  request_changes_workflow: false
+  review_status: true
+  poem: false
+  assess_linked_issues: true
+  auto_apply_labels: false
+  suggested_reviewers: false
+  collapse_walkthrough: true
+  sequence_diagrams: false
+  estimate_code_review_effort: false
+  changed_files_summary: true
+  abort_on_close: true
+
+  path_filters:
+    - "!**/.next/**"
+    - "!**/node_modules/**"
+    - "!**/pnpm-lock.yaml"
+    - "!**/*.png"
+    - "!**/*.jpg"
+    - "!**/*.jpeg"
+    - "!**/*.gif"
+    - "!**/*.webp"
+    - "!**/*.svg"
+    - "!**/*.ico"
+    - "!coverage/**"
+    - "!**/*.snap"
+    # 프로젝트 세팅(에이전트 도구·에디터 설정)은 리뷰하지 않는다.
+    # 리뷰 기준으로 읽는 CLAUDE.md·.claude/rules·.claude/references·docs는 받아야 하므로 여기서 빼지 않는다(아래 path_instructions에서 코멘트만 막는다).
+    - "!.claude/agents/**"
+    - "!.claude/skills/**"
+    - "!.claude/hooks/**"
+    - "!.claude/settings.json"
+    - "!.claude/decisions/**"
+    - "!.claude/known-issues/**"
+    - "!.codex/**"
+    - "!.vscode/**"
+    - "!.editorconfig"
+    - "!.gitattributes"
+
+  auto_review:
+    # 라벨은 pr-metadata.yml이 PR 오픈 뒤에 붙여 타이밍이 어긋날 수 있어 base branch로 판별한다.
+    enabled: true
+    drafts: false
+    base_branches:
+      - "^develop$"
+
+  path_instructions:
+    - path: "src/app/**"
+      instructions: |
+        src/app은 라우팅 전용이다. 비즈니스 로직·API 호출·상태가 들어오면 지적한다.
+        page.tsx는 서버 컴포넌트로 두고 PageBoundary로 감싼 features/*/pages의 페이지만 렌더해야 한다.
+        root layout은 html·body·metadata·폰트·Provider만 맡는다. 빈 page나 "준비 중" 페이지, 임시 확인용 route를 추가하면 지적한다.
+
+    - path: "src/features/**/api/**"
+      instructions: |
+        HTTP는 @/shared/api/client의 api만 쓰고, <도메인>.api.ts는 React를 몰라야 한다.
+        쿼리는 <도메인>.queries.ts의 queryOptions 팩토리로만 정의하고, 응답에 영향을 주는 params가 queryKey에 모두 들어갔는지 본다.
+        mutation 뒤 관련 키 무효화(다른 feature는 루트 키)가 빠졌는지, 서버 필드명이 다른데 as 단언으로 넘긴 곳이 있는지 확인한다.
+        명세에 없는 필드·enum을 만들었으면 지적한다.
+
+    - path: "src/features/**"
+      instructions: |
+        서버 데이터를 useEffect+useState로 불러오거나 Zustand에 복사하는 코드, 계산 가능한 값을 state로 복제한 코드를 지적한다.
+        'use client'는 pages/*Page.tsx와 상호작용이 있는 가장 안쪽 컴포넌트에만 있어야 한다.
+        모바일 웹 우선이다. 좁은 화면의 overflow·잘림, 터치 대상, 16px 미만 input, 하단 고정 영역의 safe-area를 확인한다.
+        에러 문구는 toApiError()를 거치고, 원본 에러 메시지를 사용자에게 그대로 보이면 지적한다.
+
+    - path: "src/shared/ui/**"
+      instructions: |
+        변형은 cva variant로, className 병합은 cn()으로 한다. 색·간격은 globals.css 토큰 클래스만 써야 한다.
+        Base UI 래퍼가 aria·포커스·키보드 동작을 깨지 않는지, 아이콘 버튼에 접근 가능한 이름이 있는지 본다.
+        링크를 Button의 render prop으로 렌더하면 지적한다(Base UI 문서 금지). 도메인 지식이 들어오면 지적한다.
+
+    - path: "**/*.test.{ts,tsx}"
+      instructions: |
+        역할·텍스트로 찾는지(getByRole 우선), 네트워크는 ../api/<도메인>.api만 mock하는지 본다.
+        className·내부 구현·스냅샷만으로 검증하는 테스트는 지적한다.
+
+    - path: ".github/workflows/**"
+      instructions: |
+        이벤트 대상 브랜치, 권한 최소화, 이슈 폼(task.yml)의 heading, 브랜치 정규식, type·라벨 매핑이 서로 일치하는지 검토한다.
+        쓰기 작업을 하는 workflow는 fork·봇 이벤트와 중복 실행을 안전하게 다루는지 확인한다.
+
+    - path: "{CLAUDE.md,AGENTS.md,README.md,docs/**,.claude/**}"
+      instructions: |
+        프로젝트 세팅·가이드라인 문서다. 리뷰 기준으로만 읽고 코멘트를 남기지 않는다.
+
+  tools:
+    gitleaks:
+      enabled: true
+
+knowledge_base:
+  code_guidelines:
+    filePatterns:
+      - "CLAUDE.md"
+      - ".claude/rules/**/*.md"
+      - ".claude/references/**/*.md"
+      - "docs/**/*.md"
+
+chat:
+  auto_reply: true

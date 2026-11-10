@@ -1,0 +1,35 @@
+# PR에 작성자를 담당자로, 브랜치(<타입>/<이슈 번호>)의 타입을 라벨로 붙인다.
+name: PR Metadata
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  sync-metadata:
+    if: github.event.pull_request.head.repo.fork == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+
+            if ((pr.assignees ?? []).length === 0) {
+              await github.rest.issues.addAssignees({ ...context.repo, issue_number: pr.number, assignees: [pr.user.login] });
+            }
+
+            // 라벨은 GitHub 저장소 Labels에 미리 만들어 둔 이름과 정확히 같아야 한다.
+            const LABELS = { feat: "✨ Feature", fix: "🐛 BugFix", hotfix: "🚨 Hotfix", refactor: "♻️ Refactor", style: "🎨 Style", test: "✅ Test", docs: "📝 Docs", chore: "🔧 Chore" };
+            const type = pr.head.ref.match(/^([a-z]+)\/\d+/)?.[1];
+            // constructor·toString 같은 상속 속성을 타입으로 받지 않도록 own property만 허용한다.
+            if (!Object.hasOwn(LABELS, type)) {
+              core.info(`이슈 브랜치 형식이 아니라 라벨을 붙이지 않는다: ${pr.head.ref}`);
+              return;
+            }
+            await github.rest.issues.addLabels({ ...context.repo, issue_number: pr.number, labels: [LABELS[type]] });
