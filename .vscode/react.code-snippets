@@ -1,0 +1,30 @@
+{
+  "React component": {
+    "scope": "typescriptreact",
+    "prefix": "frc",
+    "body": ["export function ${1:${TM_FILENAME_BASE}}() {", "  return <div>${0}</div>;", "}"],
+    "description": "named export 함수 컴포넌트 (파일 이름을 컴포넌트 이름으로 사용)",
+  },
+  "Next page": {
+    "scope": "typescriptreact",
+    "prefix": "fpage",
+    "body": [
+      "import { PageBoundary } from \"@/shared/components/PageBoundary\";",
+      "",
+      "export default function Page() {",
+      "  return (",
+      "    <PageBoundary>",
+      "      <${1:Name}Page />",
+      "    </PageBoundary>",
+      "  );",
+      "}",
+    ],
+    "description": "app/**/page.tsx: PageBoundary로 feature 페이지를 감싼다",
+  },
+  "Function declaration": {
+    "scope": "typescript,typescriptreact",
+    "prefix": "fn",
+    "body": ["function ${1:name}(${2}) {", "  ${0}", "}"],
+    "description": "함수 선언식",
+  },
+}
