@@ -58,9 +58,8 @@ src/styles/              globals.css (토큰)
 
 ## 이름
 
-- 컴포넌트 파일: PascalCase (`UserList.tsx`)
-- 훅 파일: 훅 이름 그대로 (`usePostFilter.ts`)
-- 그 외 파일·폴더: kebab-case 또는 `<도메인>.<역할>.ts` (`users.queries.ts`)
+- 컴포넌트 파일만 PascalCase (`UserList.tsx`)
+- 그 외 파일·폴더는 모두 kebab-case. 훅 파일도 포함 (`use-post-filter.ts` 안에 `usePostFilter`), 역할이 있으면 `<도메인>.<역할>.ts` (`users.queries.ts`)
 
 ## 환경변수
 

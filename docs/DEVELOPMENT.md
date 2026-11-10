@@ -42,7 +42,7 @@ pnpm dev       # http://localhost:3000
 자주 쓰는 것만 요약했다. 전체 기준은 [`code-style.md`](../.claude/rules/code-style.md), [`code-quality.md`](../.claude/rules/code-quality.md), [`component-guide.md`](../.claude/rules/component-guide.md)에 있다.
 
 - 함수와 컴포넌트는 `function` 선언, named export. `export default`는 `page`·`layout` 같은 Next 파일만.
-- 컴포넌트 파일은 PascalCase(`UserList.tsx`), 훅 파일은 훅 이름 그대로(`usePostFilter.ts`), 그 외는 kebab-case 또는 `<도메인>.<역할>.ts`(`users.queries.ts`).
+- 컴포넌트 파일만 PascalCase(`UserList.tsx`)이고, 훅을 포함한 그 외 파일은 kebab-case(`use-post-filter.ts`, `users.queries.ts`).
 - boolean은 `is`·`has`·`can`·`should`, 이벤트 prop은 `on`, 핸들러는 `handle`로 시작한다.
 - className 병합은 `cn()`, 변형은 `cva`, 색·간격은 토큰 클래스만.
 - HTTP는 `@/shared/api/client`의 `api`만 쓴다. 쿼리는 `queries.ts`의 `queryOptions` 팩토리로만 정의하고 컴포넌트에 queryKey를 직접 쓰지 않는다.

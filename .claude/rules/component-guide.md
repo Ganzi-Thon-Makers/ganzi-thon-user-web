@@ -40,7 +40,7 @@ Base UI(`@base-ui/react`) API는 `node_modules`의 README·docs로 먼저 확인
 
 - `pages/*Page.tsx`와 Suspense 단위로 데이터를 가진 컴포넌트가 `useRouter`·`useSuspenseQuery`·흐름 제어를 맡고, `components/`의 하위 UI는 props와 콜백만 받는다.
 - 작은 화면은 억지로 나누지 않는다. 로직이 커지거나 50~80줄을 넘으면 나눈다.
-- 상태 전이·검증·제출 분기가 JSX보다 커지면 `hooks/use<Name>Flow`로 뺀다. 훅은 마크업을 모르고 상태와 동작만 반환한다. `useState` 1~2개짜리는 빼지 않는다.
+- 상태 전이·검증·제출 분기가 JSX보다 커지면 `hooks/use-<name>-flow.ts`(`use<Name>Flow`)로 뺀다. 훅은 마크업을 모르고 상태와 동작만 반환한다. `useState` 1~2개짜리는 빼지 않는다.
 
 ## 접근성
 
