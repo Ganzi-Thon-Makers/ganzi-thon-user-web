@@ -6,7 +6,7 @@
 ## 흐름
 
 ```text
-이슈 → develop에서 <type>/<이슈 번호> 브랜치 (예: feat/5) → 구현·검증 → 커밋 → develop 대상 PR → 리뷰 → 병합
+이슈 → develop에서 <type>/<이슈 번호>[-<이름>] 브랜치 (예: feat/5, feat/12-login-page) → 구현·검증 → 커밋 → develop 대상 PR → 리뷰 → 병합
 ```
 
 - 이슈 초안은 `/issue`, PR 초안은 `/pull-request`. 두 스킬은 사용자가 생성까지 요청하고 `gh auth status`가 통과할 때만 직접 만들고, 아니면 복사할 내용만 준다.

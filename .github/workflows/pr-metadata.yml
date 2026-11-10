@@ -27,7 +27,8 @@ jobs:
             // 라벨은 GitHub 저장소 Labels에 미리 만들어 둔 이름과 정확히 같아야 한다.
             const LABELS = { feat: "✨ Feature", fix: "🐛 BugFix", hotfix: "🚨 Hotfix", refactor: "♻️ Refactor", style: "🎨 Style", test: "✅ Test", docs: "📝 Docs", chore: "🔧 Chore" };
             const type = pr.head.ref.match(/^([a-z]+)\/\d+/)?.[1];
-            if (!LABELS[type]) {
+            // constructor·toString 같은 상속 속성을 타입으로 받지 않도록 own property만 허용한다.
+            if (!Object.hasOwn(LABELS, type)) {
               core.info(`이슈 브랜치 형식이 아니라 라벨을 붙이지 않는다: ${pr.head.ref}`);
               return;
             }

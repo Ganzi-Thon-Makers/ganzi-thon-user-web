@@ -8,12 +8,12 @@
 이슈 생성 → develop에서 브랜치 → 구현·검증 → 커밋 → develop 대상 PR → 리뷰 → 병합
 ```
 
-- 이슈는 `작업 이슈` 폼으로 만든다. 작업 타입을 고르면 `develop`에서 `<타입>/<이슈 번호>` 브랜치가 자동으로 생기고(`.github/workflows/issue-branch.yml`), 이슈 댓글에 브랜치로 바꾸는 명령이 달린다. PR을 열면 작성자가 담당자로, 타입이 라벨로 붙는다(`pr-metadata.yml`).
+- 이슈는 `작업 이슈` 폼으로 만든다. 작업 타입을 고르면 `develop`에서 `<타입>/<이슈 번호>` 브랜치가 자동으로 생기고(브랜치 이름을 적으면 `<타입>/<이슈 번호>-<이름>`)(`.github/workflows/issue-branch.yml`), 이슈 댓글에 브랜치로 바꾸는 명령이 달린다. PR을 열면 작성자가 담당자로, 타입이 라벨로 붙는다(`pr-metadata.yml`).
 - 작업 타입은 8개(`feat`·`fix`·`hotfix`·`refactor`·`style`·`test`·`docs`·`chore`)이고 각각 ✨ Feature·🐛 BugFix·🚨 Hotfix·♻️ Refactor·🎨 Style·✅ Test·📝 Docs·🔧 Chore 라벨로 붙는다. 성능 개선은 refactor, 빌드·CI는 chore로 고른다. hotfix는 브랜치·라벨만 따로 두고 커밋은 `fix:`로 쓴다.
 - 라벨은 저장소 Labels에 만들어 두었다. 라벨 이름을 바꾸면 `issue-branch.yml`·`pr-metadata.yml`의 `LABELS`도 같이 바꾼다.
 - 기준 브랜치는 `develop`이다. 일반 작업 PR은 모두 `develop`을 대상으로 한다.
 - `main`은 배포용이며 `develop`에서만 병합한다.
-- 브랜치 이름은 `<type>/<이슈 번호>` 형태를 쓴다. 예) `feat/5`
+- 브랜치 이름은 `<type>/<이슈 번호>[-<이름>]` 형태를 쓴다. 예) `feat/5`, `feat/12-login-page`
 
 ## 커밋
 
