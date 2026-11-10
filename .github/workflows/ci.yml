@@ -66,12 +66,12 @@ jobs:
         continue-on-error: true
         run: pnpm typecheck
 
-      - name: Lint (oxlint)
+      - name: Lint
         id: lint
         continue-on-error: true
         run: pnpm lint
 
-      - name: 포맷 (oxfmt)
+      - name: 포맷
         id: format
         continue-on-error: true
         run: pnpm format:check
@@ -117,8 +117,8 @@ jobs:
             const rows = [
               ["커밋 메시지", process.env.COMMITLINT],
               ["TypeScript", process.env.TYPECHECK],
-              ["Lint (oxlint)", process.env.LINT],
-              ["포맷 (oxfmt)", process.env.FORMAT],
+              ["Lint", process.env.LINT],
+              ["포맷", process.env.FORMAT],
               ["Test", process.env.TEST],
               ["Build", process.env.BUILD],
             ];
