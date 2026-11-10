@@ -9,7 +9,7 @@
 이슈 → develop에서 <type>/<이슈 번호> 브랜치 (예: feat/5) → 구현·검증 → 커밋 → develop 대상 PR → 리뷰 → 병합
 ```
 
-- 이슈 초안은 `/issue`, PR 초안은 `/pr`. 두 스킬은 사용자가 생성까지 요청하고 `gh auth status`가 통과할 때만 직접 만들고, 아니면 복사할 내용만 준다.
+- 이슈 초안은 `/issue`, PR 초안은 `/pull-request`. 두 스킬은 사용자가 생성까지 요청하고 `gh auth status`가 통과할 때만 직접 만들고, 아니면 복사할 내용만 준다.
 - `main`(배포)과 `develop`(통합)에는 직접 push하지 않고 PR로만 병합한다.
 - 이슈·브랜치 type은 8개다: `feat`·`fix`·`hotfix`(긴급 수정, 커밋은 `fix:`)·`refactor`(perf 포함)·`style`·`test`·`docs`·`chore`(build·ci 포함). 라벨은 ✨ Feature·🐛 BugFix·🚨 Hotfix·♻️ Refactor·🎨 Style·✅ Test·📝 Docs·🔧 Chore로 붙고, 라벨은 GitHub 저장소에 미리 만들어 두었고, 이름을 바꾸면 `issue-branch.yml`·`pr-metadata.yml`의 `LABELS`도 같이 바꾼다. 커밋 type은 아래 표 전체를 쓴다.
 
@@ -53,6 +53,15 @@
 - 본문은 `.github/pull_request_template.md`를 따른다: 무엇을 왜 바꿨는지, 실제 실행한 검증, UI 변경이면 스크린샷. 검증하지 못한 항목은 "리뷰어가 봐주면 좋은 부분"에 적는다.
 - AI 지침·훅·lint·CI처럼 작업 방식을 바꾸는 변경은 진입점, 규칙 로딩, 자동화가 하는 일, 리뷰어가 확인할 결과를 함께 설명한다.
 - 충돌은 작성자가 해결한다. CI 통과와 팀 리뷰 후 병합한다. CI 결과와 실제 병합 가능 여부(branch protection)는 따로 확인한다.
+
+## 리뷰 게이트 (`/commit`·`/pull-request` 전)
+
+작업을 늦추지 않도록 큰 문제만 막는 가벼운 확인이다. 전체 리뷰는 `/self-review`로 따로 한다.
+
+- `src/` 코드가 바뀐 경우에만 `ganzi-reviewer` 하나를 부른다. 문서·설정·스타일만 바뀌면 생략한다.
+- 리뷰어에게는 바뀐 파일 목록만 넘기고 **Critical·Major·Minor까지** 보게 한다. Suggestion은 찾지 않는다.
+- 이번 대화에서 같은 변경을 이미 봤으면 다시 부르지 않는다. `/pull-request`은 `/commit`에서 본 커밋을 다시 보내지 않는다.
+- Critical·Major가 있으면 계획·초안을 내지 않고 결과부터 보여준다. Minor는 막지 않고 계획의 확인 항목이나 PR의 "리뷰어가 봐주면 좋은 부분"에 짧게 적는다. 없으면 "리뷰: 문제 없음 / 생략(이유) / 재사용" 한 줄만 남긴다.
 
 ## 리뷰 체크리스트
 

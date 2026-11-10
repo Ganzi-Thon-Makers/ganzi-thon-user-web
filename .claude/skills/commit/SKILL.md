@@ -14,8 +14,9 @@ allowed-tools: Bash, Read, Grep
 1. `git status --short`로 수정·삭제·추가 파일과 stage 상태를 확인한다.
 2. `git diff`와 `git diff --staged`를 모두 본다.
 3. `.claude/rules/git-workflow.md`, `commitlint.config.mjs`를 읽는다. 최근 스타일은 `git log --oneline -10`으로 확인한다.
-4. 변경 목적을 기능·수정·문서·테스트·설정·리팩터링으로 먼저 분류한다. 독립적으로 되돌릴 수 있는 변경은 커밋을 나눈다. `git status --short`의 파일 전체 목록을 기준으로 각 파일을 정확히 하나의 커밋에만 배정한다.
-5. 각 커밋의 파일 묶음, 메시지, 명령을 함께 출력한다.
+4. **리뷰 게이트**: `.claude/rules/git-workflow.md`의 "리뷰 게이트"를 따른다. `src/` 코드가 바뀌었을 때만 `ganzi-reviewer`로 Critical·Major·Minor까지 확인한다(Suggestion 제외).
+5. 변경 목적을 기능·수정·문서·테스트·설정·리팩터링으로 먼저 분류한다. 독립적으로 되돌릴 수 있는 변경은 커밋을 나눈다. `git status --short`의 파일 전체 목록을 기준으로 각 파일을 정확히 하나의 커밋에만 배정한다.
+6. 각 커밋의 파일 묶음, 메시지, 명령을 함께 출력한다. 마지막에 리뷰 결과를 한 줄로 적는다(문제 없음 / 생략(이유) / 재사용).
 
 ## 메시지 규칙
 

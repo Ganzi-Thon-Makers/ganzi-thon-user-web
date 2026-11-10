@@ -56,7 +56,7 @@ Codex 에이전트는 형식(TOML)이 달라 심링크할 수 없어서, `.codex
 | `/self-review`       | 프로젝트 규칙 기준의 읽기 전용 코드 리뷰    |
 | `/commit`            | Conventional Commit 메시지·명령 제안        |
 | `/issue`             | 이슈 폼(task.yml)에 맞춘 이슈 초안          |
-| `/pr`                | PR 템플릿에 맞춘 제목·본문 초안             |
+| `/pull-request`      | PR 템플릿에 맞춘 제목·본문 초안             |
 | `/figma-screen`      | Figma 디자인을 feature 화면·컴포넌트로 구현 |
 | `/scaffold-api`      | 명세 기반 types·api·queries 생성            |
 | `/gen-test`          | 대상 파일 테스트 작성·실행                  |

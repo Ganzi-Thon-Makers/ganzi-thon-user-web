@@ -12,7 +12,7 @@ const prompt = (payload.prompt ?? "").toLowerCase();
 const rules = [
   [/\bcommit\b|커밋/, "/commit - 커밋 메시지·명령 제안"],
   [/\bissue\b|이슈/, "/issue - 이슈 폼에 맞춘 이슈 초안"],
-  [/\bpr\b|pull request|풀리퀘|피알/, "/pr - PR 제목·본문 초안"],
+  [/\bpr\b|pull request|풀리퀘|피알/, "/pull-request - PR 제목·본문 초안"],
   [/\brefactor|리팩터|리팩토/, "/refactor - 동작 유지 리팩터링"],
   [/\breview\b|리뷰/, "/self-review - 변경 코드 리뷰"],
   [/swagger|openapi|엔드포인트|api 연동|scaffold/, "/scaffold-api - 명세 기반 types·api·queries 생성"],

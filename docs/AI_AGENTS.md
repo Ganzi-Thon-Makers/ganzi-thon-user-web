@@ -29,7 +29,7 @@ CLAUDE.md (= AGENTS.md)     항상 지키는 핵심 원칙. 세션 시작 시 �
 | `/self-review`       | 커밋·PR 전에 변경 리뷰                     |
 | `/commit`            | 커밋 메시지·나누기 제안 (실행은 직접)      |
 | `/issue`             | 이슈 폼에 맞춘 이슈 초안 (gh 인증 시 생성) |
-| `/pr`                | PR 템플릿에 맞춘 제목·본문 초안            |
+| `/pull-request`      | PR 템플릿에 맞춘 제목·본문 초안            |
 | `/figma-screen`      | Figma 링크로 화면·컴포넌트 구현            |
 | `/scaffold-api`      | 백엔드 명세로 types·api·queries 만들 때    |
 | `/gen-test`          | 파일 하나 테스트 작성·실행                 |
