@@ -36,6 +36,18 @@ reviews:
     - "!**/*.ico"
     - "!coverage/**"
     - "!**/*.snap"
+    # 프로젝트 세팅(에이전트 도구·에디터 설정)은 리뷰하지 않는다.
+    # 리뷰 기준으로 읽는 CLAUDE.md·.claude/rules·.claude/references·docs는 받아야 하므로 여기서 빼지 않는다(아래 path_instructions에서 코멘트만 막는다).
+    - "!.claude/agents/**"
+    - "!.claude/skills/**"
+    - "!.claude/hooks/**"
+    - "!.claude/settings.json"
+    - "!.claude/decisions/**"
+    - "!.claude/known-issues/**"
+    - "!.codex/**"
+    - "!.vscode/**"
+    - "!.editorconfig"
+    - "!.gitattributes"
 
   auto_review:
     # 라벨은 pr-metadata.yml이 PR 오픈 뒤에 붙여 타이밍이 어긋날 수 있어 base branch로 판별한다.
@@ -81,13 +93,9 @@ reviews:
         이벤트 대상 브랜치, 권한 최소화, 이슈 폼(task.yml)의 heading, 브랜치 정규식, type·라벨 매핑이 서로 일치하는지 검토한다.
         쓰기 작업을 하는 workflow는 fork·봇 이벤트와 중복 실행을 안전하게 다루는지 확인한다.
 
-    - path: ".claude/**"
+    - path: "{CLAUDE.md,AGENTS.md,README.md,docs/**,.claude/**}"
       instructions: |
-        AI 에이전트 규칙이다. 같은 규칙이 여러 파일에 다르게 적혔거나, 실제 경로·명령·파일과 어긋나는 곳만 지적한다.
-
-    - path: "docs/**"
-      instructions: |
-        실제 명령어, 파일 경로, 브랜치 흐름과 모순되는 문서만 지적한다. 문체 취향은 지적하지 않는다.
+        프로젝트 세팅·가이드라인 문서다. 리뷰 기준으로만 읽고 코멘트를 남기지 않는다.
 
   tools:
     gitleaks:

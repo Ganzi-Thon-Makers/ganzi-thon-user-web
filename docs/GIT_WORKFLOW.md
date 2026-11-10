@@ -43,7 +43,7 @@ fix: 토큰 만료 시 재요청되지 않는 문제 수정
 
 ## 리뷰와 병합
 
-- `develop` 대상 PR은 CodeRabbit이 자동으로 리뷰한다(드래프트 제외). 설정은 `.coderabbit.yaml`이고, 경로별 지침과 `.claude/rules`·`docs`를 기준으로 본다. 저장소에 CodeRabbit 앱이 설치되어 있어야 동작한다.
+- `develop` 대상 PR은 CodeRabbit이 자동으로 리뷰한다(드래프트 제외). 설정은 `.coderabbit.yaml`이고, 경로별 지침과 `.claude/rules`·`docs`를 기준으로 본다. 저장소에 CodeRabbit 앱이 설치되어 있어야 동작한다. 에이전트 도구·에디터 설정·문서 같은 프로젝트 세팅에는 코멘트를 달지 않는다. 필요하면 PR에 `@coderabbitai review`로 직접 요청한다.
 
 - PR 작성자가 충돌을 해결하고, 남은 검증 공백을 본문에 적는다.
 - CI(`commitlint`, `check`)가 통과해야 병합한다.
