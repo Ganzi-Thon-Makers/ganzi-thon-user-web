@@ -20,6 +20,15 @@ allowed-tools: Bash, Read, Grep, Glob
 4. 승인된 것만 고치고, 번들·렌더 영향은 전후를 측정해 남긴다.
 5. 고친 뒤 서브에이전트로(Claude Code는 Agent 도구, Codex는 같은 이름의 에이전트) `ganzi-verifier`를 호출해 검증하고, 동작이 바뀌지 않았는지 `ganzi-reviewer`로 확인한다.
 
+## 측정 도구
+
+코드만 읽어 추정하지 말고, 개발 서버(`pnpm dev`)를 띄울 수 있으면 Chrome DevTools MCP로 잰다(`docs/MCP.md`).
+
+- 리렌더: `react_start_profiling` → 문제 조작 → `react_stop_profiling` → `react_get_trace_overview`·`react_get_commit_report`로 어떤 컴포넌트가 몇 번, 얼마나 오래 렌더됐는지 확인한다. 고친 뒤 같은 조작으로 다시 재서 전후를 비교한다.
+- 원인 추적: `react_find_components`로 컴포넌트를 찾고 `react_get_component_by_uid`로 props·hooks를, `react_get_owner_stack`으로 누가 렌더했는지 본다.
+- 로딩·LCP: Chrome DevTools MCP의 performance trace로 잰다.
+- MCP를 쓸 수 없으면 코드 기준 추정임을 보고에 밝힌다.
+
 ## CRITICAL — 경계와 번들
 
 - `'use client'`가 필요 이상 위에 있다. 상호작용이 있는 가장 안쪽으로 내릴 수 있는가? (`'use client'` 파일이 import하는 모듈은 전부 client bundle에 들어간다)

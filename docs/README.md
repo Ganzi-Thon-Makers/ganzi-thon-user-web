@@ -8,6 +8,7 @@
 | [DEVELOPMENT.md](DEVELOPMENT.md)   | 로컬 실행, 코드 작성 기준, 검증 명령, 에디터 설정을 확인할 때 |
 | [GIT_WORKFLOW.md](GIT_WORKFLOW.md) | 브랜치, 커밋, PR, 병합 흐름을 확인할 때                       |
 | [AI_AGENTS.md](AI_AGENTS.md)       | Claude Code·Codex로 작업할 때 스킬·검증 에이전트·훅을 쓸 때   |
+| [MCP.md](MCP.md)                   | Figma 등 MCP 서버를 연결하고 디자인 URL을 넘길 때             |
 
 문서 내용이 실제 설정과 충돌하면 `package.json`, `tsconfig.json`, `.oxlintrc.json`, `lefthook.yml`, `.github/workflows/`, 그리고 현재 코드가 우선이다. 설정이나 구조를 바꾸면 문서도 같은 PR에서 함께 고친다.
 
