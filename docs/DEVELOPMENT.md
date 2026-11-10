@@ -71,12 +71,12 @@ PR 전에는 `pnpm check`와 `pnpm test:run`을 통과시킨다. UI 변경은 �
 
 ### 자동으로 도는 것
 
-| 시점      | 도구                    | 내용                                                    |
-| --------- | ----------------------- | ------------------------------------------------------- |
-| 저장할 때 | VS Code + oxc 확장      | 포맷, oxlint 자동 수정                                  |
-| 커밋할 때 | lefthook `pre-commit`   | staged 파일 포맷 → 린트 → 타입체크 → 관련 테스트        |
-| 커밋할 때 | lefthook `commit-msg`   | commitlint (Conventional Commits)                       |
-| PR·push   | GitHub Actions `ci.yml` | commitlint, `pnpm check`, `pnpm test:run`, `pnpm build` |
+| 시점      | 도구                    | 내용                                                                                                             |
+| --------- | ----------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 저장할 때 | VS Code + oxc 확장      | 포맷, oxlint 자동 수정                                                                                           |
+| 커밋할 때 | lefthook `pre-commit`   | staged 파일 포맷 → 린트 → 타입체크 → 관련 테스트                                                                 |
+| 커밋할 때 | lefthook `commit-msg`   | commitlint (Conventional Commits)                                                                                |
+| PR·push   | GitHub Actions `ci.yml` | commitlint, 타입체크·lint·포맷, `pnpm test:run`, `pnpm build`. PR에는 단계별 결과 댓글 하나를 달고 push마다 갱신 |
 
 훅이 실패하면 원인을 고쳐서 다시 커밋한다. `--no-verify`, `LEFTHOOK=0`으로 건너뛰지 않는다.
 
