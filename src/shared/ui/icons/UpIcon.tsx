@@ -1,28 +1,9 @@
-import { useId } from "react";
-
 import type { IconProps } from "./icon-props";
 
 export function UpIcon(props: IconProps) {
-  const clipId = useId();
-
   return (
-    <svg
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="currentColor"
-      color="white"
-      xmlns="http://www.w3.org/2000/svg"
-      {...props}
-    >
-      <g clipPath={`url(#${clipId})`}>
-        <path d="M17.9999 16C17.9999 16.5523 17.5522 17 16.9999 17C16.4476 17 15.9999 16.5523 15.9999 16V9.41406L7.70696 17.707C7.31643 18.0976 6.68342 18.0976 6.29289 17.707C5.90237 17.3165 5.90237 16.6835 6.29289 16.293L14.5859 8H7.99992C7.44764 8 6.99992 7.55228 6.99992 7C6.99992 6.44772 7.44764 6 7.99992 6H16.9999C17.5522 6 17.9999 6.44772 17.9999 7V16Z" />
-      </g>
-      <defs>
-        <clipPath id={clipId}>
-          <rect width="24" height="24" fill="white" />
-        </clipPath>
-      </defs>
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <path d="M17.9999 16C17.9999 16.5523 17.5522 17 16.9999 17C16.4476 17 15.9999 16.5523 15.9999 16V9.41406L7.70696 17.707C7.31643 18.0976 6.68342 18.0976 6.29289 17.707C5.90237 17.3165 5.90237 16.6835 6.29289 16.293L14.5859 8H7.99992C7.44764 8 6.99992 7.55228 6.99992 7C6.99992 6.44772 7.44764 6 7.99992 6H16.9999C17.5522 6 17.9999 6.44772 17.9999 7V16Z" />
     </svg>
   );
 }
