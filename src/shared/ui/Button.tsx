@@ -10,6 +10,7 @@ export const buttonVariants = cva(
   [
     "inline-flex h-12 items-center justify-center gap-2 rounded-sm px-5 py-3 text-body-sb-16 whitespace-nowrap text-white select-none",
     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+    "transition-colors duration-100 ease-out motion-reduce:transition-none",
   ],
   {
     variants: {
