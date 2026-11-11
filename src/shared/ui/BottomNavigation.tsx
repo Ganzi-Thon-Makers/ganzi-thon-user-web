@@ -33,12 +33,13 @@ function NavigationLinks({ routes, pathname }: NavigationLinksProps) {
           <Link
             key={path}
             href={path}
+            aria-current={isActive ? "page" : undefined}
             className={cn(
               "flex flex-col items-center text-caption-m-12 whitespace-nowrap text-gray600",
               isActive && "text-gray200",
             )}
           >
-            <Icon className="text-inherit" />
+            <Icon />
             <span>{name}</span>
           </Link>
         );
@@ -52,25 +53,25 @@ interface BottomNavigationProps {
 }
 
 const centerButtonClassName =
-  "flex size-16 flex-col items-center justify-center rounded-full bg-red500 text-caption-m-12";
+  "flex size-(--nav-button-size) flex-col items-center justify-center rounded-full bg-red500 text-caption-m-12";
 
 export function BottomNavigation({ onQrClick }: BottomNavigationProps) {
   const pathname = usePathname();
-  const isStampPage = pathname === stampPath;
+  const hasQrAction = onQrClick !== undefined;
 
   return (
-    <nav className="sticky bottom-0 z-10 -mt-(--nav-cutout-depth) flex w-full shrink-0 gap-4 px-6">
-      <div className="pointer-events-none absolute inset-0 rounded-t-[20px] bg-gray800 mask-[radial-gradient(circle_at_50%_19px,transparent_39.5px,black_40px)]" />
+    <nav className="sticky bottom-0 z-10 -mt-(--nav-cutout-depth) flex w-full shrink-0 gap-4 px-[max(--spacing(6),var(--nav-safe-inline))] pb-[env(safe-area-inset-bottom,0px)] bottom-navigation-metrics">
+      <div className="pointer-events-none absolute inset-0 rounded-t-[20px] bg-gray800 mask-(--nav-cutout-mask)" />
       <NavigationLinks routes={leadingRoutes} pathname={pathname} />
-      <div className="relative -mt-3.25 flex w-20 shrink-0 justify-center">
-        {isStampPage ? (
+      <div className="relative -mt-(--nav-button-overhang) flex w-(--nav-cutout-size) shrink-0 justify-center">
+        {hasQrAction ? (
           <button type="button" onClick={onQrClick} className={cn(centerButtonClassName, "text-white")}>
-            <QrIcon className="text-inherit" />
+            <QrIcon />
             <span>QR</span>
           </button>
         ) : (
           <Link href={stampPath} className={cn(centerButtonClassName, "text-red200")}>
-            <StampIcon className="text-inherit" />
+            <StampIcon />
             <span>스탬프</span>
           </Link>
         )}
