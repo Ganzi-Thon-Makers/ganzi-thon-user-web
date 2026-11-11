@@ -4,6 +4,8 @@ import { Popover } from "@base-ui/react/popover";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
 
+import { mergeStateClassName } from "@/shared/lib/cn";
+
 const tooltipVariants = cva(
   [
     "relative min-w-8 rounded-sm bg-gray700 px-2 py-1 text-caption-r-12 wrap-break-word text-gray50",
@@ -25,15 +27,20 @@ const tooltipVariants = cva(
 
 interface TooltipProps
   extends
-    Pick<ComponentProps<typeof Popover.Root>, "open" | "defaultOpen" | "onOpenChange">,
+    Pick<
+      ComponentProps<typeof Popover.Root>,
+      "open" | "defaultOpen" | "onOpenChange" | "onOpenChangeComplete" | "actionsRef"
+    >,
     VariantProps<typeof tooltipVariants> {
   trigger: NonNullable<ComponentProps<typeof Popover.Trigger>["render"]>;
   children: string;
   side?: "top" | "bottom";
+  className?: ComponentProps<typeof Popover.Popup>["className"];
 }
 
-export function Tooltip({ trigger, children, side = "top", align = "center", ...props }: TooltipProps) {
+export function Tooltip({ trigger, children, side = "top", align = "center", className, ...props }: TooltipProps) {
   const placementAlign = align ?? "center";
+  const popupClassName = tooltipVariants({ align: placementAlign });
 
   return (
     <Popover.Root {...props}>
@@ -45,7 +52,7 @@ export function Tooltip({ trigger, children, side = "top", align = "center", ...
           sideOffset={8}
           className="z-10 w-max max-w-(--available-width)"
         >
-          <Popover.Popup initialFocus={false} className={tooltipVariants({ align: placementAlign })}>
+          <Popover.Popup initialFocus={false} className={mergeStateClassName(popupClassName, className)}>
             <Popover.Description>{children}</Popover.Description>
           </Popover.Popup>
         </Popover.Positioner>
