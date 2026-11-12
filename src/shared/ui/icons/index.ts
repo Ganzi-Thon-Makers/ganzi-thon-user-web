@@ -14,3 +14,4 @@ export { StampIcon } from "./StampIcon";
 export { SuccessIcon } from "./SuccessIcon";
 export { UpIcon } from "./UpIcon";
 export { UserIcon } from "./UserIcon";
+export { PawLogoIcon } from "./PawLogoIcon";

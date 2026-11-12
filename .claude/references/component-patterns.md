@@ -73,3 +73,11 @@
 - 사용 시점: `TabRoot` 안에서 `TabList`, `TabTrigger`, `TabPanel`을 조합하고 Trigger와 Panel의 값을 연결. 선택 밑줄은 `TabList` 안에 `TabIndicator`로 배치
 - 피해야 할 사용: 페이지 이동은 링크로 연결
 - 관련 검증: 좁은 화면에서 선택 표시, 패널 전환, 키보드 이동 확인
+
+## Pattern: ProgressBar
+
+- 위치: `src/shared/ui/ProgressBar.tsx`
+- 용도: Base UI Progress 래핑. `variant`(`black`·`red`)로 트랙·채움 색 조합을 고르고, 값이 `max`에 닿으면 `data-complete`로 채움 색이 바뀜
+- 사용 시점: 스탬프처럼 개수로 나타내는 진행률. `aria-label`(또는 보이는 라벨)을 주고, 숫자만으로 뜻이 안 드러나면 `getAriaValueText`로 읽을 문장을 넘김
+- 피해야 할 사용: 끝을 알 수 없는 로딩 표시
+- 관련 검증: `src/shared/ui/ProgressBar.test.tsx`
