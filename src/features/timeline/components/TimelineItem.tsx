@@ -8,12 +8,11 @@ interface TimelineItemProps {
   isOngoing?: boolean;
 }
 
-// 네이티브 details로 펼침·접힘, 키보드 조작, 펼침 상태 전달을 브라우저에 맡긴다.
+// 펼침·키보드 조작은 네이티브 details에 맡긴다.
 export function TimelineItem({ time, title, description, isOngoing = false }: TimelineItemProps) {
   return (
-    // 진행 중 테두리는 inset ring으로 그려 카드 크기를 바꾸지 않는다.
+    // inset ring이라 진행 중이어도 크기가 그대로다.
     <details className={cn("group rounded-lg bg-gray800", isOngoing && "ring-1 ring-red400 ring-inset")}>
-      {/* 카드 여백까지 눌리도록 패딩을 summary에 둔다. 진행 중은 색 외에 aria-current로도 알린다. */}
       <summary
         aria-current={isOngoing ? "time" : undefined}
         className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-lg p-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary [&::-webkit-details-marker]:hidden"
