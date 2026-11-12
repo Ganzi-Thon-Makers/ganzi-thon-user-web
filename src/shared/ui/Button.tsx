@@ -4,13 +4,13 @@ import { Button as BaseButton } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps } from "react";
 
-import { cn } from "@/shared/lib/cn";
+import { mergeStateClassName } from "@/shared/lib/cn";
 
 export const buttonVariants = cva(
   [
     "inline-flex h-12 items-center justify-center gap-2 rounded-sm px-5 py-3 text-body-sb-16 whitespace-nowrap text-white select-none",
     "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-    "transition-colors duration-100 ease-out motion-reduce:transition-none",
+    "transition-[background-color] duration-100 ease-out motion-reduce:transition-none",
   ],
   {
     variants: {
@@ -28,13 +28,5 @@ export const buttonVariants = cva(
 export interface ButtonProps extends ComponentProps<typeof BaseButton>, VariantProps<typeof buttonVariants> {}
 
 export function Button({ variant, className, ...props }: ButtonProps) {
-  return (
-    <BaseButton
-      // Base UI의 className은 state를 받는 함수일 수도 있다.
-      className={(state) =>
-        cn(buttonVariants({ variant }), typeof className === "function" ? className(state) : className)
-      }
-      {...props}
-    />
-  );
+  return <BaseButton className={mergeStateClassName(buttonVariants({ variant }), className)} {...props} />;
 }
