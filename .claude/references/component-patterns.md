@@ -73,3 +73,11 @@
 - 사용 시점: `TabRoot` 안에서 `TabList`, `TabTrigger`, `TabPanel`을 조합하고 Trigger와 Panel의 값을 연결. 선택 밑줄은 `TabList` 안에 `TabIndicator`로 배치
 - 피해야 할 사용: 페이지 이동은 링크로 연결
 - 관련 검증: 좁은 화면에서 선택 표시, 패널 전환, 키보드 이동 확인
+
+## Pattern: Toast
+
+- 위치: `src/shared/ui/Toast.tsx`
+- 용도: 정보·성공·오류 메시지를 잠시 표시한 뒤 닫는다.
+- 사용 시점: 앱의 `Providers`가 `ToastProvider`를 한 번 배치한다. 각 화면은 `useToast()`의 `info`, `success`, `error`에 메시지를 전달한다. 두 번째 인자로 `timeout`, `id`, `priority`, `onClose`, `onRemove`, `data`를 전달할 수 있다. 아이콘은 사용하는 화면에서 `data.icon`으로 넘긴다.
+- 배치: `ToastProvider`의 `position`은 기본값 `bottom-center`와 `top-center`를 지원한다. 설명은 최대 2줄까지 표시한다.
+- 관련 검증: `src/shared/ui/Toast.test.tsx`
