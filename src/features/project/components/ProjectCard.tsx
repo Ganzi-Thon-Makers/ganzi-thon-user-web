@@ -30,7 +30,13 @@ export function ProjectCard({
       )}
     >
       <div className="relative h-22 shrink-0">
-        <Image src={thumbnailSrc} alt="" fill sizes="(max-width: 480px) 50vw, 240px" className="object-cover" />
+        <Image
+          src={thumbnailSrc}
+          alt={`${name} 썸네일`}
+          fill
+          sizes="(max-width: 480px) 50vw, 240px"
+          className="object-cover"
+        />
       </div>
       <div className="flex flex-col gap-1.5 px-2">
         <div className="flex items-end justify-between gap-2">
