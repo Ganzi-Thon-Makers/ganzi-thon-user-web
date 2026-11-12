@@ -33,3 +33,11 @@
 - 사용 시점: 모바일에서도 열고 닫을 수 있는 보조 설명에 사용. 위·아래 방향 및 중앙·왼쪽 정렬 지원
 - 피해야 할 사용: 필수 안내나 팝업 안에서 조작해야 하는 콘텐츠
 - 관련 검증: 모바일 뷰포트에서 트리거·바깥 터치 및 네 가지 배치 확인
+
+## Pattern: Modal
+
+- 위치: `src/shared/ui/Modal.tsx`
+- 용도: Base UI Dialog와 같은 방식으로 조합하는 공용 모달
+- 사용 시점: 화면 위에 콘텐츠를 표시할 때. `ModalRoot`, `ModalTrigger`, `ModalPortal`, `ModalBackdrop`, `ModalPopup`, `ModalTitle`, `ModalDescription`, `ModalClose`를 필요한 만큼 조합하고, 버튼이나 아이콘은 사용처에서 구성
+- 피해야 할 사용: 짧은 상태 안내만 필요한 경우
+- 관련 검증: `src/shared/ui/Modal.test.tsx`
