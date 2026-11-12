@@ -81,3 +81,12 @@
 - 사용 시점: 앱의 `Providers`가 `ToastProvider`를 한 번 배치한다. 각 화면은 `useToast()`의 `info`, `success`, `error`에 메시지를 전달한다. 두 번째 인자로 `timeout`, `id`, `priority`, `onClose`, `onRemove`, `data`를 전달할 수 있다. 아이콘은 사용하는 화면에서 `data.icon`으로 넘긴다.
 - 배치: `ToastProvider`의 `position`은 기본값 `bottom-center`와 `top-center`를 지원한다. 설명은 최대 2줄까지 표시한다.
 - 관련 검증: `src/shared/ui/Toast.test.tsx`
+
+## Pattern: TextField
+
+- 위치: `src/shared/ui/TextField.tsx`
+- 용도: 한 줄 입력과 포커스, 오류 문구 표시
+- 사용 시점: 입력값을 직접 받으며 필요에 따라 입력 양쪽에 아이콘이나 동작을 배치할 때
+- 입력 요소는 Base UI의 `className`과 `render`로 조정하고 전체 컨테이너는 `containerClassName`으로 조정한다.
+- 피해야 할 사용: 여러 줄 입력에는 textarea를 사용한다
+- 관련 검증: `src/shared/ui/TextField.test.tsx`
