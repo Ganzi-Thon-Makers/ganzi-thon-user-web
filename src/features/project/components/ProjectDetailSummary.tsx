@@ -13,7 +13,13 @@ export function ProjectDetailSummary({ thumbnailSrc, name, teamName, summary, pl
   return (
     <article className="flex flex-col gap-6 overflow-hidden rounded-lg bg-gray800 pb-5">
       <div className="relative h-50.5 shrink-0">
-        <Image src={thumbnailSrc} alt="" fill sizes="(max-width: 480px) 100vw, 480px" className="object-cover" />
+        <Image
+          src={thumbnailSrc}
+          alt={`${name} 썸네일`}
+          fill
+          sizes="(max-width: 480px) 100vw, 480px"
+          className="object-cover"
+        />
       </div>
       <div className="flex flex-col gap-3 px-4">
         <div className="flex flex-col">
