@@ -57,4 +57,5 @@
 
 - `console.log`를 남기지 않는다(oxlint). `console.warn`·`console.error`도 목적을 검토한 경우에만 쓴다.
 - App Router에서는 `next/router`·`next/document` 대신 `next/navigation`, `layout.tsx`, metadata API를 쓴다(oxlint).
-- 주석은 코드가 하는 일을 반복하지 않고, 선택한 이유·제약·외부 근거만 1~2줄로 남긴다.
+- 주석은 기본적으로 쓰지 않는다. 이름이나 주변 코드로 드러나지 않는 선택 이유·제약·외부 근거만 남긴다.
+- 남기는 주석은 1~2줄, 명사형으로 끝맺는다. 예) `// 펼침·키보드 조작은 네이티브 details 사용`, `// inset ring으로 크기 변화 방지`
