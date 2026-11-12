@@ -2,7 +2,7 @@
 
 import { Popover } from "@base-ui/react/popover";
 import { cva, type VariantProps } from "class-variance-authority";
-import type { ComponentProps } from "react";
+import type { ComponentProps, ReactElement } from "react";
 
 import { mergeStateClassName } from "@/shared/lib/cn";
 
@@ -18,12 +18,19 @@ const tooltipVariants = cva(
     variants: {
       align: {
         center: "after:left-1/2",
-        start: "after:left-4",
+        start: "data-[align=end]:after:right-4 data-[align=end]:after:translate-x-1/2 data-[align=start]:after:left-4",
       },
     },
     defaultVariants: { align: "center" },
   },
 );
+
+function validateTriggerElement(element: HTMLElement | null) {
+  const isNonButtonElement = element !== null && !(element instanceof HTMLButtonElement);
+  if (isNonButtonElement) {
+    throw new TypeError("Tooltip의 trigger는 HTML button 요소로 렌더링되어야 합니다.");
+  }
+}
 
 interface TooltipProps
   extends
@@ -32,7 +39,7 @@ interface TooltipProps
       "open" | "defaultOpen" | "onOpenChange" | "onOpenChangeComplete" | "actionsRef"
     >,
     VariantProps<typeof tooltipVariants> {
-  trigger: NonNullable<ComponentProps<typeof Popover.Trigger>["render"]>;
+  trigger: ReactElement;
   children: string;
   side?: "top" | "bottom";
   className?: ComponentProps<typeof Popover.Popup>["className"];
@@ -44,7 +51,7 @@ export function Tooltip({ trigger, children, side = "top", align = "center", cla
 
   return (
     <Popover.Root {...props}>
-      <Popover.Trigger render={trigger} />
+      <Popover.Trigger render={trigger} ref={validateTriggerElement} />
       <Popover.Portal>
         <Popover.Positioner
           side={side}
