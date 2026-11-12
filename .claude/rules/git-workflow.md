@@ -49,7 +49,7 @@
 
 ## PR
 
-- PR 제목은 커밋과 같은 형식을 권장한다. 병합 방식(squash·merge commit)은 팀이 정하지 않았으므로 어느 쪽을 전제로 쓰지 않는다.
+- 이슈·PR 제목은 커밋과 같은 `<type>[(<scope>)]: <제목>` 형식이다. 병합 방식(squash·merge commit)을 팀이 정하지 않아 squash 시 PR 제목이 커밋 메시지가 될 수 있어서다. 형식이 아니면 `issue-branch.yml`·`pr-metadata.yml`이 `<type>: <이슈 제목>`으로 맞추고(hotfix는 `fix:`), 이미 형식이면 그대로 둔다.
 - 본문은 `.github/pull_request_template.md`를 따른다: 무엇을 왜 바꿨는지, 실제 실행한 검증, UI 변경이면 스크린샷. 검증하지 못한 항목은 "리뷰어가 봐주면 좋은 부분"에 적는다.
 - AI 지침·훅·lint·CI처럼 작업 방식을 바꾸는 변경은 진입점, 규칙 로딩, 자동화가 하는 일, 리뷰어가 확인할 결과를 함께 설명한다.
 - 충돌은 작성자가 해결한다. CI 통과와 팀 리뷰 후 병합한다. CI 결과와 실제 병합 가능 여부(branch protection)는 따로 확인한다.

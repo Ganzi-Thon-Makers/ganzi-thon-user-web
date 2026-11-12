@@ -30,6 +30,8 @@ src/styles/              globals.css (토큰)
 | URL·metadata·문서 셸                               | `src/app/` 파일 규약            |
 
 - 비슷해 보인다는 이유만으로 `shared`로 올리지 않는다.
+- `shared/ui`인지는 사용 횟수가 아니라 도메인 결합으로 정한다. 도메인 타입·문구·앱 경로를 모르는 primitive는 `shared/ui`, 앱 경로·라벨을 아는 조합은 `shared/components`, 한 도메인 데이터를 아는 건 `features/<도메인>`.
+- shared 컴포넌트 하나만 쓰는 하위 조각은 따로 export하지 않고 그 파일 안에 둔다(`BottomNavigation`의 `NavigationLinks`).
 - `pages/*Page.tsx`는 쿼리 연결과 조립만 맡는다. 페이지 본문에는 페이지 목적만 보이게 하고, 인증·리다이렉트 같은 제어는 가드 layout이나 훅으로 뺀다.
 - 여러 화면이 같은 셸(헤더, 하단 고정 버튼)을 쓰면 `shared/components/PageShell`처럼 slot props(`header`, `footer`)로 만든다.
 - Stack 같은 범용 배치 primitive는 같은 구조가 3곳 이상 반복되고 className 한 줄짜리 wrapper가 아닐 때만 만든다.

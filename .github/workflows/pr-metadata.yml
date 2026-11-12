@@ -1,4 +1,4 @@
-# PR에 작성자를 담당자로, 브랜치(<타입>/<이슈 번호>)의 타입을 라벨로 붙인다.
+# PR에 작성자를 담당자로, 브랜치(<타입>/<이슈 번호>)의 타입을 라벨로 붙이고, 제목이 커밋 형식이 아니면 이슈 제목으로 맞춘다.
 name: PR Metadata
 
 on:
@@ -26,10 +26,31 @@ jobs:
 
             // 라벨은 GitHub 저장소 Labels에 미리 만들어 둔 이름과 정확히 같아야 한다.
             const LABELS = { feat: "✨ Feature", fix: "🐛 BugFix", hotfix: "🚨 Hotfix", refactor: "♻️ Refactor", style: "🎨 Style", test: "✅ Test", docs: "📝 Docs", chore: "🔧 Chore" };
-            const type = pr.head.ref.match(/^([a-z]+)\/\d+/)?.[1];
+            const [, type, issueNumber] = pr.head.ref.match(/^([a-z]+)\/(\d+)/) ?? [];
             // constructor·toString 같은 상속 속성을 타입으로 받지 않도록 own property만 허용한다.
             if (!Object.hasOwn(LABELS, type)) {
-              core.info(`이슈 브랜치 형식이 아니라 라벨을 붙이지 않는다: ${pr.head.ref}`);
+              core.info(`이슈 브랜치 형식이 아니라 라벨·제목을 바꾸지 않는다: ${pr.head.ref}`);
               return;
             }
             await github.rest.issues.addLabels({ ...context.repo, issue_number: pr.number, labels: [LABELS[type]] });
+
+            // squash merge 시 PR 제목이 커밋 메시지가 되므로 커밋 형식(<타입>: <제목>)으로 맞춘다.
+            // 작성자가 이미 커밋 형식(scope 포함)으로 썼으면 그대로 둔다. hotfix는 커밋 type이 fix다.
+            const COMMIT_TITLE = /^(feat|fix|refactor|style|test|docs|chore|ci|build|perf|revert)(\([^)]+\))?!?: \S/;
+            if (COMMIT_TITLE.test(pr.title)) return;
+            const commitType = type === "hotfix" ? "fix" : type;
+            const toTitle = (raw) => {
+              if (COMMIT_TITLE.test(raw)) return raw; // 이슈 제목의 scope를 살린다
+              const subject = raw.replace(/^(\[[^\]]+\]\s*|[a-z]+(\([^)]+\))?!?:\s*)/, "").trim();
+              return subject ? `${commitType}: ${subject}` : "";
+            };
+            let title = toTitle(pr.title);
+            try {
+              const { data: issue } = await github.rest.issues.get({ ...context.repo, issue_number: Number(issueNumber) });
+              title = toTitle(issue.title) || title;
+            } catch (error) {
+              core.warning(`이슈 #${issueNumber} 제목을 읽지 못해 PR 제목을 기준으로 쓴다: ${error.message}`);
+            }
+            if (title && title !== pr.title) {
+              await github.rest.pulls.update({ ...context.repo, pull_number: pr.number, title });
+            }

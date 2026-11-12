@@ -14,7 +14,9 @@ Base UI(`@base-ui/react`) API는 `node_modules`의 README·docs로 먼저 확인
 
 - className 병합은 `cn()`.
 - 변형(variant·size)은 boolean prop을 늘리지 말고 `cva`로 정의하고 `VariantProps`로 props 타입을 만든다(`shared/ui/Button.tsx`).
+- variant는 재사용 UI에 시각 상태가 2개 이상이고 같은 className 조합이 반복될 때만 만든다. 한 화면의 상태 한두 개는 `cn()` 조건부 클래스로 둔다. variant 이름은 색(`red`)이 아니라 의미(`primary`·`destructive`)로 짓는다.
 - 색·간격·타이포는 `src/styles/globals.css`의 토큰 클래스만 쓴다. 임의 값(`bg-[#123456]`), 인라인 style, 디자인 근거 없는 그림자·카드 중첩을 넣지 않는다.
+- Figma 값에 맞는 토큰이 없으면 컴포넌트에 값을 박지 않는다. Figma 변수로 정의된 값이면 `globals.css`에 토큰을 추가하고, 일회성 값이면 가장 가까운 토큰을 쓴 뒤 차이를 보고한다. 토큰 값 자체가 Figma와 다르면 토큰 정의를 고친다.
 
 ## 만드는 순서
 
@@ -32,6 +34,34 @@ Base UI(`@base-ui/react`) API는 `node_modules`의 README·docs로 먼저 확인
 - DOM 요소를 감싸는 UI는 기본 props(`ComponentProps<"button">`)를 펼쳐 전달하고, `type="button"`처럼 안전한 기본값은 명시한다.
 - 한 위치만 바뀌면(아이콘·보조 텍스트·action) config 객체보다 `children`·slot prop을 쓴다. 행마다 다른 렌더는 render prop(`renderItem`).
 - 구조가 고정이고 바뀌는 자리가 1~2개면 slot props, 3개 이상이거나 상태·aria가 연결되면(Tabs·Select) compound. Base UI 래퍼를 `items` 배열 prop으로 평탄화하지 않는다. 직접 만든 compound는 Context를 쓰고 밖에서 쓰면 throw한다.
+
+  ```tsx
+  // slot props: 배치는 컴포넌트가, 내용은 호출자가 정한다 (실제 예: app/(main)/NavigationLayout.tsx의 navigation)
+  <PageShell header={<PageHeader title="부스" />} footer={<SubmitBar />}>{children}</PageShell>
+
+  // compound: 하위 요소가 상태·aria를 공유한다. Base UI 래퍼는 부품을 그대로 노출한다
+  <Tabs.Root defaultValue="all">
+    <Tabs.List>
+      <Tabs.Tab value="all">전체</Tabs.Tab>
+    </Tabs.List>
+    <Tabs.Panel value="all">...</Tabs.Panel>
+  </Tabs.Root>
+
+  // 피할 것: 부품을 배열 prop으로 평탄화하면 탭마다 다른 렌더·aria 조정이 막힌다
+  <Tabs items={[{ value: "all", label: "전체", content: <List /> }]} />
+  ```
+
+  직접 만드는 compound는 Context가 없을 때 throw해서 잘못된 위치에서 쓰는 걸 바로 드러낸다.
+
+  ```tsx
+  const AccordionContext = createContext<AccordionState | null>(null);
+  function useAccordion() {
+    const value = use(AccordionContext);
+    if (!value) throw new Error("Accordion 하위 컴포넌트는 <Accordion> 안에서만 쓴다");
+    return value;
+  }
+  ```
+
 - 다른 요소로 렌더할 때는 `as` 대신 Base UI `render` prop을 쓰되, button 시맨틱을 받을 수 있는 요소(`div` 등)에만 `nativeButton={false}`와 함께 쓴다. 링크를 Button으로 렌더하지 않는다(Base UI 문서 금지). 버튼처럼 보이는 링크는 `<Link href="/posts" className={buttonVariants()}>목록</Link>`.
 - 입력은 부모와 상태를 공유하면 controlled, 내부에서만 쓰면 local state.
 - 컴포넌트 안에서 컴포넌트를 선언하지 않는다(렌더마다 타입이 바뀌어 상태가 초기화된다).
@@ -52,6 +82,7 @@ Base UI(`@base-ui/react`) API는 `node_modules`의 README·docs로 먼저 확인
 - 키보드 포커스가 보여야 하고, focus 순서가 화면의 읽기·조작 순서와 같아야 한다.
 - 색만으로, 또는 hover만으로 상태·정보·조작을 전달하지 않는다.
 - 상태가 있는 UI(메뉴·탭)는 Base UI 래퍼가 주는 `aria-*`·`data-*`를 깨지 않는다.
+- 목록 안의 현재 항목은 색과 함께 `aria-current`로 알린다(현재 페이지 링크 `"page"`, 진행 중인 일정 `"time"`).
 - 외부 링크의 `target="_blank"`는 새 탭이 필요한 이유가 있을 때만.
 
 ## 반응형과 모바일
@@ -67,10 +98,11 @@ Base UI(`@base-ui/react`) API는 `node_modules`의 README·docs로 먼저 확인
 
 ## Figma 옮기기
 
+- Figma에서 독립 컴포넌트이거나 자체 variant·state가 있는 요소는 코드에서도 컴포넌트로 나누는 후보로 본다. 화면 안 그룹(frame)은 나누지 않아도 된다.
 - 고정 좌표 대신 최대 폭·여백·flex·grid로 의도를 재현한다. 간격은 부모의 `gap-*`로 주고 간격용 wrapper div를 만들지 않는다.
 - 고정 높이(`h-*`)는 균일한 행에만 쓴다.
 - 시안의 OS UI(status bar, home indicator)는 구현하지 않는다.
-- SVG는 에셋 파일로 두고 import한다. 상태에 따라 색이 바뀌는 아이콘은 `currentColor` + `text-*`로 제어하고 `<img>`로 쓰지 않는다. 모양이 바뀌면 에셋을 분리하고, 에셋이 없으면 임시 자리만 두고 보고한다. 아이콘 라이브러리·SVGR 도입은 먼저 묻는다.
+- 아이콘은 Figma SVG를 `shared/ui/icons/<Name>Icon.tsx` 컴포넌트로 옮기고(`fill="currentColor"`, `IconProps`) `index.ts`에서 export한다. 이미 있으면 다시 만들지 않는다. 일러스트·사진처럼 색이 고정된 이미지는 에셋 파일로 두고 import한다. 상태에 따라 색이 바뀌는 아이콘은 `text-*`로 제어하고 `<img>`로 쓰지 않는다. 모양이 바뀌면 에셋을 분리하고, 에셋이 없으면 임시 자리만 두고 보고한다. 아이콘 라이브러리·SVGR 도입은 먼저 묻는다.
 
 ## 모션
 
