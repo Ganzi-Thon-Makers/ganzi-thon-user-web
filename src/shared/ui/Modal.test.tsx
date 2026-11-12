@@ -3,23 +3,32 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
 import { Button } from "./Button";
-import { Modal } from "./Modal";
+import {
+  ModalBackdrop,
+  ModalClose,
+  ModalDescription,
+  ModalPopup,
+  ModalPortal,
+  ModalRoot,
+  ModalTitle,
+  ModalTrigger,
+} from "./Modal";
 
 describe("Modal", () => {
   it("트리거로 열고 닫기 버튼을 누르면 트리거에 포커스를 돌려준다", async () => {
     const user = userEvent.setup();
     render(
-      <Modal.Root>
-        <Modal.Trigger render={<Button>열기</Button>} />
-        <Modal.Portal>
-          <Modal.Backdrop />
-          <Modal.Popup>
-            <Modal.Title>상세 정보</Modal.Title>
-            <Modal.Description>선택한 항목의 상세 정보예요.</Modal.Description>
-            <Modal.Close render={<Button>닫기</Button>} />
-          </Modal.Popup>
-        </Modal.Portal>
-      </Modal.Root>,
+      <ModalRoot>
+        <ModalTrigger render={<Button>열기</Button>} />
+        <ModalPortal>
+          <ModalBackdrop />
+          <ModalPopup>
+            <ModalTitle>상세 정보</ModalTitle>
+            <ModalDescription>선택한 항목의 상세 정보예요.</ModalDescription>
+            <ModalClose render={<Button>닫기</Button>} />
+          </ModalPopup>
+        </ModalPortal>
+      </ModalRoot>,
     );
 
     const trigger = screen.getByRole("button", { name: "열기" });
@@ -39,13 +48,13 @@ describe("Modal", () => {
     const user = userEvent.setup();
     const onOpenChange = vi.fn<(open: boolean) => void>();
     render(
-      <Modal.Root defaultOpen onOpenChange={onOpenChange}>
-        <Modal.Portal>
-          <Modal.Popup>
-            <Modal.Title>상세 정보</Modal.Title>
-          </Modal.Popup>
-        </Modal.Portal>
-      </Modal.Root>,
+      <ModalRoot defaultOpen onOpenChange={onOpenChange}>
+        <ModalPortal>
+          <ModalPopup>
+            <ModalTitle>상세 정보</ModalTitle>
+          </ModalPopup>
+        </ModalPortal>
+      </ModalRoot>,
     );
 
     await screen.findByRole("dialog", { name: "상세 정보" });
