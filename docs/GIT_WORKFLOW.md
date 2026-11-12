@@ -8,7 +8,7 @@
 이슈 생성 → develop에서 브랜치 → 구현·검증 → 커밋 → develop 대상 PR → 리뷰 → 병합
 ```
 
-- 이슈는 `작업 이슈` 폼으로 만든다. 작업 타입을 고르면 `develop`에서 `<타입>/<이슈 번호>` 브랜치가 자동으로 생기고(브랜치 이름을 적으면 `<타입>/<이슈 번호>-<이름>`)(`.github/workflows/issue-branch.yml`), 이슈 댓글에 브랜치로 바꾸는 명령이 달린다. PR을 열면 작성자가 담당자로, 타입이 라벨로 붙는다(`pr-metadata.yml`).
+- 이슈는 `작업 이슈` 폼으로 만든다. 작업 타입을 고르면 `develop`에서 `<타입>/<이슈 번호>` 브랜치가 자동으로 생기고(브랜치 이름을 적으면 `<타입>/<이슈 번호>-<이름>`)(`.github/workflows/issue-branch.yml`), 이슈 댓글에 브랜치로 바꾸는 명령이 달린다. 이슈 제목은 `<타입>: <제목>`으로 정리된다(hotfix는 `fix:`). PR을 열면 작성자가 담당자로, 타입이 라벨로 붙고, 제목이 커밋 형식이 아니면 이슈 제목으로 `<타입>: <제목>`이 된다(`pr-metadata.yml`).
 - 작업 타입은 8개(`feat`·`fix`·`hotfix`·`refactor`·`style`·`test`·`docs`·`chore`)이고 각각 ✨ Feature·🐛 BugFix·🚨 Hotfix·♻️ Refactor·🎨 Style·✅ Test·📝 Docs·🔧 Chore 라벨로 붙는다. 성능 개선은 refactor, 빌드·CI는 chore로 고른다. hotfix는 브랜치·라벨만 따로 두고 커밋은 `fix:`로 쓴다.
 - 라벨은 저장소 Labels에 만들어 두었다. 라벨 이름을 바꾸면 `issue-branch.yml`·`pr-metadata.yml`의 `LABELS`도 같이 바꾼다.
 - 기준 브랜치는 `develop`이다. 일반 작업 PR은 모두 `develop`을 대상으로 한다.
@@ -35,7 +35,7 @@ fix: 토큰 만료 시 재요청되지 않는 문제 수정
 
 ## PR
 
-- PR 제목은 커밋과 같은 형식(`feat(home): ...`)을 권장한다. 병합 방식(squash·merge commit)은 정해두지 않았다.
+- PR 제목은 커밋과 같은 형식(`feat(home): ...`)으로 쓴다. 병합 방식(squash·merge commit)을 정해두지 않아서, squash merge를 해도 커밋 규칙이 깨지지 않도록 하기 위해서다. 커밋 형식이 아닌 제목은 `pr-metadata.yml`이 `<타입>: <이슈 제목>`으로 바꾸고, scope를 붙여 쓴 제목은 그대로 둔다.
 - 본문은 `.github/pull_request_template.md`를 채운다: 무엇을·왜 바꿨는지, UI 변경 스크린샷, 리뷰어가 봐줄 부분, 체크리스트.
 - 체크리스트는 실제로 실행한 검증만 체크한다.
 - 관련 이슈가 있으면 `close #번호`로 연결한다.

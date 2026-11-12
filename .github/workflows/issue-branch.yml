@@ -1,4 +1,4 @@
-# 이슈 폼(task.yml)으로 이슈를 만들면 develop에서 <타입>/<이슈 번호>[-<이름>] 브랜치를 만들고 라벨·담당자를 붙인다.
+# 이슈 폼(task.yml)으로 이슈를 만들면 develop에서 <타입>/<이슈 번호>[-<이름>] 브랜치를 만들고, 제목을 <타입>: <제목>으로 맞추고, 라벨·담당자를 붙인다.
 name: Issue Branch
 
 on:
@@ -50,6 +50,20 @@ jobs:
                 throw error;
               }
               created = false;
+            }
+
+            // 제목을 커밋 형식(<타입>: <제목>)으로 맞춘다. hotfix는 커밋 type이 fix다.
+            // commitlint type으로 이미 형식이 맞으면 작성자 것(scope 포함)을 둔다.
+            const COMMIT_TITLE = /^(feat|fix|refactor|style|test|docs|chore|ci|build|perf|revert)(\([^)]+\))?!?: \S/;
+            const commitType = type === "hotfix" ? "fix" : type;
+            const subject = issue.title.replace(/^(\[[^\]]+\]\s*|[a-z]+(\([^)]+\))?!?:\s*)/, "").trim() || issue.title.trim();
+            const title = COMMIT_TITLE.test(issue.title) ? issue.title : `${commitType}: ${subject}`;
+            if (title !== issue.title) {
+              try {
+                await github.rest.issues.update({ ...context.repo, issue_number: issue.number, title });
+              } catch (error) {
+                core.warning(`제목 정리 실패: ${error.message}`);
+              }
             }
 
             await github.rest.issues.addLabels({ ...context.repo, issue_number: issue.number, labels: [LABELS[type]] });
