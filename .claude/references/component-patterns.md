@@ -46,6 +46,6 @@
 
 - 위치: `src/shared/ui/Tab.tsx`
 - 용도: 화면 내부에서 동일한 너비의 수평 탭을 선택하고 대응 패널을 전환
-- 사용 시점: `Tab.Root` 안에 `Tab.List`, `Tab.Trigger`, `Tab.Panel`을 조합하고 Trigger와 Panel의 값을 연결하고 선택 밑줄은 List 안에 `Tab.Indicator`로 배치
+- 사용 시점: `TabRoot` 안에서 `TabList`, `TabTrigger`, `TabPanel`을 조합하고 Trigger와 Panel의 값을 연결. 선택 밑줄은 `TabList` 안에 `TabIndicator`로 배치
 - 피해야 할 사용: 페이지 이동은 링크로 연결
 - 관련 검증: 좁은 화면에서 선택 표시, 패널 전환, 키보드 이동 확인
