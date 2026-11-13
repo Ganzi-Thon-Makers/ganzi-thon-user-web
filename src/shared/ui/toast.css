@@ -1,7 +1,7 @@
 .toast-viewport {
   --stack-direction: -1;
 
-  bottom: calc(var(--spacing) * 5 + env(safe-area-inset-bottom));
+  bottom: calc(95px + env(safe-area-inset-bottom, 0px));
 
   &[data-position="top-center"] {
     --stack-direction: 1;
