@@ -5,10 +5,11 @@ interface NavigationLayoutProps {
   navigation: ReactNode;
 }
 
+// 스크롤·여백은 PageShell이 맡고, 여기서는 내비게이션에 가려지는 높이만 알려줌
 export function NavigationLayout({ children, navigation }: NavigationLayoutProps) {
   return (
     <>
-      <main className="min-h-0 flex-1 overflow-y-auto px-[max(--spacing(4),var(--nav-safe-inline))] pt-[max(--spacing(10),env(safe-area-inset-top,0px))] pb-(--nav-content-padding-bottom) bottom-navigation-metrics">
+      <main className="flex min-h-0 flex-1 flex-col bottom-navigation-metrics [--page-content-clearance:var(--nav-button-overhang)] [--page-inset-bottom:var(--nav-cutout-depth)]">
         {children}
       </main>
       {navigation}

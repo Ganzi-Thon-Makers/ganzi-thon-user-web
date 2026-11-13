@@ -5,6 +5,7 @@ import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
 import { PageError } from "./PageError";
+import { PageShell } from "./PageShell";
 import { PageSkeleton } from "./PageSkeleton";
 
 interface PageBoundaryProps {
@@ -15,7 +16,11 @@ interface PageBoundaryProps {
 }
 
 function PageErrorFallback({ error, reset }: ErrorBoundaryFallbackProps) {
-  return <PageError error={error} onRetry={reset} />;
+  return (
+    <PageShell>
+      <PageError error={error} onRetry={reset} />
+    </PageShell>
+  );
 }
 
 /**
@@ -30,7 +35,8 @@ export function PageBoundary({ children, fallback = <PageSkeleton />, clientOnly
     <QueryErrorResetBoundary>
       {({ reset }) => (
         <ErrorBoundary onReset={reset} fallback={PageErrorFallback}>
-          <Suspense clientOnly={clientOnly} fallback={fallback}>
+          {/* 페이지 셸은 경계 안쪽에 있어 fallback·에러도 같은 셸로 감쌈 */}
+          <Suspense clientOnly={clientOnly} fallback={<PageShell>{fallback}</PageShell>}>
             {children}
           </Suspense>
         </ErrorBoundary>

@@ -219,7 +219,6 @@ body {
   --nav-cutout-size: calc(var(--nav-cutout-radius) * 2);
   --nav-cutout-center: calc(var(--nav-button-size) / 2 - var(--nav-button-overhang));
   --nav-cutout-depth: calc(var(--nav-cutout-center) + var(--nav-cutout-radius));
-  --nav-content-padding-bottom: calc(var(--nav-cutout-depth) + var(--nav-button-overhang));
   --nav-safe-inline: max(env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
   --nav-cutout-mask: radial-gradient(
     circle at 50% var(--nav-cutout-center),
