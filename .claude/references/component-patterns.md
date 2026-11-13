@@ -97,3 +97,11 @@
 - 용도: 페이지 제목과 선택적인 왼쪽 콘텐츠, MY 프로필 링크 표시
 - 사용 시점: 왼쪽 링크나 버튼은 `leading`에 전달하고, MY 링크가 필요한 화면은 `withProfile`을 지정한다. 생략한 영역은 공간을 차지하지 않는다.
 - 관련 검증: `src/shared/components/AppBar.test.tsx`
+
+## Pattern: ProgressBar
+
+- 위치: `src/shared/ui/ProgressBar.tsx`
+- 용도: Base UI Progress 래핑. `variant`(`black`·`red`)로 트랙·채움 색 조합을 고르고, 값이 `max`에 닿으면 `data-complete`로 채움 색이 바뀜
+- 사용 시점: 스탬프처럼 개수로 나타내는 진행률. `aria-label`(또는 보이는 라벨)을 주고, 숫자만으로 뜻이 안 드러나면 `getAriaValueText`로 읽을 문장을 넘김
+- 피해야 할 사용: 끝을 알 수 없는 로딩 표시
+- 관련 검증: `src/shared/ui/ProgressBar.test.tsx`
