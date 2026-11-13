@@ -90,3 +90,10 @@
 - 입력 요소는 Base UI의 `className`과 `render`로 조정하고 전체 컨테이너는 `containerClassName`으로 조정한다.
 - 피해야 할 사용: 여러 줄 입력에는 textarea를 사용한다
 - 관련 검증: `src/shared/ui/TextField.test.tsx`
+
+## Pattern: AppBar
+
+- 위치: `src/shared/components/AppBar.tsx`
+- 용도: 페이지 제목과 선택적인 왼쪽 콘텐츠, MY 프로필 링크 표시
+- 사용 시점: 왼쪽 링크나 버튼은 `leading`에 전달하고, MY 링크가 필요한 화면은 `withProfile`을 지정한다. 생략한 영역은 공간을 차지하지 않는다.
+- 관련 검증: `src/shared/components/AppBar.test.tsx`
