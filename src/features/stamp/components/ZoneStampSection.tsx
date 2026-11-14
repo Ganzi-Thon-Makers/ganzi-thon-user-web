@@ -1,9 +1,32 @@
 "use client";
 
 import { useSuspenseQueries } from "@tanstack/react-query";
+import type { ReactNode } from "react";
 
 import { stampQueries } from "../api/stamp.queries";
 import { ZoneStampAccordion } from "./ZoneStampAccordion";
+
+const ZONE_SKELETON_COUNT = 3;
+
+interface ZoneStampSectionLayoutProps {
+  total: ReactNode;
+  children: ReactNode;
+}
+
+// 로딩 중에도 섹션 제목은 보이도록 본문과 스켈레톤이 같은 틀을 씀
+function ZoneStampSectionLayout({ total, children }: ZoneStampSectionLayoutProps) {
+  return (
+    <section aria-labelledby="zone-stamp-title" className="flex flex-col gap-3">
+      <div className="flex items-end justify-between gap-2">
+        <h2 id="zone-stamp-title" className="text-body-sb-16 text-white">
+          구역별 스탬프 현황
+        </h2>
+        {total}
+      </div>
+      {children}
+    </section>
+  );
+}
 
 export function ZoneStampSection() {
   const [{ data: myStamps }, { data: zones }] = useSuspenseQueries({
@@ -16,15 +39,13 @@ export function ZoneStampSection() {
   const collectedCount = boardBooths.filter((booth) => collectedBoothIds.has(booth.boothId)).length;
 
   return (
-    <section aria-labelledby="zone-stamp-title" className="flex flex-col gap-3">
-      <div className="flex items-end justify-between gap-2">
-        <h2 id="zone-stamp-title" className="text-body-sb-16 text-white">
-          구역별 스탬프 현황
-        </h2>
+    <ZoneStampSectionLayout
+      total={
         <p className="text-caption-r-12 text-gray300">
           총 <span className="text-caption-sb-12 text-white">{collectedCount}</span>/{boardBooths.length}개
         </p>
-      </div>
+      }
+    >
       <ul className="flex flex-col gap-3">
         {zones.map((zone) => (
           <li key={zone.zoneName}>
@@ -40,6 +61,19 @@ export function ZoneStampSection() {
           </li>
         ))}
       </ul>
-    </section>
+    </ZoneStampSectionLayout>
+  );
+}
+
+// 접힌 아코디언 높이(76px)에 맞춰 구역 수만큼 자리를 잡음
+export function ZoneStampSectionSkeleton() {
+  return (
+    <ZoneStampSectionLayout total={<div className="h-4.5 w-14 animate-pulse rounded-sm bg-muted" />}>
+      <div aria-busy="true" aria-label="구역별 스탬프 현황 불러오는 중" className="flex flex-col gap-3">
+        {Array.from({ length: ZONE_SKELETON_COUNT }, (_, index) => (
+          <div key={index} className="h-19 animate-pulse rounded-lg bg-muted" />
+        ))}
+      </div>
+    </ZoneStampSectionLayout>
   );
 }
