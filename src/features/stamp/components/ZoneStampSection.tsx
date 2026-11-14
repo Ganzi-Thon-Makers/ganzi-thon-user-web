@@ -13,7 +13,6 @@ interface ZoneStampSectionLayoutProps {
   children: ReactNode;
 }
 
-// 로딩 중에도 섹션 제목은 보이도록 본문과 스켈레톤이 같은 틀을 씀
 function ZoneStampSectionLayout({ total, children }: ZoneStampSectionLayoutProps) {
   return (
     <section aria-labelledby="zone-stamp-title" className="flex flex-col gap-3">
@@ -65,7 +64,6 @@ export function ZoneStampSection() {
   );
 }
 
-// 접힌 아코디언 높이(76px)에 맞춰 구역 수만큼 자리를 잡음
 export function ZoneStampSectionSkeleton() {
   return (
     <ZoneStampSectionLayout total={<div className="h-4.5 w-14 animate-pulse rounded-sm bg-muted" />}>

@@ -14,8 +14,7 @@ export function LuckyDrawProgress() {
   return <LuckyDrawCard collectedCount={stamps.length} goalCount={LUCKY_DRAW_GOAL_COUNT} />;
 }
 
-// LuckyDrawCard 최소 높이와 맞춰 로딩 전후로 레이아웃이 밀리지 않게 함
-// 뒤에 겹친 마스코트가 깜빡임 사이로 비치지 않도록 불투명한 바탕 위에서 깜빡임
+// 뒤에 겹친 마스코트가 비치지 않게 불투명 바탕 위에서 깜빡임
 export function LuckyDrawProgressSkeleton() {
   return (
     <div aria-busy="true" aria-label="럭키드로우 진행 현황 불러오는 중" className="rounded-lg bg-background">
