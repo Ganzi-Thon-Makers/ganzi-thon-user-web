@@ -1,20 +1,14 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { Suspense } from "@suspensive/react";
 import Image from "next/image";
 
 import { PageShell } from "@/shared/components/PageShell";
 
-import { stampQueries } from "../api/stamp.queries";
-import { LuckyDrawCard } from "../components/LuckyDrawCard";
-import { ZoneStampSection } from "../components/ZoneStampSection";
-
-// 기능 명세서 STAMP-01-1: 15개를 모으면 럭키드로우 자동 응모
-const LUCKY_DRAW_GOAL_COUNT = 15;
+import { LuckyDrawProgress, LuckyDrawProgressSkeleton } from "../components/LuckyDrawProgress";
+import { ZoneStampSection, ZoneStampSectionSkeleton } from "../components/ZoneStampSection";
 
 export function StampPage() {
-  const { data: stamps } = useSuspenseQuery(stampQueries.mine());
-
   return (
     <PageShell>
       {/* TODO: Figma(875:48177)는 화면 끝까지 꽉 찬 gray800 상단 영역이다. 페이지 여백 안에 두면서 배경을 뺐는데, 디자인과 확인 필요 */}
@@ -30,12 +24,16 @@ export function StampPage() {
             <Image src="/happy.webp" alt="" width={237} height={333} loading="eager" className="w-full -scale-x-100" />
           </div>
           <div className="relative">
-            <LuckyDrawCard collectedCount={stamps.length} goalCount={LUCKY_DRAW_GOAL_COUNT} />
+            <Suspense fallback={<LuckyDrawProgressSkeleton />}>
+              <LuckyDrawProgress />
+            </Suspense>
           </div>
         </div>
       </section>
       <div className="mt-7">
-        <ZoneStampSection />
+        <Suspense fallback={<ZoneStampSectionSkeleton />}>
+          <ZoneStampSection />
+        </Suspense>
       </div>
     </PageShell>
   );
