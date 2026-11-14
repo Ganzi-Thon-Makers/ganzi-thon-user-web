@@ -8,7 +8,6 @@ import { PageShell } from "@/shared/components/PageShell";
 import { LuckyDrawProgress, LuckyDrawProgressSkeleton } from "../components/LuckyDrawProgress";
 import { ZoneStampSection, ZoneStampSectionSkeleton } from "../components/ZoneStampSection";
 
-// 제목·마스코트는 데이터와 무관해 바로 보이고, 데이터를 쓰는 영역만 각자 로딩함
 export function StampPage() {
   return (
     <PageShell>
