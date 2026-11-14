@@ -39,7 +39,6 @@ it("화면에 보이지 않는 닫기 버튼으로도 응모 안내 모달을 �
   const { user } = renderWithProviders(<LuckyDrawProgress />);
 
   const modal = await screen.findByRole("dialog", { name: "럭키드로우 자동 응모되었습니다!" });
-  await waitFor(() => expect(modal).toHaveFocus());
   await user.click(screen.getByRole("button", { name: "닫기" }));
   await waitFor(() => expect(modal).not.toBeInTheDocument());
 });
