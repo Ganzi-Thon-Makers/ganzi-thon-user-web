@@ -7,6 +7,7 @@ import { PageShell } from "@/shared/components/PageShell";
 
 import { stampQueries } from "../api/stamp.queries";
 import { LuckyDrawCard } from "../components/LuckyDrawCard";
+import { ZoneStampSection } from "../components/ZoneStampSection";
 
 // 기능 명세서 STAMP-01-1: 15개를 모으면 럭키드로우 자동 응모
 const LUCKY_DRAW_GOAL_COUNT = 15;
@@ -33,6 +34,9 @@ export function StampPage() {
           </div>
         </div>
       </section>
+      <div className="mt-7">
+        <ZoneStampSection />
+      </div>
     </PageShell>
   );
 }

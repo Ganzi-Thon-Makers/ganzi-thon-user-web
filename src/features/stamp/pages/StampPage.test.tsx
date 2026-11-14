@@ -3,7 +3,7 @@ import { expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/shared/test/render";
 
-import { getMyStamps } from "../api/stamp.api";
+import { getMyStamps, getStampZones } from "../api/stamp.api";
 import type { Stamp } from "../types";
 import { StampPage } from "./StampPage";
 
@@ -15,6 +15,7 @@ function makeStamp(id: number): Stamp {
 
 it("모은 스탬프 수로 럭키드로우까지 남은 개수를 보여준다", async () => {
   vi.mocked(getMyStamps).mockResolvedValue([makeStamp(1), makeStamp(2)]);
+  vi.mocked(getStampZones).mockResolvedValue([]);
 
   renderWithProviders(<StampPage />);
 
