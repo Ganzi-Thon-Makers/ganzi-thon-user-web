@@ -4,6 +4,7 @@ import { useSuspenseQueries } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
 import { stampQueries } from "../api/stamp.queries";
+import { getBoothMapHref } from "../stamp.routes";
 import { ZoneStampAccordion } from "./ZoneStampAccordion";
 
 const ZONE_SKELETON_COUNT = 3;
@@ -55,6 +56,7 @@ export function ZoneStampSection() {
                 id: String(booth.boothId),
                 boothName: booth.boothName,
                 isCollected: collectedBoothIds.has(booth.boothId),
+                mapHref: getBoothMapHref(booth.boothId),
               }))}
             />
           </li>
