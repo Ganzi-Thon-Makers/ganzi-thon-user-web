@@ -27,27 +27,27 @@ export function BoothDetailModal({ children }: BoothDetailModalProps) {
       {({ payload: booth }) => (
         <>
           {children}
-          {booth && (
+          {booth ? (
             <ModalPortal>
               <ModalBackdrop />
-              <ModalPopup className="top-[calc(50%-2.5rem)] max-h-[calc(100dvh-7.5rem)] w-[calc(100%-2*max(--spacing(4),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px)))] max-w-lg rounded-none bg-transparent p-0 text-left shadow-none">
+              <ModalPopup className="pointer-events-none top-[calc(50%-2.5rem)] max-h-[calc(100dvh-7.5rem)] w-[calc(100%-2*(max(--spacing(4),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))+(--spacing(1))))] max-w-126 rounded-none bg-transparent p-0 text-left shadow-none">
                 <ModalClose
                   aria-label="부스 상세 닫기"
-                  className="flex size-12 shrink-0 items-center justify-center self-end rounded-sm text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-white"
+                  className="pointer-events-auto flex size-12 shrink-0 items-center justify-center self-end rounded-sm pl-3 text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-white"
                 >
                   <DeleteIcon className="size-7" />
                 </ModalClose>
-                <article className="rounded-lg bg-gray800">
+                <article className="pointer-events-auto rounded-lg bg-gray800">
                   <div className="relative h-50.5 overflow-hidden rounded-t-lg">
                     <Image
                       src={booth.thumbnailUrl}
                       alt={`${booth.title} 썸네일`}
                       fill
-                      sizes="(max-width: 544px) calc(100vw - 2rem), 512px"
+                      sizes="(max-width: 544px) calc(100vw - 2.5rem), 504px"
                       className="object-cover"
                     />
                   </div>
-                  <div className="flex flex-col gap-4 px-4 pt-6 pb-5">
+                  <div className="flex flex-col gap-4 px-5 pt-6 pb-5">
                     <div>
                       <div className="flex items-start justify-between gap-3">
                         <ModalTitle className="min-w-0 text-title-sb-20 wrap-break-word">{booth.title}</ModalTitle>
@@ -62,7 +62,7 @@ export function BoothDetailModal({ children }: BoothDetailModalProps) {
                 </article>
               </ModalPopup>
             </ModalPortal>
-          )}
+          ) : null}
         </>
       )}
     </ModalRoot>
