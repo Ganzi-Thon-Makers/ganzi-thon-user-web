@@ -1,6 +1,7 @@
 import { screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
+import { PageBoundary } from "@/shared/components/PageBoundary";
 import { renderWithProviders } from "@/shared/test/render";
 
 import { getProjects } from "../api/project.api";
@@ -21,4 +22,20 @@ it("선택한 구역의 프로젝트를 카드 목록으로 보여준다", async
   expect(await screen.findAllByRole("listitem")).toHaveLength(2);
   expect(screen.getByRole("heading", { name: "Ganzi" })).toBeInTheDocument();
   expect(getProjects).toHaveBeenCalledWith("ZONE2");
+});
+
+it("목록 조회에 실패하면 에러 화면과 다시 시도 버튼을 보여준다", async () => {
+  vi.spyOn(console, "error").mockImplementation(() => {});
+  vi.mocked(getProjects).mockRejectedValue(new Error("network"));
+
+  renderWithProviders(
+    <PageBoundary>
+      <ProjectList zone="ZONE2" />
+    </PageBoundary>,
+  );
+
+  expect(await screen.findByRole("alert")).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "다시 시도" })).toBeInTheDocument();
+  expect(screen.queryByRole("listitem")).not.toBeInTheDocument();
+  vi.restoreAllMocks();
 });
