@@ -52,13 +52,14 @@ export function VoteCompleteModal({ open, onOpenChange }: VoteCompleteModalProps
     <ModalRoot open={open} onOpenChange={onOpenChange}>
       <ModalPortal>
         <ModalBackdrop />
-        {/* 조작할 요소가 없어 포커스가 팝업 자체로 감, 기본 포커스 테두리 제거 */}
-        <ModalPopup className="items-center gap-3 pt-4 pb-6 outline-none">
+        <ModalPopup className="items-center gap-3 pt-4 pb-6 outline-hidden">
           <Image src="/check.webp" alt="" width={60} height={60} />
           <div className="flex flex-col gap-2">
             <ModalTitle>투표가 완료되었습니다.</ModalTitle>
             <ModalDescription>응원하는 팀에 한 표가 전달되었어요.</ModalDescription>
           </div>
+          {/* 디자인에 닫기 버튼이 없어 화면에서는 숨김. 바깥 영역에 닿을 수 없는 스크린리더 사용자용 */}
+          <ModalClose className="sr-only">닫기</ModalClose>
         </ModalPopup>
       </ModalPortal>
     </ModalRoot>
