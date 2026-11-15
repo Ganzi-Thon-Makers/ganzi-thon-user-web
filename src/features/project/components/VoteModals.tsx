@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
+
 import { Button } from "@/shared/ui/Button";
-import { CheckIcon } from "@/shared/ui/icons";
 import {
   ModalBackdrop,
   ModalClose,
@@ -53,7 +54,7 @@ export function VoteCompleteModal({ open, onOpenChange }: VoteCompleteModalProps
         <ModalBackdrop />
         {/* 조작할 요소가 없어 포커스가 팝업 자체로 감, 기본 포커스 테두리 제거 */}
         <ModalPopup className="items-center gap-3 pt-4 pb-6 outline-none">
-          <CheckIcon aria-hidden className="size-15 text-red500" />
+          <Image src="/check.webp" alt="" width={60} height={60} />
           <div className="flex flex-col gap-2">
             <ModalTitle>투표가 완료되었습니다.</ModalTitle>
             <ModalDescription>응원하는 팀에 한 표가 전달되었어요.</ModalDescription>
