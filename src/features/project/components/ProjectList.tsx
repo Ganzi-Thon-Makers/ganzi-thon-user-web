@@ -1,6 +1,7 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import Link from "next/link";
 
 import { projectQueries } from "../api/project.queries";
 import type { Zone } from "../types";
@@ -19,12 +20,17 @@ export function ProjectList({ zone }: ProjectListProps) {
     <ul className="grid grid-cols-2 gap-x-2.5 gap-y-5">
       {projects.map((project) => (
         <li key={project.id}>
-          <ProjectCard
-            thumbnailSrc={project.thumbnailUrl}
-            name={project.title}
-            summary={project.summary}
-            platform={project.platform}
-          />
+          <Link
+            href={`/projects/${project.id}`}
+            className="block rounded-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+          >
+            <ProjectCard
+              thumbnailSrc={project.thumbnailUrl}
+              name={project.title}
+              summary={project.summary}
+              platform={project.platform}
+            />
+          </Link>
         </li>
       ))}
     </ul>
