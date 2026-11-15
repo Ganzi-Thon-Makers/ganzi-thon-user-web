@@ -30,7 +30,7 @@ export function BoothDetailModal({ children }: BoothDetailModalProps) {
           {booth && (
             <ModalPortal>
               <ModalBackdrop />
-              <ModalPopup className="top-[calc(50%-2.5rem)] max-h-[calc(100dvh-7.5rem)] rounded-none bg-transparent p-0 text-left shadow-none">
+              <ModalPopup className="top-[calc(50%-2.5rem)] max-h-[calc(100dvh-7.5rem)] w-[calc(100%-2*max(--spacing(4),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px)))] max-w-lg rounded-none bg-transparent p-0 text-left shadow-none">
                 <ModalClose
                   aria-label="부스 상세 닫기"
                   className="flex size-12 shrink-0 items-center justify-center self-end rounded-sm text-white focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-white"
@@ -43,7 +43,7 @@ export function BoothDetailModal({ children }: BoothDetailModalProps) {
                       src={booth.thumbnailUrl}
                       alt={`${booth.title} 썸네일`}
                       fill
-                      sizes="(max-width: 360px) calc(100vw - 2.5rem), 320px"
+                      sizes="(max-width: 544px) calc(100vw - 2rem), 512px"
                       className="object-cover"
                     />
                   </div>
