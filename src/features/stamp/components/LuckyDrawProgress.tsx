@@ -17,7 +17,8 @@ export function LuckyDrawProgress() {
 // 뒤에 겹친 마스코트가 비치지 않게 불투명 바탕 위에서 깜빡임
 export function LuckyDrawProgressSkeleton() {
   return (
-    <div aria-busy="true" aria-label="럭키드로우 진행 현황 불러오는 중" className="rounded-lg bg-background">
+    <div aria-busy="true" className="rounded-lg bg-background">
+      <span className="sr-only">럭키드로우 진행 현황 불러오는 중</span>
       <div className="h-22.75 animate-pulse rounded-lg bg-muted" />
     </div>
   );

@@ -30,6 +30,6 @@ it("스탬프를 불러오는 중에도 제목과 섹션 제목은 바로 보여
 
   expect(screen.getByRole("heading", { name: "스탬프 투어" })).toBeInTheDocument();
   expect(screen.getByRole("heading", { name: "구역별 스탬프 현황" })).toBeInTheDocument();
-  expect(screen.getByLabelText("럭키드로우 진행 현황 불러오는 중")).toBeInTheDocument();
-  expect(screen.getByLabelText("구역별 스탬프 현황 불러오는 중")).toBeInTheDocument();
+  expect(screen.getByText("럭키드로우 진행 현황 불러오는 중")).toBeInTheDocument();
+  expect(screen.getByText("구역별 스탬프 현황 불러오는 중")).toBeInTheDocument();
 });

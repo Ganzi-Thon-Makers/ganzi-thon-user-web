@@ -67,7 +67,8 @@ export function ZoneStampSection() {
 export function ZoneStampSectionSkeleton() {
   return (
     <ZoneStampSectionLayout total={<div className="h-4.5 w-14 animate-pulse rounded-sm bg-muted" />}>
-      <div aria-busy="true" aria-label="구역별 스탬프 현황 불러오는 중" className="flex flex-col gap-3">
+      <div aria-busy="true" className="flex flex-col gap-3">
+        <span className="sr-only">구역별 스탬프 현황 불러오는 중</span>
         {Array.from({ length: ZONE_SKELETON_COUNT }, (_, index) => (
           <div key={index} className="h-19 animate-pulse rounded-lg bg-muted" />
         ))}
