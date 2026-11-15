@@ -29,13 +29,14 @@ export function PageShell({ header, footer, children }: PageShellProps) {
         >
           {children}
         </div>
-        {/* sticky 기준에 스크롤 영역 padding을 반영하는지는 엔진마다 달라, footer 위치는 bottom으로, 하단 여백은 spacer로 줌 */}
-        {footer && (
-          <div className="sticky bottom-(--shell-inset-bottom) bg-linear-to-b from-transparent to-black px-[max(--spacing(5),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))] pt-11.5 pb-6 backdrop-blur-xs">
+        {/* 스크롤 영역에 padding을 두지 않음(sticky 기준 반영이 엔진마다 다름). footer는 가려지는 높이까지 배경을 깔아 내비게이션 홈 사이로 본문이 비치지 않게 함 */}
+        {footer ? (
+          <div className="sticky bottom-0 bg-linear-to-b from-transparent to-black px-[max(--spacing(5),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))] pt-11.5 pb-[calc(--spacing(6)+var(--shell-inset-bottom))] backdrop-blur-2xs">
             {footer}
           </div>
+        ) : (
+          <div aria-hidden className="h-(--shell-inset-bottom) shrink-0" />
         )}
-        <div aria-hidden className="h-(--shell-inset-bottom) shrink-0" />
       </div>
     </div>
   );

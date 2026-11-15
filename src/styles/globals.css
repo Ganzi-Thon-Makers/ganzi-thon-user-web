@@ -197,6 +197,9 @@
   --text-caption-m-10--line-height: 1.5;
   --text-caption-m-10--letter-spacing: -0.01em;
   --text-caption-m-10--font-weight: 500;
+
+  /* Figma blur gradation (하단 고정 버튼 배경) */
+  --blur-2xs: 2px;
 }
 
 body {
