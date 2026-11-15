@@ -1,5 +1,6 @@
 export { CameraIcon } from "./CameraIcon";
 export { CardIcon } from "./CardIcon";
+export { CheckIcon } from "./CheckIcon";
 export { ChevronDownIcon } from "./ChevronDownIcon";
 export { ChevronLeftIcon } from "./ChevronLeftIcon";
 export { ChevronRightIcon } from "./ChevronRightIcon";
