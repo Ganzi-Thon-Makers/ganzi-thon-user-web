@@ -27,7 +27,7 @@ export function VoteConfirmModal({ open, onOpenChange, isSubmitting, onConfirm }
         <ModalPopup className="gap-6">
           <div className="flex flex-col gap-2">
             <ModalTitle>이 프로젝트에게 투표할까요?</ModalTitle>
-            {/* TODO: Figma 설명 문구가 "이번 투표를 하면 블라블라블라" 자리 문구라 확정 문구를 받으면 추가 */}
+            <ModalDescription>투표는 1번만 가능하며 되돌릴 수 없습니다</ModalDescription>
           </div>
           <div className="flex gap-2">
             <ModalClose render={<Button variant="secondary" className="flex-1" />}>취소</ModalClose>

@@ -38,7 +38,9 @@ it("인기투표 → 프로젝트 선택 → 확인하면 투표하고 완료 �
 
   await user.click(screen.getByRole("button", { name: "Framey 선택" }));
   await user.click(screen.getByRole("button", { name: "투표하기" }));
-  await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "투표하기" }));
+  const dialog = await screen.findByRole("dialog");
+  expect(within(dialog).getByText("투표는 1번만 가능하며 되돌릴 수 없습니다")).toBeInTheDocument();
+  await user.click(within(dialog).getByRole("button", { name: "투표하기" }));
 
   expect(createVote).toHaveBeenCalledWith(1, expect.anything());
   expect(await screen.findByText("투표가 완료되었습니다.")).toBeInTheDocument();
