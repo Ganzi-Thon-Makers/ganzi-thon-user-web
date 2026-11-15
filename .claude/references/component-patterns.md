@@ -22,7 +22,7 @@
 
 - 위치: `src/shared/components/PageShell.tsx`
 - 용도: 페이지 셸. `header`는 스크롤 밖에 고정, 본문만 스크롤, `footer`는 그라데이션 배경으로 본문 위에 겹쳐 하단 고정. 상·하 safe-area, 본문·footer의 좌우 safe-area, 하단 내비게이션에 가려지는 높이(layout이 주는 `--page-inset-bottom`·`--page-content-clearance`)를 셸이 처리. layout(`NavigationLayout`, `(standalone)`)의 `main`은 여백·스크롤 없이 flex 컨테이너만 맡는다
-- 사용 시점: `features/*/pages/*Page.tsx`의 최상위에서 감싼다. 헤더(AppBar·탭)와 하단 고정 버튼은 slot으로 넘기고, 본문 여백 외의 간격은 페이지가 정한다. `PageBoundary`의 로딩·에러 화면은 경계가 셸로 감싼다
+- 사용 시점: `features/*/pages/*Page.tsx`의 최상위에서 감싼다. 헤더(AppBar·탭)와 하단 고정 버튼은 slot으로 넘기고, 본문 여백 외의 간격은 페이지가 정한다. `PageBoundary`의 로딩·에러 화면은 경계가 셸로 감싼다. 하단 바가 본문과 나뉘는 단색이면 `footerStyle="solid"`, 이미지를 화면 끝까지 채워야 하면 `isFullBleed`(본문 좌우 여백은 페이지가 줌)
 - 피해야 할 사용: 페이지에서 레이아웃 여백을 음수 margin으로 상쇄하지 않는다. header slot의 좌우 safe-area는 slot 내용이 맡는다(배경을 끝까지 채우기 위해)
 - 관련 검증: `src/shared/components/PageShell.test.tsx`, 좁은 화면에서 헤더 고정·footer 위치·하단 내비게이션 겹침 확인
 
