@@ -31,8 +31,15 @@ export function PageShell({ header, footer, children }: PageShellProps) {
         </div>
         {/* 스크롤 영역에 padding을 두지 않음(sticky 기준 반영이 엔진마다 다름). footer는 가려지는 높이까지 배경을 깔아 내비게이션 홈 사이로 본문이 비치지 않게 함 */}
         {footer ? (
-          <div className="sticky bottom-0 bg-linear-to-b from-transparent to-black px-[max(--spacing(5),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))] pt-11.5 pb-[calc(--spacing(6)+var(--shell-inset-bottom))] backdrop-blur-2xs">
-            {footer}
+          <div
+            className={cn(
+              "sticky bottom-0 px-[max(--spacing(5),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))] pt-11.5 pb-[calc(--spacing(6)+var(--shell-inset-bottom))]",
+              // 블러를 별도 층에 두고 위쪽을 투명하게 마스킹해, 블러가 시작되는 가로 경계가 보이지 않게 함
+              "before:pointer-events-none before:absolute before:inset-0 before:mask-[linear-gradient(to_bottom,transparent,black)] before:backdrop-blur-2xs",
+              "after:pointer-events-none after:absolute after:inset-0 after:bg-linear-to-b after:from-transparent after:to-black",
+            )}
+          >
+            <div className="relative z-10">{footer}</div>
           </div>
         ) : (
           <div aria-hidden className="h-(--shell-inset-bottom) shrink-0" />
