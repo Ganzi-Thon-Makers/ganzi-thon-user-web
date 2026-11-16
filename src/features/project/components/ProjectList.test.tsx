@@ -39,3 +39,11 @@ it("목록 조회에 실패하면 에러 화면과 다시 시도 버튼을 보�
   expect(screen.queryByRole("listitem")).not.toBeInTheDocument();
   vi.restoreAllMocks();
 });
+
+it("카드를 누르면 해당 프로젝트 상세로 이동하는 링크다", async () => {
+  vi.mocked(getProjects).mockResolvedValue([makeProject(7, "Framey")]);
+
+  renderWithProviders(<ProjectList zone="ZONE2" />);
+
+  expect(await screen.findByRole("link", { name: /Framey/ })).toHaveAttribute("href", "/projects/7");
+});

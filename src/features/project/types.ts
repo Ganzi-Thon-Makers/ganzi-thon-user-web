@@ -8,7 +8,7 @@ export const ZONE_LABELS = {
   ZONE3: "Zone3",
 } satisfies Record<Zone, string>;
 
-/** 서버 Project 엔티티 기준. API 응답 형태는 아직 미정이라 목록 화면에 필요한 필드만 둔다. */
+/** 서버 Project 엔티티 기준. API 응답 형태는 아직 미정이라 화면에 필요한 필드만 둔다. */
 export interface Project {
   id: number;
   zone: Zone;
@@ -17,4 +17,22 @@ export interface Project {
   thumbnailUrl: string;
   // 서버 엔티티에 없는 필드. 카드 디자인에 있어 임시로 둠 (백엔드 확인 필요)
   platform: "WEB" | "APP";
+}
+
+// 서버에 팀원 파트 정보가 없어 Figma 기준으로 둠 (백엔드 확인 필요)
+export const PARTS = ["PLAN", "DESIGN", "WEB", "SERVER"] as const;
+export type Part = (typeof PARTS)[number];
+
+export interface ProjectMember {
+  id: number;
+  name: string;
+  part: Part;
+}
+
+export interface ProjectDetail extends Project {
+  teamName: string;
+  description: string;
+  serviceUrl: string | null;
+  techStack: string;
+  members: ProjectMember[];
 }
