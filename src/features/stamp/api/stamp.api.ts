@@ -1,11 +1,16 @@
 import { mockNow, mockResponse } from "@/shared/api/mock";
 
-import type { Stamp } from "../types";
-import { MOCK_USER_ID, mockStamps } from "./stamp.mock";
+import type { Stamp, StampZone } from "../types";
+import { MOCK_USER_ID, mockStampZones, mockStamps } from "./stamp.mock";
 
 // TODO: 서버 API가 나오면 api.get/post("...")로 교체한다.
 export function getMyStamps(): Promise<Stamp[]> {
   return mockResponse(mockStamps.filter((stamp) => stamp.userId === MOCK_USER_ID));
+}
+
+/** 스탬프판 구역과 구역별 부스 목록 */
+export function getStampZones(): Promise<StampZone[]> {
+  return mockResponse(mockStampZones);
 }
 
 /** 같은 부스 스탬프는 한 번만 받을 수 있다. (서버 unique 제약) */
