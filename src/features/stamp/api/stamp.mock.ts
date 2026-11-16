@@ -37,3 +37,15 @@ export const mockStampZones: StampZone[] = ZONE_BOOTH_COUNTS.map((boothCount, zo
     })),
   };
 });
+
+// 서버가 부스 QR 토큰을 발급·검증하는 부분을 목에서는 "mock-stamp-<boothId>" 형식으로 대신한다.
+const MOCK_STAMP_TOKEN_PATTERN = /^mock-stamp-(\d+)$/;
+
+export function createMockStampToken(boothId: number): string {
+  return `mock-stamp-${boothId}`;
+}
+
+export function readMockStampToken(token: string): number | null {
+  const match = MOCK_STAMP_TOKEN_PATTERN.exec(token);
+  return match ? Number(match[1]) : null;
+}

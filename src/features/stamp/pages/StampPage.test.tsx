@@ -8,6 +8,7 @@ import { makeStamp } from "../stamp.fixtures";
 import type { Stamp } from "../types";
 import { StampPage } from "./StampPage";
 
+vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams() }));
 vi.mock("../api/stamp.api");
 
 it("모은 스탬프 수로 럭키드로우까지 남은 개수를 보여준다", async () => {

@@ -12,11 +12,11 @@
 
 프론트가 필요로 하는 동작(서버와 합의 전):
 
-| 프론트 함수       | 용도                      | 쿼리 키               |
-| ----------------- | ------------------------- | --------------------- |
-| `getMyStamps()`   | 내 스탬프 목록            | `["stamps", "mine"]`  |
-| `getStampZones()` | 스탬프판 구역·구역별 부스 | `["stamps", "zones"]` |
-| `createStamp(id)` | 부스 스탬프 적립          | —                     |
+| 프론트 함수           | 용도                      | 쿼리 키                                 |
+| --------------------- | ------------------------- | --------------------------------------- |
+| `getMyStamps()`       | 내 스탬프 목록            | `["stamps", "mine"]`                    |
+| `getStampZones()`     | 스탬프판 구역·구역별 부스 | `["stamps", "zones"]`                   |
+| `collectStamp(token)` | QR 토큰으로 스탬프 적립   | — (성공 시 `["stamps", "mine"]` 무효화) |
 
 ## Stamp (서버 엔티티 `stamp`)
 
@@ -47,7 +47,10 @@
 
 ## 구현 메모
 
-- 같은 부스 스탬프는 한 번만 받는다(DB unique 제약). 중복 적립 시 에러 코드·상태는 아직 없다. 목은 `Error("이미 스탬프를 받은 부스입니다.")`로 거절한다.
+- 같은 부스 스탬프는 한 번만 받는다(DB unique 제약). 중복 적립 시 에러 코드·상태는 아직 없다.
+- 적립(STAMP-03)은 부스 운영자 QR의 토큰으로 한다. QR 내용은 `<사이트 주소>/stamp/collect?token=<토큰>`이라 앱 스캐너와 휴대폰 기본 카메라가 같은 처리를 거친다. 토큰 형식·만료(1분)·검증은 서버 몫이고 아직 API가 없다.
+- `collectStamp(token)`은 이미 받은 부스·잘못된 토큰을 화면이 다르게 안내해서 에러 대신 결과(`collected`·`already-collected`·`invalid-token`)로 돌려준다. 서버가 생기면 상태 코드(예: 409·400)를 이 결과로 바꾸는 일은 `stamp.api.ts`에서 한다. 두 경우 모두 부스 id가 있어야 해당 구역을 펼칠 수 있다.
+- 목 토큰 형식: `mock-stamp-<boothId>` (`stamp.mock.ts`의 `createMockStampToken`). 로컬에서 기본 카메라 흐름을 볼 때는 `/stamp/collect?token=mock-stamp-5`로 들어가면 된다.
 - 프론트 `StampZone`·`StampBoardBooth`는 화면용 임시 형태다. 서버 `Booth`에는 부스 이름이 없고(`projectId`로 프로젝트에서 가져와야 할 것으로 보임), 구역 수료 기준 `requiredCount`도 서버·명세에 없다.
 - 럭키드로우 응모(15개 최초 달성 시 자동 응모)는 서버 엔티티가 없다. 응모 여부를 서버가 내려줄지 프론트가 개수로 판단할지 미정.
 - 서버 `ErrorResponse`에 `code` 필드가 없다. `shared/api/error.ts`의 `ErrorBody`(`code`, `message`)와 어긋나므로, 공통 envelope 처리 시 함께 맞춘다.
