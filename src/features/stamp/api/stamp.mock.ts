@@ -49,3 +49,7 @@ export function readMockStampToken(token: string): number | null {
   const match = MOCK_STAMP_TOKEN_PATTERN.exec(token);
   return match ? Number(match[1]) : null;
 }
+
+// 부스 운영자 로그인이 아직 없어 QR 발급 화면은 이 부스로 대신한다.
+export const mockOperatorBooth = { boothId: 5, serviceName: "5팀 서비스" };
+export const MOCK_STAMP_TOKEN_TTL_MS = 60_000;

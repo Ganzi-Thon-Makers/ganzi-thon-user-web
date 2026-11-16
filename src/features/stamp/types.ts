@@ -18,3 +18,15 @@ export interface StampZone {
   requiredCount: number;
   booths: StampBoardBooth[];
 }
+
+/** QR 발급 화면의 부스. 서버 응답 형태는 아직 미정이라 화면에 필요한 필드만 둔다 (STAMP-01-2) */
+export interface OperatorBooth {
+  boothId: number;
+  serviceName: string;
+}
+
+/** 부스 운영자가 발급한 스탬프 QR 토큰. expiresAt은 서버 LocalDateTime 형식 */
+export interface StampToken {
+  token: string;
+  expiresAt: string;
+}

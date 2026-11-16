@@ -1,7 +1,15 @@
 import { mockNow, mockResponse } from "@/shared/api/mock";
 
-import type { Stamp, StampZone } from "../types";
-import { MOCK_USER_ID, mockStampZones, mockStamps, readMockStampToken } from "./stamp.mock";
+import type { OperatorBooth, Stamp, StampToken, StampZone } from "../types";
+import {
+  createMockStampToken,
+  MOCK_STAMP_TOKEN_TTL_MS,
+  MOCK_USER_ID,
+  mockOperatorBooth,
+  mockStampZones,
+  mockStamps,
+  readMockStampToken,
+} from "./stamp.mock";
 
 // TODO: 서버 API가 나오면 api.get/post("...")로 교체한다.
 export function getMyStamps(): Promise<Stamp[]> {
@@ -37,4 +45,24 @@ export function collectStamp(token: string): Promise<CollectStampResult> {
   const now = mockNow();
   mockStamps.push({ id: mockStamps.length + 1, createdAt: now, updatedAt: now, userId: MOCK_USER_ID, boothId });
   return mockResponse({ status: "collected", boothId });
+}
+
+/** QR 발급 화면에 보여줄 운영자의 부스 */
+export function getOperatorBooth(): Promise<OperatorBooth> {
+  return mockResponse(mockOperatorBooth);
+}
+
+/** 운영자 부스의 스탬프 QR 토큰을 새로 발급한다. 토큰은 1분 뒤 만료된다 (STAMP-01-2) */
+export function issueStampToken(): Promise<StampToken> {
+  const expiresAt = new Date(Date.now() + MOCK_STAMP_TOKEN_TTL_MS);
+  return mockResponse({
+    token: createMockStampToken(mockOperatorBooth.boothId),
+    // 서버 LocalDateTime처럼 타임존 없는 로컬 시각 문자열
+    expiresAt: toLocalDateTime(expiresAt),
+  });
+}
+
+function toLocalDateTime(date: Date): string {
+  const offsetMs = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 19);
 }

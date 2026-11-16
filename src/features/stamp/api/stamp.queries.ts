@@ -1,11 +1,12 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
 
-import { collectStamp, getMyStamps, getStampZones } from "./stamp.api";
+import { collectStamp, getMyStamps, getOperatorBooth, getStampZones, issueStampToken } from "./stamp.api";
 
 export const stampQueries = {
   all: () => ["stamps"] as const,
   mine: () => queryOptions({ queryKey: [...stampQueries.all(), "mine"], queryFn: getMyStamps }),
   zones: () => queryOptions({ queryKey: [...stampQueries.all(), "zones"], queryFn: getStampZones }),
+  operatorBooth: () => queryOptions({ queryKey: [...stampQueries.all(), "operator-booth"], queryFn: getOperatorBooth }),
 };
 
 export const stampMutations = {
@@ -19,4 +20,6 @@ export const stampMutations = {
         return client.invalidateQueries({ queryKey: stampQueries.mine().queryKey });
       },
     }),
+  // 발급한 토큰은 이 화면에서만 쓰여 캐시에 두지 않음
+  issueToken: () => mutationOptions({ mutationFn: issueStampToken }),
 };
