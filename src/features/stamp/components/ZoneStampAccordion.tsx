@@ -5,14 +5,14 @@ import { Badge } from "@/shared/ui/Badge";
 import { ChevronDownIcon, ChevronUpIcon } from "@/shared/ui/icons";
 import { ProgressBar } from "@/shared/ui/ProgressBar";
 
+import { getBoothMapHref } from "../stamp.routes";
 import { StampCircle } from "./StampCircle";
 
 interface ZoneStamp {
   id: string;
   boothName: string;
   isCollected: boolean;
-  /** 미수집일 때 이동할 부스 배치도 위치 */
-  mapHref: string;
+  boothId: number;
 }
 
 interface ZoneStampAccordionProps {
@@ -61,7 +61,7 @@ export function ZoneStampAccordion({ zoneName, requiredCount, stamps }: ZoneStam
               <StampCell stamp={stamp} />
             ) : (
               <Link
-                href={stamp.mapHref}
+                href={getBoothMapHref(stamp.boothId)}
                 aria-label={`${stamp.boothName} 미획득, 부스 위치 보기`}
                 className="block rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
