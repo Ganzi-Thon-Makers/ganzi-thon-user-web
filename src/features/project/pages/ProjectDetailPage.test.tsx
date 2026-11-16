@@ -12,7 +12,6 @@ vi.mock("next/navigation", () => ({ useParams: () => ({ id: "3" }) }));
 
 const project: ProjectDetail = {
   id: 3,
-  zone: "ZONE1",
   title: "Framey",
   teamName: "간지팀",
   summary: "한줄소개",
@@ -22,8 +21,9 @@ const project: ProjectDetail = {
   techStack: "React, Spring Boot",
   platform: "WEB",
   members: [
-    { id: 1, name: "김기획", part: "PLAN" },
-    { id: 2, name: "이서버", part: "SERVER" },
+    { part: "PLAN", names: ["김기획"] },
+    { part: "DESIGN", names: [] },
+    { part: "SERVER", names: ["이서버"] },
   ],
 };
 

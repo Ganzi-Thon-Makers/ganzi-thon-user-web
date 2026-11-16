@@ -14,7 +14,9 @@ interface ProjectListProps {
 }
 
 export function ProjectList({ zone }: ProjectListProps) {
-  const { data: projects } = useSuspenseQuery(projectQueries.list(zone));
+  const { data: projectsByZone } = useSuspenseQuery(projectQueries.list());
+  // 프로젝트가 없는 구역은 응답에서 키가 빠질 수 있음
+  const projects = projectsByZone[zone] ?? [];
 
   return (
     <ul className="grid grid-cols-2 gap-x-2.5 gap-y-5">

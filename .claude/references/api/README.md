@@ -5,9 +5,10 @@
 - 명세 출처: 백엔드 Swagger (주소는 `NEXT_PUBLIC_API_URL` 기준. 문서에 주소 값을 직접 쓰지 않는다)
 - 관련 파일만 읽는다. 모든 도메인 문서를 한꺼번에 읽지 않는다.
 
-| 도메인 | 파일       |
-| ------ | ---------- |
-| stamp  | `stamp.md` |
+| 도메인  | 파일         |
+| ------- | ------------ |
+| project | `project.md` |
+| stamp   | `stamp.md`   |
 
 ## 도메인 파일 형식 (`<도메인>.md`)
 
@@ -34,5 +35,4 @@
 
 ## 확인 필요 항목
 
-- 공통 응답 envelope 형태
-- 에러 응답 형태 (`shared/api/error.ts`의 `ErrorBody`와 맞는지)
+- 에러 응답 `code` 필드 (project API 404는 `{ message }`만 온다)

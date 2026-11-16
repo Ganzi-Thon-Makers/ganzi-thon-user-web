@@ -1,13 +1,14 @@
-import type { Project, ProjectDetail, Zone } from "../types";
-import { mockProjects } from "./project.mock";
+import { api } from "@/shared/api/client";
+import type { ApiResponse } from "@/shared/api/types";
 
-// TODO: 서버 API가 나오면 api.get("...")으로 교체한다.
-export function getProjects(zone: Zone): Promise<Project[]> {
-  return Promise.resolve(mockProjects.filter((project) => project.zone === zone));
+import type { ProjectDetail, ProjectsByZone } from "../types";
+
+export async function getProjects(): Promise<ProjectsByZone> {
+  const response = await api.get("api/v1/projects").json<ApiResponse<ProjectsByZone>>();
+  return response.data;
 }
 
-export function getProject(id: number): Promise<ProjectDetail> {
-  const project = mockProjects.find((item) => item.id === id);
-  if (!project) return Promise.reject(new Error("프로젝트를 찾을 수 없습니다."));
-  return Promise.resolve(project);
+export async function getProject(id: number): Promise<ProjectDetail> {
+  const response = await api.get(`api/v1/projects/${id}`).json<ApiResponse<ProjectDetail>>();
+  return response.data;
 }
