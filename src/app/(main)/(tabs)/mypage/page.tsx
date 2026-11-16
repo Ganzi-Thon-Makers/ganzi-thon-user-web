@@ -3,7 +3,7 @@ import { PageBoundary } from "@/shared/components/PageBoundary";
 
 export default function Page() {
   return (
-    <PageBoundary>
+    <PageBoundary clientOnly={false}>
       <MyPage />
     </PageBoundary>
   );
