@@ -9,7 +9,13 @@ export const projectQueries = {
     queryOptions({ queryKey: [...projectQueries.all(), "list", zone], queryFn: () => getProjects(zone) }),
   detail: (id: number) =>
     queryOptions({ queryKey: [...projectQueries.all(), "detail", id], queryFn: () => getProject(id) }),
-  voteStatus: () => queryOptions({ queryKey: [...projectQueries.all(), "vote-status"], queryFn: getVoteStatus }),
+  voteStatus: () =>
+    queryOptions({
+      queryKey: [...projectQueries.all(), "vote-status"],
+      queryFn: getVoteStatus,
+      // ponytail: 화면에 머무는 동안 개시·마감을 반영하려고 30초마다 다시 조회. 더 정확해야 하면 opensAt·마감 시각으로 계산
+      refetchInterval: 30_000,
+    }),
 };
 
 export const projectMutations = {

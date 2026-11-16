@@ -1,4 +1,4 @@
-import { screen, within } from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/shared/test/render";
@@ -15,6 +15,13 @@ function makeProject(id: number, title: string): Project {
 }
 
 const openStatus: VoteStatus = { phase: "OPEN", opensAt: "2026-11-21T14:00:00", votedProjectId: null, myProjectId: 2 };
+
+// 투표 상태는 목록과 따로 불러와서, 받아오기 전에는 버튼이 비활성이다
+async function findEnabledVoteButton() {
+  const button = await screen.findByRole("button", { name: "인기투표" });
+  await waitFor(() => expect(button).toBeEnabled());
+  return button;
+}
 
 function renderPage() {
   return renderWithProviders(
@@ -33,7 +40,7 @@ it("인기투표 → 프로젝트 선택 → 확인하면 투표하고 완료 �
   vi.mocked(createVote).mockResolvedValue({ ...openStatus, votedProjectId: 1 });
   const { user } = renderPage();
 
-  await user.click(await screen.findByRole("button", { name: "인기투표" }));
+  await user.click(await findEnabledVoteButton());
   expect(screen.getByRole("button", { name: "투표하기" })).toBeDisabled();
 
   await user.click(screen.getByRole("button", { name: "Framey 선택" }));
@@ -52,7 +59,7 @@ it("투표에 실패하면 안내하고 완료 모달을 띄우지 않는다", a
   vi.mocked(createVote).mockRejectedValue(new Error("network"));
   const { user } = renderPage();
 
-  await user.click(await screen.findByRole("button", { name: "인기투표" }));
+  await user.click(await findEnabledVoteButton());
   await user.click(screen.getByRole("button", { name: "Framey 선택" }));
   await user.click(screen.getByRole("button", { name: "투표하기" }));
   await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "투표하기" }));
@@ -64,7 +71,7 @@ it("투표에 실패하면 안내하고 완료 모달을 띄우지 않는다", a
 it("본인 팀 프로젝트를 고르면 안내하고 선택하지 않는다", async () => {
   const { user } = renderPage();
 
-  await user.click(await screen.findByRole("button", { name: "인기투표" }));
+  await user.click(await findEnabledVoteButton());
   await user.click(screen.getByRole("button", { name: "우리팀 선택" }));
 
   expect(await screen.findByText("본인이 참여한 프로젝트에는 투표할 수 없어요.")).toBeInTheDocument();
@@ -84,4 +91,26 @@ it("투표가 마감되면 버튼을 막는다", async () => {
   renderPage();
 
   expect(await screen.findByRole("button", { name: "투표가 마감됐어요." })).toBeDisabled();
+});
+
+it("투표 상태를 불러오지 못해도 목록은 보여 준다", async () => {
+  vi.mocked(getVoteStatus).mockRejectedValue(new Error("network"));
+  renderPage();
+
+  expect(await screen.findByText("Framey")).toBeInTheDocument();
+  expect(await screen.findByRole("button", { name: "투표 정보를 불러오지 못했어요." })).toBeDisabled();
+});
+
+it("투표 실패 후 마감으로 확인되면 투표 모드를 끈다", async () => {
+  vi.mocked(createVote).mockRejectedValue(new Error("투표 기간이 아닙니다."));
+  const { user } = renderPage();
+
+  await user.click(await findEnabledVoteButton());
+  await user.click(screen.getByRole("button", { name: "Framey 선택" }));
+  vi.mocked(getVoteStatus).mockResolvedValue({ ...openStatus, phase: "CLOSED" });
+  await user.click(screen.getByRole("button", { name: "투표하기" }));
+  await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "투표하기" }));
+
+  expect(await screen.findByRole("button", { name: "투표가 마감됐어요." })).toBeDisabled();
+  expect(screen.queryByRole("button", { name: "Framey 선택" })).not.toBeInTheDocument();
 });
