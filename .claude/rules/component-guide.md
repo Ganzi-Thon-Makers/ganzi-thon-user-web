@@ -36,7 +36,7 @@ Base UI(`@base-ui/react`) API는 `node_modules`의 README·docs로 먼저 확인
 - 구조가 고정이고 바뀌는 자리가 1~2개면 slot props, 3개 이상이거나 상태·aria가 연결되면(Tabs·Select) compound. Base UI 래퍼를 `items` 배열 prop으로 평탄화하지 않는다. 직접 만든 compound는 Context를 쓰고 밖에서 쓰면 throw한다.
 
   ```tsx
-  // slot props: 배치는 컴포넌트가, 내용은 호출자가 정한다 (실제 예: app/(main)/NavigationLayout.tsx의 navigation)
+  // slot props: 배치는 컴포넌트가, 내용은 호출자가 정한다 (실제 예: src/shared/components/NavigationLayout.tsx의 navigation)
   <PageShell header={<PageHeader title="부스" />} footer={<SubmitBar />}>{children}</PageShell>
 
   // compound: 하위 요소가 상태·aria를 공유한다. Base UI 래퍼는 부품을 그대로 노출한다
