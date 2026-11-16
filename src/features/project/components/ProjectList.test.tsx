@@ -11,17 +11,29 @@ import { ProjectList } from "./ProjectList";
 vi.mock("../api/project.api");
 
 function makeProject(id: number, title: string): Project {
-  return { id, zone: "ZONE2", title, summary: `${title} 소개`, platform: "WEB", thumbnailUrl: "/thumbnail.webp" };
+  return { id, title, summary: `${title} 소개`, platform: "WEB", thumbnailUrl: "/thumbnail.webp" };
 }
 
 it("선택한 구역의 프로젝트를 카드 목록으로 보여준다", async () => {
-  vi.mocked(getProjects).mockResolvedValue([makeProject(1, "Framey"), makeProject(2, "Ganzi")]);
+  vi.mocked(getProjects).mockResolvedValue({
+    ZONE1: [makeProject(9, "Other")],
+    ZONE2: [makeProject(1, "Framey"), makeProject(2, "Ganzi")],
+  });
 
   renderWithProviders(<ProjectList zone="ZONE2" />);
 
   expect(await screen.findAllByRole("listitem")).toHaveLength(2);
   expect(screen.getByRole("heading", { name: "Ganzi" })).toBeInTheDocument();
-  expect(getProjects).toHaveBeenCalledWith("ZONE2");
+  expect(screen.queryByRole("heading", { name: "Other" })).not.toBeInTheDocument();
+});
+
+it("선택한 구역에 프로젝트가 없으면 빈 상태 문구를 보여준다", async () => {
+  vi.mocked(getProjects).mockResolvedValue({ ZONE1: [makeProject(9, "Other")] });
+
+  renderWithProviders(<ProjectList zone="ZONE2" />);
+
+  expect(await screen.findByText("등록된 프로젝트가 없어요.")).toBeInTheDocument();
+  expect(screen.queryByRole("list")).not.toBeInTheDocument();
 });
 
 it("목록 조회에 실패하면 에러 화면과 다시 시도 버튼을 보여준다", async () => {
@@ -41,7 +53,7 @@ it("목록 조회에 실패하면 에러 화면과 다시 시도 버튼을 보�
 });
 
 it("카드를 누르면 해당 프로젝트 상세로 이동하는 링크다", async () => {
-  vi.mocked(getProjects).mockResolvedValue([makeProject(7, "Framey")]);
+  vi.mocked(getProjects).mockResolvedValue({ ZONE2: [makeProject(7, "Framey")] });
 
   renderWithProviders(<ProjectList zone="ZONE2" />);
 

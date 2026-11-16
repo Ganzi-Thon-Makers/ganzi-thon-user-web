@@ -4,3 +4,9 @@ export interface BaseEntity {
   createdAt: string;
   updatedAt: string;
 }
+
+/** 서버 SuccessResponse 공통 envelope */
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
+}

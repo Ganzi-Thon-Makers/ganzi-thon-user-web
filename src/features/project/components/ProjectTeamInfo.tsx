@@ -1,4 +1,4 @@
-import { PARTS, type ProjectDetail } from "../types";
+import type { ProjectDetail } from "../types";
 
 interface ProjectTeamInfoProps {
   members: ProjectDetail["members"];
@@ -6,9 +6,7 @@ interface ProjectTeamInfoProps {
 }
 
 export function ProjectTeamInfo({ members, techStack }: ProjectTeamInfoProps) {
-  const parts = PARTS.map((part) => ({ part, members: members.filter((member) => member.part === part) })).filter(
-    (group) => group.members.length > 0,
-  );
+  const parts = members.filter((group) => group.names.length > 0);
 
   return (
     <div className="flex flex-col gap-5 px-[max(--spacing(4),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))] py-4">
@@ -21,7 +19,7 @@ export function ProjectTeamInfo({ members, techStack }: ProjectTeamInfoProps) {
             <div key={group.part} className="flex items-center gap-3.25">
               <dt className="text-body-sb-16 text-gray50">{group.part}</dt>
               {/* 이름 사이 공백 문자로 띄어 스크린 리더가 붙여 읽지 않게 함 */}
-              <dd className="text-body-r-14 text-gray300">{group.members.map((member) => member.name).join(" ")}</dd>
+              <dd className="text-body-r-14 text-gray300">{group.names.join(" ")}</dd>
             </div>
           ))}
         </dl>

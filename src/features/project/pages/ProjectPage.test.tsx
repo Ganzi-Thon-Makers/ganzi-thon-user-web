@@ -11,7 +11,7 @@ import { ProjectPage } from "./ProjectPage";
 vi.mock("../api/project.api");
 
 function makeProject(id: number, title: string): Project {
-  return { id, zone: "ZONE1", title, summary: `${title} 소개`, platform: "WEB", thumbnailUrl: "/thumbnail.webp" };
+  return { id, title, summary: `${title} 소개`, platform: "WEB", thumbnailUrl: "/thumbnail.webp" };
 }
 
 const openStatus: VoteStatus = { phase: "OPEN", opensAt: "2026-11-21T14:00:00", votedProjectId: null, myProjectId: 2 };
@@ -32,7 +32,7 @@ function renderPage() {
 }
 
 beforeEach(() => {
-  vi.mocked(getProjects).mockResolvedValue([makeProject(1, "Framey"), makeProject(2, "우리팀")]);
+  vi.mocked(getProjects).mockResolvedValue({ ZONE1: [makeProject(1, "Framey"), makeProject(2, "우리팀")] });
   vi.mocked(getVoteStatus).mockResolvedValue(openStatus);
 });
 
