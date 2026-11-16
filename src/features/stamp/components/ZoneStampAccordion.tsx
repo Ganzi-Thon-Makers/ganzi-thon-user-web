@@ -25,7 +25,6 @@ export function ZoneStampAccordion({ zoneName, requiredCount, stamps }: ZoneStam
 
   return (
     <CollapsibleRoot className="group rounded-lg bg-gray800 p-4">
-      {/* 진행 막대(div)를 담으려고 트리거를 div로 렌더 */}
       <CollapsibleTrigger
         nativeButton={false}
         render={<div />}
