@@ -2,10 +2,12 @@
 
 import { PageShell } from "@/shared/components/PageShell";
 
+import { BoothGuideBanner } from "../components/BoothGuideBanner";
+
 export function BoothPage() {
   return (
     <PageShell>
-      <h1 className="text-title-sb-24">부스</h1>
+      <BoothGuideBanner />
     </PageShell>
   );
 }
