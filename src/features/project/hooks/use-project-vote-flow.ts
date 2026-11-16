@@ -50,7 +50,9 @@ export function useProjectVoteFlow() {
   const canVote = status?.phase === "OPEN" && status.votedProjectId === null;
   const isVoting = isVotingMode && canVote;
   const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null);
-  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [isConfirmOpenState, setIsConfirmOpen] = useState(false);
+  // 모달이 열린 채 마감되면 함께 닫음
+  const isConfirmOpen = isConfirmOpenState && isVoting;
   const [isCompleteOpen, setIsCompleteOpen] = useState(false);
 
   // 하단 버튼: 투표 모드 진입 → (선택 후) 확인 모달
@@ -71,7 +73,7 @@ export function useProjectVoteFlow() {
   }
 
   function submitVote() {
-    if (selectedProjectId === null) return;
+    if (!isVoting || selectedProjectId === null) return;
     vote.mutate(selectedProjectId, {
       onSuccess: () => {
         setIsConfirmOpen(false);

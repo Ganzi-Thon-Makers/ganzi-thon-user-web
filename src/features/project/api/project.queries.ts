@@ -23,8 +23,11 @@ export const projectMutations = {
     mutationOptions({
       mutationFn: createVote,
       // 응답이 새 투표 상태라 다시 조회하지 않고 바로 반영
-      onSuccess: (status, _projectId, _result, { client }) =>
-        client.setQueryData(projectQueries.voteStatus().queryKey, status),
+      // 진행 중인 주기 조회가 옛 상태로 덮지 않도록 먼저 취소
+      onSuccess: async (status, _projectId, _result, { client }) => {
+        await client.cancelQueries({ queryKey: projectQueries.voteStatus().queryKey });
+        client.setQueryData(projectQueries.voteStatus().queryKey, status);
+      },
       // 실패는 기간 종료·중복 투표처럼 캐시와 서버 상태가 어긋난 경우일 수 있어 다시 조회
       onError: (_error, _projectId, _result, { client }) =>
         client.invalidateQueries({ queryKey: projectQueries.voteStatus().queryKey }),

@@ -114,3 +114,19 @@ it("투표 실패 후 마감으로 확인되면 투표 모드를 끈다", async 
   expect(await screen.findByRole("button", { name: "투표가 마감됐어요." })).toBeDisabled();
   expect(screen.queryByRole("button", { name: "Framey 선택" })).not.toBeInTheDocument();
 });
+
+it("확인 모달이 열린 채 마감되면 모달을 닫는다", async () => {
+  const { user, queryClient } = renderPage();
+
+  await user.click(await findEnabledVoteButton());
+  await user.click(screen.getByRole("button", { name: "Framey 선택" }));
+  await user.click(screen.getByRole("button", { name: "투표하기" }));
+  expect(await screen.findByRole("dialog")).toBeInTheDocument();
+
+  vi.mocked(getVoteStatus).mockResolvedValue({ ...openStatus, phase: "CLOSED" });
+  await queryClient.refetchQueries();
+
+  expect(await screen.findByRole("button", { name: "투표가 마감됐어요." })).toBeDisabled();
+  await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
+  expect(createVote).not.toHaveBeenCalled();
+});
