@@ -10,7 +10,7 @@ import { TimelinePage, TimelinePageSkeleton } from "./TimelinePage";
 
 it("일정을 불러오는 동안 페이지 제목과 스켈레톤을 표시하고 조회 후 일정 목록으로 바꾼다", async () => {
   renderWithProviders(
-    <PageBoundary header={<AppBar title="타임라인" className="px-5" />} fallback={<TimelinePageSkeleton />}>
+    <PageBoundary header={<AppBar title="타임라인" />} fallback={<TimelinePageSkeleton />}>
       <TimelinePage />
     </PageBoundary>,
   );

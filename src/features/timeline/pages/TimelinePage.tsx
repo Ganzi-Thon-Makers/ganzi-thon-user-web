@@ -17,7 +17,7 @@ export function TimelinePage() {
   const { data: events } = useSuspenseQuery(timelineQueries.list());
 
   return (
-    <PageShell header={<AppBar title="타임라인" className="px-5" />}>
+    <PageShell header={<AppBar title="타임라인" />}>
       <TimelinePageContent>
         <TimelineList events={events} />
       </TimelinePageContent>

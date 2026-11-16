@@ -14,7 +14,7 @@ export function AppBar({ title, leading, withProfile, className, ...props }: App
   return (
     <header className={cn("flex h-12 w-full items-center bg-background text-gray50", className)} {...props}>
       {leading && <div className="grid size-12 shrink-0 place-items-center p-2">{leading}</div>}
-      <h1 className="min-w-0 flex-1 truncate text-title-sb-18">{title}</h1>
+      <h1 className="min-w-0 flex-1 truncate px-5 text-title-sb-18">{title}</h1>
       {withProfile && (
         <Link
           href="/mypage"
