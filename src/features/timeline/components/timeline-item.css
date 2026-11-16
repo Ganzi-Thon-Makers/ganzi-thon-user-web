@@ -1,0 +1,17 @@
+@media (prefers-reduced-motion: no-preference) {
+  @supports selector(::details-content) and (interpolate-size: allow-keywords) and (transition-behavior: allow-discrete) {
+    .timeline-item-disclosure::details-content {
+      block-size: 0;
+      /* 설명의 상단 음수 여백을 살리고 아래쪽만 접힘 높이에서 잘라냄 */
+      clip-path: inset(-0.25rem 0 0);
+      interpolate-size: allow-keywords;
+      transition:
+        block-size 200ms ease-out,
+        content-visibility 200ms allow-discrete;
+    }
+
+    .timeline-item-disclosure[open]::details-content {
+      block-size: auto;
+    }
+  }
+}
