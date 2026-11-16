@@ -22,7 +22,7 @@
 
 - 위치: `src/shared/components/PageShell.tsx`
 - 용도: 페이지 셸. `header`는 스크롤 밖에 고정, 본문만 스크롤, `footer`는 그라데이션 배경으로 본문 위에 겹쳐 하단 고정. 상·하 safe-area, 본문·footer의 좌우 safe-area, 하단 내비게이션에 가려지는 높이(layout이 주는 `--page-inset-bottom`·`--page-content-clearance`)를 셸이 처리. layout(`NavigationLayout`, `(standalone)`)의 `main`은 여백·스크롤 없이 flex 컨테이너만 맡는다
-- 사용 시점: `features/*/pages/*Page.tsx`의 최상위에서 감싼다. 헤더(AppBar·탭)와 하단 고정 버튼은 slot으로 넘기고, 본문 여백 외의 간격은 페이지가 정한다. `PageBoundary`의 로딩·에러 화면은 경계가 셸로 감싼다
+- 사용 시점: `features/*/pages/*Page.tsx`의 최상위에서 감싼다. 헤더(AppBar·탭)와 하단 고정 버튼은 slot으로 넘기고, 본문 여백 외의 간격은 페이지가 정한다. `PageBoundary`의 로딩·에러 화면은 경계가 셸로 감싼다. 하단 바가 본문과 나뉘는 단색이면 `footerStyle="solid"`, 이미지를 화면 끝까지 채워야 하면 `isFullBleed`(본문 좌우 여백은 페이지가 줌)
 - 피해야 할 사용: 페이지에서 레이아웃 여백을 음수 margin으로 상쇄하지 않는다. header slot의 좌우 safe-area는 slot 내용이 맡는다(배경을 끝까지 채우기 위해)
 - 관련 검증: `src/shared/components/PageShell.test.tsx`, 좁은 화면에서 헤더 고정·footer 위치·하단 내비게이션 겹침 확인
 
@@ -113,3 +113,11 @@
 - 사용 시점: 스탬프처럼 개수로 나타내는 진행률. `aria-label`(또는 보이는 라벨)을 주고, 숫자만으로 뜻이 안 드러나면 `getAriaValueText`로 읽을 문장을 넘김
 - 피해야 할 사용: 끝을 알 수 없는 로딩 표시
 - 관련 검증: `src/shared/ui/ProgressBar.test.tsx`
+
+## Pattern: Collapsible
+
+- 위치: `src/shared/ui/Collapsible.tsx`
+- 용도: Base UI Collapsible 래핑. 펼침·접힘 동작과 `aria-expanded`만 제공하고 스타일은 두지 않음
+- 사용 시점: 항목 하나를 펼쳐 상세를 보여줄 때 `CollapsibleRoot` 안에 `CollapsibleTrigger`와 `CollapsiblePanel`을 둔다. 열림 상태는 `data-open`으로 스타일링하고, 높이 애니메이션은 Panel의 `--collapsible-panel-height`에 transition을 건다
+- 피해야 할 사용: 여러 항목 중 하나만 열려야 하면 이 컴포넌트로 상태를 맞추지 말고 Base UI Accordion 래퍼를 새로 만든다
+- 관련 검증: `src/shared/ui/Collapsible.test.tsx`

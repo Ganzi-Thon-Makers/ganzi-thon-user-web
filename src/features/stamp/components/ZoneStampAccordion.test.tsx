@@ -19,10 +19,18 @@ it("모은 개수와 수료까지 남은 개수를 보여주고, 펼치면 부�
   expect(screen.getByText("4개 중 1개")).toBeInTheDocument();
   expect(screen.getByText("A-1")).not.toBeVisible();
 
-  await user.click(screen.getByText("A구역 수료까지 2개"));
+  const trigger = screen.getByRole("button", { name: /A구역/ });
+  expect(trigger).toHaveAttribute("aria-expanded", "false");
 
+  await user.click(trigger);
+
+  expect(trigger).toHaveAttribute("aria-expanded", "true");
   expect(screen.getByText("A-1")).toBeVisible();
   expect(screen.getAllByText("미획득")).toHaveLength(3);
+
+  await user.keyboard("{Enter}");
+
+  expect(trigger).toHaveAttribute("aria-expanded", "false");
 });
 
 it("수료 기준을 채우면 수료 완료를 보여준다", () => {
