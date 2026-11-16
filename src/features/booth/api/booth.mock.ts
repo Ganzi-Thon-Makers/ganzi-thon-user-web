@@ -1,9 +1,13 @@
-import type { BoothRoom, BoothZone } from "../types";
+import type { Booth, BoothRoom, BoothZone } from "../types";
 
 function makeRoom(number: number, leftCount: number, rightCount: number): BoothRoom {
-  const booths = Array.from({ length: leftCount + rightCount }, (_, index) => ({
+  const booths = Array.from({ length: leftCount + rightCount }, (_, index): Booth => ({
     id: number * 100 + index + 1,
     title: `서비스 ${index + 1}`,
+    teamName: `${number}호 팀 ${index + 1}`,
+    summary: `${number}호 부스에서 팀 ${index + 1}의 서비스를 체험해 볼 수 있어요.`,
+    thumbnailUrl: "/thumbnail.webp",
+    platform: index % 2 === 0 ? "WEB" : "APP",
   }));
 
   return { number, leftBooths: booths.slice(0, leftCount), rightBooths: booths.slice(leftCount) };

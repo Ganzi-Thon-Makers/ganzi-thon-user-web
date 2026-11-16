@@ -2,6 +2,7 @@ import { cn } from "@/shared/lib/cn";
 import { TabIndicator, TabList, TabPanel, TabRoot, TabTrigger } from "@/shared/ui/Tab";
 
 import type { BoothRoom, BoothZone, BoothZoneCode } from "../types";
+import { BoothDetailModal } from "./BoothDetailModal";
 import { BoothRoomMap } from "./BoothRoomMap";
 import { ClassroomTabList } from "./ClassroomTabList";
 
@@ -50,21 +51,23 @@ export function BoothZoneMap({ zones }: BoothZoneMapProps) {
   if (!firstZone) return <p className="py-5 text-body-r-14">등록된 부스가 없어요</p>;
 
   return (
-    <TabRoot defaultValue={firstZone.code} className="mt-2">
-      <TabList aria-label="Zone" className="-mx-4 w-auto">
+    <BoothDetailModal>
+      <TabRoot defaultValue={firstZone.code} className="mt-2">
+        <TabList aria-label="Zone" className="-mx-4 w-auto">
+          {zones.map((zone) => (
+            <TabTrigger key={zone.code} value={zone.code}>
+              {ZONE_LABELS[zone.code]}
+            </TabTrigger>
+          ))}
+          <TabIndicator />
+        </TabList>
         {zones.map((zone) => (
-          <TabTrigger key={zone.code} value={zone.code}>
-            {ZONE_LABELS[zone.code]}
-          </TabTrigger>
+          <TabPanel key={zone.code} value={zone.code} className={MAP_PANEL_CLASS}>
+            <ZoneRooms rooms={zone.rooms} />
+          </TabPanel>
         ))}
-        <TabIndicator />
-      </TabList>
-      {zones.map((zone) => (
-        <TabPanel key={zone.code} value={zone.code} className={MAP_PANEL_CLASS}>
-          <ZoneRooms rooms={zone.rooms} />
-        </TabPanel>
-      ))}
-    </TabRoot>
+      </TabRoot>
+    </BoothDetailModal>
   );
 }
 

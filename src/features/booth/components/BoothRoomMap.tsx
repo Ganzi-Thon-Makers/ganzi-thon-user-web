@@ -1,3 +1,5 @@
+import { ModalTrigger } from "@/shared/ui/Modal";
+
 import type { Booth, BoothRoom } from "../types";
 import { BoothButton } from "./BoothButton";
 
@@ -10,9 +12,9 @@ function BoothColumn({ booths }: BoothColumnProps) {
     <ul className="flex flex-col gap-3">
       {booths.map((booth) => (
         <li key={booth.id}>
-          <BoothButton aria-disabled tabIndex={-1}>
+          <ModalTrigger render={<BoothButton />} payload={booth}>
             {booth.title}
-          </BoothButton>
+          </ModalTrigger>
         </li>
       ))}
     </ul>
