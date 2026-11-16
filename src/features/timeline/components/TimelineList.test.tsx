@@ -28,8 +28,8 @@ it("목록을 열어둔 상태에서 다음 일정이 시작되면 진행 중 �
   try {
     const { unmount } = render(<TimelineList events={events} />);
 
-    const entry = screen.getByText("입장").closest("summary");
-    const opening = screen.getByText("오프닝").closest("summary");
+    const entry = screen.getByRole("button", { name: /입장/ });
+    const opening = screen.getByRole("button", { name: /오프닝/ });
     expect(entry).toHaveAttribute("aria-current", "time");
     expect(opening).not.toHaveAttribute("aria-current");
 
