@@ -16,7 +16,7 @@ it("누른 부스의 정보를 표시하고 Escape로 닫으면 포커스를 버
   expect(within(modal).getByText("104호 팀 2")).toBeInTheDocument();
   expect(within(modal).getByText("APP")).toBeInTheDocument();
   expect(within(modal).getByRole("img", { name: "서비스 2 썸네일" })).toBeInTheDocument();
-  expect(within(modal).getByText("104호 부스에서 팀 2의 서비스를 체험해 볼 수 있어요.")).toBeInTheDocument();
+  expect(modal).toHaveAccessibleDescription("104호 부스에서 팀 2의 서비스를 체험해 볼 수 있어요.");
 
   await user.keyboard("{Escape}");
 
@@ -36,6 +36,7 @@ it("다른 호실의 부스를 선택하면 해당 부스 정보가 열리고 �
 
   const modal = await screen.findByRole("dialog", { name: "서비스 1" });
   expect(within(modal).getByText("204호 팀 1")).toBeInTheDocument();
+  expect(within(modal).getByText("WEB")).toBeInTheDocument();
   await user.click(within(modal).getByRole("button", { name: "부스 상세 닫기" }));
   await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
 });

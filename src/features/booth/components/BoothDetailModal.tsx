@@ -1,21 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import type { ReactNode } from "react";
 
-import { Badge } from "@/shared/ui/Badge";
 import { DeleteIcon } from "@/shared/ui/icons";
-import {
-  ModalBackdrop,
-  ModalClose,
-  ModalDescription,
-  ModalPopup,
-  ModalPortal,
-  ModalRoot,
-  ModalTitle,
-} from "@/shared/ui/Modal";
+import { ModalBackdrop, ModalClose, ModalPopup, ModalPortal, ModalRoot } from "@/shared/ui/Modal";
 
 import type { Booth } from "../types";
+import { BoothDetailSummary } from "./BoothDetailSummary";
 
 interface BoothDetailModalProps {
   children: ReactNode;
@@ -37,29 +28,7 @@ export function BoothDetailModal({ children }: BoothDetailModalProps) {
                 >
                   <DeleteIcon className="size-7" />
                 </ModalClose>
-                <article className="pointer-events-auto rounded-lg bg-gray800">
-                  <div className="relative h-50.5 overflow-hidden rounded-t-lg">
-                    <Image
-                      src={booth.thumbnailUrl}
-                      alt={`${booth.title} 썸네일`}
-                      fill
-                      sizes="(max-width: 544px) calc(100vw - 2.5rem), 504px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="flex flex-col gap-4 px-5 pt-6 pb-5">
-                    <div>
-                      <div className="flex items-start justify-between gap-3">
-                        <ModalTitle className="min-w-0 text-title-sb-20 wrap-break-word">{booth.title}</ModalTitle>
-                        <Badge>{booth.platform}</Badge>
-                      </div>
-                      <p className="text-body-m-16 wrap-break-word text-gray300">{booth.teamName}</p>
-                    </div>
-                    <ModalDescription className="text-body-m-16 wrap-break-word text-gray50">
-                      {booth.summary}
-                    </ModalDescription>
-                  </div>
-                </article>
+                <BoothDetailSummary booth={booth} />
               </ModalPopup>
             </ModalPortal>
           ) : null}
