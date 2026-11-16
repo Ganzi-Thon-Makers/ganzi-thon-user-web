@@ -27,6 +27,15 @@ it("선택한 구역의 프로젝트를 카드 목록으로 보여준다", async
   expect(screen.queryByRole("heading", { name: "Other" })).not.toBeInTheDocument();
 });
 
+it("선택한 구역에 프로젝트가 없으면 빈 상태 문구를 보여준다", async () => {
+  vi.mocked(getProjects).mockResolvedValue({ ZONE1: [makeProject(9, "Other")] });
+
+  renderWithProviders(<ProjectList zone="ZONE2" />);
+
+  expect(await screen.findByText("등록된 프로젝트가 없어요.")).toBeInTheDocument();
+  expect(screen.queryByRole("list")).not.toBeInTheDocument();
+});
+
 it("목록 조회에 실패하면 에러 화면과 다시 시도 버튼을 보여준다", async () => {
   vi.spyOn(console, "error").mockImplementation(() => {});
   vi.mocked(getProjects).mockRejectedValue(new Error("network"));
