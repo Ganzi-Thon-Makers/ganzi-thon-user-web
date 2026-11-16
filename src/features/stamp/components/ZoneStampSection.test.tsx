@@ -4,14 +4,10 @@ import { expect, it, vi } from "vitest";
 import { renderWithProviders } from "@/shared/test/render";
 
 import { getMyStamps, getStampZones } from "../api/stamp.api";
-import type { Stamp } from "../types";
+import { makeStamp } from "../stamp.fixtures";
 import { ZoneStampSection } from "./ZoneStampSection";
 
 vi.mock("../api/stamp.api");
-
-function makeStamp(boothId: number): Stamp {
-  return { id: boothId, createdAt: "2026-11-21T13:00:00", updatedAt: "2026-11-21T13:00:00", userId: 1, boothId };
-}
 
 it("내 스탬프를 구역별 수집 현황과 전체 개수로 보여준다", async () => {
   vi.mocked(getMyStamps).mockResolvedValue([makeStamp(1), makeStamp(3)]);
