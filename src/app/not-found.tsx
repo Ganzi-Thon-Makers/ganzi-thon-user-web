@@ -1,9 +1,6 @@
-"use client";
-
 import Image from "next/image";
-import Link from "next/link";
 
-import { buttonVariants } from "@/shared/ui/Button";
+import { ButtonLink } from "@/shared/ui/ButtonLink";
 
 const image = "/frowning.webp";
 
@@ -16,9 +13,7 @@ export default function Page() {
         <br />
         주소가 변경되었거나 없는 페이지예요.
       </p>
-      <Link href="/" className={buttonVariants()}>
-        홈으로 이동
-      </Link>
+      <ButtonLink href="/">홈으로 이동</ButtonLink>
     </main>
   );
 }
