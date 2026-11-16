@@ -1,7 +1,3 @@
-"use client";
-
-import { useState } from "react";
-
 import { cn } from "@/shared/lib/cn";
 import { ChevronUpIcon } from "@/shared/ui/icons";
 
@@ -9,7 +5,9 @@ import type { TimelineEvent } from "../types";
 
 import "./timeline-item.css";
 
-type TimelineItemProps = TimelineEvent;
+interface TimelineItemProps extends TimelineEvent {
+  currentTime: number;
+}
 
 // 목 응답의 오프셋 없는 LocalDateTime은 행사 현지 시각(KST)으로 해석한다.
 function parseEventTime(time: string) {
@@ -17,11 +15,9 @@ function parseEventTime(time: string) {
 }
 
 // 펼침·키보드 조작은 네이티브 details에 맡긴다.
-export function TimelineItem({ startTime, endTime, title, description }: TimelineItemProps) {
+export function TimelineItem({ startTime, endTime, title, description, currentTime }: TimelineItemProps) {
   const start = parseEventTime(startTime);
   const end = parseEventTime(endTime);
-  const [currentTime] = useState(() => Date.now());
-
   const isOngoing = start <= currentTime && currentTime < end;
   const time = `${startTime.slice(11, 16)}-${endTime.slice(11, 16)}`;
   const Container = description ? "details" : "div";
