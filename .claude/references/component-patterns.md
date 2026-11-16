@@ -113,3 +113,11 @@
 - 사용 시점: 스탬프처럼 개수로 나타내는 진행률. `aria-label`(또는 보이는 라벨)을 주고, 숫자만으로 뜻이 안 드러나면 `getAriaValueText`로 읽을 문장을 넘김
 - 피해야 할 사용: 끝을 알 수 없는 로딩 표시
 - 관련 검증: `src/shared/ui/ProgressBar.test.tsx`
+
+## Pattern: Collapsible
+
+- 위치: `src/shared/ui/Collapsible.tsx`
+- 용도: Base UI Collapsible 래핑. 펼침·접힘 동작과 `aria-expanded`만 제공하고 스타일은 두지 않음
+- 사용 시점: 항목 하나를 펼쳐 상세를 보여줄 때 `CollapsibleRoot` 안에 `CollapsibleTrigger`와 `CollapsiblePanel`을 둔다. 열림 상태는 `data-open`으로 스타일링하고, 높이 애니메이션은 Panel의 `--collapsible-panel-height`에 transition을 건다
+- 피해야 할 사용: 여러 항목 중 하나만 열려야 하면 이 컴포넌트로 상태를 맞추지 말고 Base UI Accordion 래퍼를 새로 만든다
+- 관련 검증: `src/shared/ui/Collapsible.test.tsx`
