@@ -52,7 +52,6 @@ export function ZoneStampSection() {
               zoneName={zone.zoneName}
               requiredCount={zone.requiredCount}
               stamps={zone.booths.map((booth) => ({
-                id: String(booth.boothId),
                 boothName: booth.boothName,
                 isCollected: collectedBoothIds.has(booth.boothId),
                 boothId: booth.boothId,

@@ -5,10 +5,10 @@ import { expect, it } from "vitest";
 import { ZoneStampAccordion } from "./ZoneStampAccordion";
 
 const stamps = [
-  { id: "a-1", boothName: "A-1", isCollected: true, boothId: 1 },
-  { id: "a-2", boothName: "A-2", isCollected: false, boothId: 2 },
-  { id: "a-3", boothName: "A-3", isCollected: false, boothId: 3 },
-  { id: "a-4", boothName: "A-4", isCollected: false, boothId: 4 },
+  { boothName: "A-1", isCollected: true, boothId: 1 },
+  { boothName: "A-2", isCollected: false, boothId: 2 },
+  { boothName: "A-3", isCollected: false, boothId: 3 },
+  { boothName: "A-4", isCollected: false, boothId: 4 },
 ];
 
 it("모은 개수와 수료까지 남은 개수를 보여주고, 펼치면 부스별 스탬프를 보여준다", async () => {

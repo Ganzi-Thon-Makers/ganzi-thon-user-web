@@ -9,7 +9,6 @@ import { getBoothMapHref } from "../stamp.routes";
 import { StampCircle } from "./StampCircle";
 
 interface ZoneStamp {
-  id: string;
   boothName: string;
   isCollected: boolean;
   boothId: number;
@@ -56,7 +55,7 @@ export function ZoneStampAccordion({ zoneName, requiredCount, stamps }: ZoneStam
       {/* 칸 폭은 고정하고 칸 사이만 줄어들게 해 좁은 화면에서 넘침 방지 */}
       <ul className="mt-5 grid grid-cols-[repeat(4,--spacing(15))] justify-between gap-y-2">
         {stamps.map((stamp) => (
-          <li key={stamp.id} className="w-15">
+          <li key={stamp.boothId} className="w-15">
             {stamp.isCollected ? (
               <StampCell stamp={stamp} />
             ) : (
