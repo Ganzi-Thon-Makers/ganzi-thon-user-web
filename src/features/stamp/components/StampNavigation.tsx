@@ -16,16 +16,26 @@ export function StampNavigation() {
   const toast = useToast();
   // 모달을 열고 닫을 때마다 바뀌어, 이전 스캔의 늦은 응답이 지금 화면을 바꾸지 않게 함
   const scanSessionRef = useRef(0);
+  // 서버가 거절한 토큰. 같은 QR을 비추는 동안 다시 요청하지 않고, 모달을 다시 열면 비움
+  const rejectedTokenRef = useRef<string | null>(null);
 
   function handleOpenChange(open: boolean) {
     scanSessionRef.current += 1;
+    rejectedTokenRef.current = null;
     setIsScanOpen(open);
   }
 
   async function handleScan(text: string) {
     const session = scanSessionRef.current;
     const isCurrentSession = () => scanSessionRef.current === session;
-    const isDone = await collectStamp(parseStampToken(text), { isCurrent: isCurrentSession });
+    const token = parseStampToken(text);
+    // 거절된 토큰은 요청 없이 인식 실패 안내만 다시 보여줌
+    const isDone = await collectStamp(token === rejectedTokenRef.current ? null : token, {
+      isCurrent: isCurrentSession,
+      onRejected: () => {
+        if (isCurrentSession()) rejectedTokenRef.current = token;
+      },
+    });
     if (isDone && isCurrentSession()) setIsScanOpen(false);
     return isDone;
   }
