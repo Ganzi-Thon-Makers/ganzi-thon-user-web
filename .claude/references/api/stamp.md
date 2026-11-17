@@ -1,16 +1,38 @@
 # stamp API
 
-부스 방문 스탬프 적립·조회와 스탬프판 구성. 명세 확인일: 2026-11-15 (서버 `dev` 5ce528c 기준)
+부스 방문 스탬프 적립·조회와 스탬프판 구성. 명세 확인일: 2026-11-17 (서버 PR #15 `feat/stamp-qr-collection` bdf2a8a 기준, 아직 `dev` 병합 전)
 
-서버에 스탬프 컨트롤러가 아직 없어 Swagger 계약이 없다. 아래는 서버 엔티티로 확인한 사실과, 프론트가 목 데이터로 임시로 쓰는 형태를 나눠 적는다. 컨트롤러가 나오면 Endpoints와 응답 스키마를 Swagger 기준으로 다시 채운다.
+서버 API가 `dev`에 없어 프론트는 `stamp.api.ts`에서 목 응답을 쓴다. 아래 서버 계약은 PR #15 코드로 확인한 것이다. 병합되면 Swagger와 다시 맞춘다.
 
-## Endpoints
+## Endpoints (서버 PR #15)
 
-| Method | Path | Operation | 비고                                             |
-| ------ | ---- | --------- | ------------------------------------------------ |
-| —      | —    | —         | 미정. 프론트는 `stamp.api.ts`에서 목 응답을 쓴다 |
+| Method | Path                | 권한            | 요청        | 응답 `data`                                                                          |
+| ------ | ------------------- | --------------- | ----------- | ------------------------------------------------------------------------------------ |
+| POST   | `/api/v1/qr-tokens` | `TEAM`만        | —           | `token`, `expiresAt`(LocalDateTime), `ttlSeconds`(60)                                |
+| POST   | `/api/v1/stamps`    | `PARTICIPANT`만 | `{ token }` | `collectedCount`, `remainingToLuckyDraw`, `luckyDrawEntered`, `luckyDrawJustEntered` |
+| GET    | `/api/v1/stamps`    | 로그인 사용자   | —           | `collectedCount`, `remainingToLuckyDraw`, `luckyDrawEntered`, `stamps[]`             |
 
-프론트가 필요로 하는 동작(서버와 합의 전):
+- `stamps[]` 항목: `boothId`, `zone`(`ZONE1`·`ZONE2`·`ZONE3`), `boothNumber`, `collectedAt`
+- QR 발급자는 부스 팀 계정(`Role.TEAM`)이다. 서버가 팀 계정의 `projectId`로 부스를 찾아서, 발급자가 부스를 지정하지 않는다. 재발급해도 이전 토큰을 무효화하지 않고 새로 만든다.
+- 역할: `PARTICIPANT`, `TEAM`(한 기기 로그인), `ADMIN`, `SUPER_ADMIN`(백오피스)
+- 설정값: 토큰 유효 60초, 만료 후 유예 10초(E2E로 조정 예정), 연속 적립 제한 300초
+
+### 적립 에러 (`ErrorCode`)
+
+| 상황               | 상태 | 코드(서버 enum)           | 프론트 결과(`CollectStampResult`) |
+| ------------------ | ---- | ------------------------- | --------------------------------- |
+| 유효하지 않은 토큰 | 400  | `QR_TOKEN_NOT_FOUND`      | `invalid-token`                   |
+| 만료된 토큰        | 400  | `QR_TOKEN_EXPIRED`        | `expired`                         |
+| 이미 적립한 부스   | 409  | `STAMP_ALREADY_COLLECTED` | `already-collected`               |
+| 5분 내 연속 적립   | 429  | `STAMP_COOLDOWN`          | `cooldown`                        |
+| 참가자가 아님      | 403  | `FORBIDDEN`               | (요청 실패로 처리)                |
+
+### 서버에 요청할 것
+
+- 적립 성공 응답과 409 에러에 `boothId`가 없다. 화면은 적립한 부스의 구역을 펼쳐야 해서(STAMP-03) 둘 다 필요하다.
+- `ErrorResponse`에 `code`가 없어, 같은 400인 만료와 유효하지 않은 토큰을 메시지 문자열로만 나눌 수 있다.
+
+## 프론트 함수
 
 | 프론트 함수           | 용도                      | 쿼리 키                                            |
 | --------------------- | ------------------------- | -------------------------------------------------- |
@@ -47,11 +69,12 @@
 
 ## 구현 메모
 
-- 같은 부스 스탬프는 한 번만 받는다(DB unique 제약). 중복 적립 시 에러 코드·상태는 아직 없다.
-- 적립(STAMP-03)은 부스 운영자 QR의 토큰으로 한다. QR 내용은 `<사이트 주소>/stamp/collect?token=<토큰>`이라 앱 스캐너와 휴대폰 기본 카메라가 같은 처리를 거친다. 토큰 형식·만료(1분)·검증은 서버 몫이고 아직 API가 없다.
-- `collectStamp(token)`은 이미 받은 부스·잘못된 토큰을 화면이 다르게 안내해서 에러 대신 결과(`collected`·`already-collected`·`invalid-token`)로 돌려준다. 서버가 생기면 상태 코드(예: 409·400)를 이 결과로 바꾸는 일은 `stamp.api.ts`에서 한다. 두 경우 모두 부스 id가 있어야 해당 구역을 펼칠 수 있다.
+- 같은 부스 스탬프는 한 번만 받는다(DB unique 제약, 서버 409).
+- 적립(STAMP-03)은 부스 운영자 QR의 토큰으로 한다. QR 내용은 `<사이트 주소>/stamp/collect?token=<토큰>`이라 앱 스캐너와 휴대폰 기본 카메라가 같은 처리를 거친다. 토큰 발급·만료·검증은 서버 몫이다(위 Endpoints).
+- `collectStamp(token)`은 경우마다 화면 안내가 달라서 에러 대신 결과로 돌려준다(위 적립 에러 표). 서버 상태 코드를 이 결과로 바꾸는 일은 `stamp.api.ts`에서 한다. 만료·유효하지 않은 토큰은 같은 스캔 동안 다시 보내지 않는다.
 - 목 토큰 형식: `mock-stamp-<boothId>` (`stamp.mock.ts`의 `createMockStampToken`). 로컬에서 기본 카메라 흐름을 볼 때는 `/stamp/collect?token=mock-stamp-5`로 들어가면 된다.
 - 프론트 `StampZone`·`StampBoardBooth`는 화면용 임시 형태다. 서버 `Booth`에는 부스 이름이 없고(`projectId`로 프로젝트에서 가져와야 할 것으로 보임), 구역 수료 기준 `requiredCount`도 서버·명세에 없다.
-- 럭키드로우 응모(15개 최초 달성 시 자동 응모)는 서버 엔티티가 없다. 응모 여부를 서버가 내려줄지 프론트가 개수로 판단할지 미정.
+- 럭키드로우: 서버가 15개 최초 달성 시 자동 응모하고, 적립 응답 `luckyDrawJustEntered`로 "이번에 응모됨"을 알려준다. 프론트의 기기 기록(`use-lucky-draw-notice`)은 실제 API 연결 때 이 값으로 바꾼다.
 - 서버 `ErrorResponse`에 `code` 필드가 없다. `shared/api/error.ts`의 `ErrorBody`(`code`, `message`)와 어긋나므로, 공통 envelope 처리 시 함께 맞춘다.
-- 인증 필요 여부: 내 스탬프 조회·적립은 로그인 사용자 기준이 될 것으로 보이나 미확인.
+- 화면 문구: 디자인에는 "이미 수집한 스탬프입니다."만 있다. 만료는 인식 실패 문구를 함께 쓰고, 연속 적립 제한은 임시 문구다(TODO).
+- 인증: 스탬프 API는 모두 로그인 필요(JWT). 적립은 참가자, QR 발급은 팀 계정만 된다.

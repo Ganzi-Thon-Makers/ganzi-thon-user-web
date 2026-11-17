@@ -13,11 +13,17 @@ export function getStampZones(): Promise<StampZone[]> {
   return mockResponse(mockStampZones);
 }
 
-/** QR 토큰으로 스탬프를 받은 결과. 이미 받은 부스·잘못된 토큰은 화면이 다르게 안내해서 에러 대신 결과로 돌려준다 */
+/**
+ * QR 토큰으로 스탬프를 받은 결과. 화면이 경우마다 다르게 안내해서 에러 대신 결과로 돌려준다.
+ * 서버(PR #15) 응답과의 대응: 200 → collected, 409 → already-collected,
+ * 400 QR_TOKEN_EXPIRED → expired, 400 QR_TOKEN_NOT_FOUND → invalid-token, 429 → cooldown
+ */
 export type CollectStampResult =
   | { status: "collected"; boothId: number }
   | { status: "already-collected"; boothId: number }
-  | { status: "invalid-token" };
+  | { status: "expired" }
+  | { status: "invalid-token" }
+  | { status: "cooldown" };
 
 /** 같은 부스 스탬프는 한 번만 받을 수 있다. (서버 unique 제약) */
 export function collectStamp(token: string): Promise<CollectStampResult> {
