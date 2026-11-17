@@ -4,7 +4,7 @@ import { expect, it } from "vitest";
 
 import { TimelineItem } from "./TimelineItem";
 
-it("일정을 누르면 상세 설명을 펼치고 다시 누르면 접는다", async () => {
+it("클릭과 Enter 키로 일정의 상세 설명을 펼치고 접는다", async () => {
   const user = userEvent.setup();
   render(
     <TimelineItem
@@ -17,14 +17,17 @@ it("일정을 누르면 상세 설명을 펼치고 다시 누르면 접는다", 
     />,
   );
 
-  const summary = screen.getByText("인사");
+  const trigger = screen.getByRole("button", { name: /인사/ });
   const description = screen.getByText("출석 체크, 명찰·스탬프판 수령");
+  expect(trigger).toHaveAttribute("aria-expanded", "false");
   expect(description).not.toBeVisible();
 
-  await user.click(summary);
+  await user.click(trigger);
+  expect(trigger).toHaveAttribute("aria-expanded", "true");
   expect(description).toBeVisible();
 
-  await user.click(summary);
+  await user.keyboard("{Enter}");
+  expect(trigger).toHaveAttribute("aria-expanded", "false");
   expect(description).not.toBeVisible();
 });
 
@@ -38,15 +41,15 @@ it("자신의 시간 범위에 현재 시각이 들어갈 때만 진행 중으�
   };
 
   const { rerender } = render(<TimelineItem {...event} currentTime={Date.parse("2026-11-21T01:30:00Z")} />);
-  const summary = screen.getByText("오프닝").closest("summary");
-  expect(summary).toHaveAttribute("aria-current", "time");
+  const trigger = screen.getByRole("button", { name: /오프닝/ });
+  expect(trigger).toHaveAttribute("aria-current", "time");
 
   rerender(<TimelineItem {...event} currentTime={Date.parse("2026-11-21T02:00:00Z")} />);
-  expect(summary).not.toHaveAttribute("aria-current");
+  expect(trigger).not.toHaveAttribute("aria-current");
 });
 
 it("설명이 없는 일정은 펼침 없이 시간과 제목을 표시한다", () => {
-  const { container } = render(
+  render(
     <TimelineItem
       id={1}
       currentTime={Date.parse("2026-11-21T01:30:00Z")}
@@ -59,5 +62,5 @@ it("설명이 없는 일정은 펼침 없이 시간과 제목을 표시한다", 
 
   expect(screen.getByText("10:30-11:00")).toBeVisible();
   expect(screen.getByText("오프닝")).toBeVisible();
-  expect(container.querySelector("details")).not.toBeInTheDocument();
+  expect(screen.queryByRole("button")).not.toBeInTheDocument();
 });
