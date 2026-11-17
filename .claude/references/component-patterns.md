@@ -7,8 +7,16 @@
 - 위치: `src/shared/ui/Button.tsx`
 - 용도: Base UI Button 래핑. `variant`는 cva(`buttonVariants`)로 정의
 - 사용 시점: 현재 화면의 동작(제출, 열기, 확인)
-- 피해야 할 사용: 페이지 이동은 링크(`next/link`)로 한다
+- 피해야 할 사용: 페이지 이동에 버튼 스타일이 필요하면 `ButtonLink`를 사용한다
 - 관련 검증: `src/shared/ui/Button.test.tsx`
+
+## Pattern: ButtonLink
+
+- 위치: `src/shared/ui/ButtonLink.tsx`
+- 용도: `next/link`에 Button과 동일한 cva 스타일 적용
+- 사용 시점: 다른 페이지로 이동하는 링크에 버튼 스타일이 필요할 때
+- 피해야 할 사용: 제출이나 재시도처럼 현재 화면의 동작은 `Button`을 사용한다
+- 관련 검증: `src/shared/ui/ButtonLink.test.tsx`에서 링크 이름·목적지·키보드 활성화·variant 확인
 
 ## Pattern: PageBoundary
 
