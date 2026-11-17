@@ -11,12 +11,13 @@ import { getStampBoardHref } from "../stamp.routes";
 
 // 같은 QR을 계속 비추는 동안 실패 토스트가 쌓이지 않게 같은 id로 갱신
 const SCAN_FAILED_TOAST_ID = "stamp-scan-failed";
+const COLLECT_FAILED_TOAST_ID = "stamp-collect-failed";
 
 /** 스탬프 QR 토큰으로 적립하고 결과를 토스트와 스탬프판 구역 펼침으로 안내한다 (STAMP-03) */
 export function useCollectStamp() {
   const router = useRouter();
   const toast = useToast();
-  const { mutateAsync, isPending } = useMutation(stampMutations.collect());
+  const { mutateAsync } = useMutation(stampMutations.collect());
 
   function showScanFailed() {
     toast.error("QR 코드를 인식 못했어요. 다시 스캔해 주세요.", {
@@ -35,7 +36,10 @@ export function useCollectStamp() {
     const result = await mutateAsync(token).catch(() => null);
     if (!result) {
       // TODO: 요청 실패 문구가 디자인에 없어 임시 문구. 서버 에러 형식이 정해지면 원인별로 나눔
-      toast.error("스탬프를 받지 못했어요. 잠시 후 다시 시도해 주세요.", { data: { icon: <ErrorIcon /> } });
+      toast.error("스탬프를 받지 못했어요. 잠시 후 다시 시도해 주세요.", {
+        id: COLLECT_FAILED_TOAST_ID,
+        data: { icon: <ErrorIcon /> },
+      });
       return false;
     }
 
@@ -53,5 +57,5 @@ export function useCollectStamp() {
     return true;
   }
 
-  return { collectStamp, isCollecting: isPending };
+  return { collectStamp };
 }

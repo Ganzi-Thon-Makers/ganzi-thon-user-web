@@ -6,7 +6,7 @@ const BOOTH_ID_PARAM = "boothId";
 export const STAMP_BOARD_PATH = "/stamp";
 export const STAMPED_BOOTH_PARAM = "stampedBooth";
 
-// 부스 운영자 QR에 담는 주소. 휴대폰 기본 카메라로 찍어도 이 화면으로 들어와 같은 처리를 거친다
+// 부스 운영자 QR에 담는 주소. 휴대폰 기본 카메라로 찍어도 이 화면으로 들어와 같은 처리를 거침
 export const STAMP_COLLECT_PATH = "/stamp/collect";
 const STAMP_TOKEN_PARAM = "token";
 
@@ -26,7 +26,7 @@ export function parseStampToken(qrText: string): string | null {
 
   const url = new URL(qrText);
   if (url.pathname !== STAMP_COLLECT_PATH) return null;
-  return url.searchParams.get(STAMP_TOKEN_PARAM) || null;
+  return readStampToken(url.searchParams);
 }
 
 /** 적립 화면 주소에서 토큰을 읽는다 */

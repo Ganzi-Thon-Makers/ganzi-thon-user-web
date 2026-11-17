@@ -35,7 +35,8 @@ export function useQrScanner(
         if (isHandling) return;
         isHandling = true;
 
-        const isDone = await handleScan(data);
+        // 처리 중 예외가 나도 다음 인식을 막지 않도록 실패로 봄
+        const isDone = await handleScan(data).catch(() => false);
         if (isDone || !isActive) return;
         retryTimer = setTimeout(() => {
           isHandling = false;
