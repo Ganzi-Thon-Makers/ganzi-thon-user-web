@@ -46,7 +46,7 @@ it("주소의 토큰으로 스탬프를 받고, 토큰을 지운 뒤 스탬프�
   expect(navigation.replace.mock.invocationCallOrder[0]).toBeLessThan(
     vi.mocked(collectStamp).mock.invocationCallOrder[0],
   );
-  expect(navigation.replace).toHaveBeenLastCalledWith("/stamp?stampedBooth=3");
+  expect(navigation.replace).toHaveBeenLastCalledWith(expect.stringMatching(/^\/stamp\?stampedBooth=3&stampedAt=\d+$/));
 });
 
 it("토큰이 없으면 인식 실패를 알리고 스탬프판으로 보낸다", async () => {

@@ -15,13 +15,22 @@ export function StampCollectPage() {
   // 토큰은 처음 한 번만 읽고 주소에서 지움
   const [token] = useState(() => readStampToken(searchParams));
   const hasStartedRef = useRef(false);
+  // 적립 중에 화면을 떠났으면 응답이 와도 이동하지 않음
+  const isMountedRef = useRef(false);
   const { collectStamp } = useCollectStamp();
 
   const startCollect = useEffectEvent(async () => {
     router.replace(STAMP_COLLECT_PATH);
-    const isDone = await collectStamp(token);
-    if (!isDone) router.replace(STAMP_BOARD_PATH);
+    const isDone = await collectStamp(token, { isCurrent: () => isMountedRef.current });
+    if (!isDone && isMountedRef.current) router.replace(STAMP_BOARD_PATH);
   });
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     // StrictMode에서 effect가 두 번 실행돼도 한 번만 적립

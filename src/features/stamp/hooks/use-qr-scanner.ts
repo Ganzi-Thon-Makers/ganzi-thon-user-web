@@ -32,7 +32,8 @@ export function useQrScanner(
     const scanner = new QrScanner(
       video,
       async ({ data }) => {
-        if (isHandling) return;
+        // 정리된 스캐너에서 늦게 끝난 인식 결과는 무시
+        if (!isActive || isHandling) return;
         isHandling = true;
 
         // 처리 중 예외가 나도 다음 인식을 막지 않도록 실패로 봄

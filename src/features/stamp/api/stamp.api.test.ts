@@ -21,4 +21,8 @@ describe("stamp api (mock)", () => {
   it("형식이 맞지 않는 토큰이면 잘못된 토큰으로 알린다", async () => {
     await expect(collectStamp("expired-token")).resolves.toEqual({ status: "invalid-token" });
   });
+
+  it("스탬프판에 없는 부스 토큰이면 잘못된 토큰으로 알린다", async () => {
+    await expect(collectStamp(createMockStampToken(999))).resolves.toEqual({ status: "invalid-token" });
+  });
 });

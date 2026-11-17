@@ -13,6 +13,11 @@ import { getStampBoardHref } from "../stamp.routes";
 const SCAN_FAILED_TOAST_ID = "stamp-scan-failed";
 const COLLECT_FAILED_TOAST_ID = "stamp-collect-failed";
 
+interface CollectStampOptions {
+  /** 응답을 받은 시점에 이 요청이 아직 유효한지. false면 화면을 옮기지 않는다 */
+  isCurrent?: () => boolean;
+}
+
 /** 스탬프 QR 토큰으로 적립하고 결과를 토스트와 스탬프판 구역 펼침으로 안내한다 (STAMP-03) */
 export function useCollectStamp() {
   const router = useRouter();
@@ -27,7 +32,10 @@ export function useCollectStamp() {
   }
 
   /** 적립을 끝냈으면 true. 인식 실패·요청 실패면 false라 스캔을 이어갈 수 있다 */
-  async function collectStamp(token: string | null): Promise<boolean> {
+  async function collectStamp(
+    token: string | null,
+    { isCurrent = () => true }: CollectStampOptions = {},
+  ): Promise<boolean> {
     if (!token) {
       showScanFailed();
       return false;
@@ -53,7 +61,8 @@ export function useCollectStamp() {
     } else {
       toast.error("이미 수집한 스탬프입니다.", { data: { icon: <ErrorIcon /> } });
     }
-    router.replace(getStampBoardHref(result.boothId));
+    // 요청 중 모달을 닫거나 화면을 떠났으면 결과만 알리고 이동하지 않음
+    if (isCurrent()) router.replace(getStampBoardHref(result.boothId, Date.now()));
     return true;
   }
 

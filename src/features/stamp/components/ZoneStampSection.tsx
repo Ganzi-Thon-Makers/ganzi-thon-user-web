@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { stampQueries } from "../api/stamp.queries";
-import { STAMPED_BOOTH_PARAM } from "../stamp.routes";
+import { STAMPED_AT_PARAM, STAMPED_BOOTH_PARAM } from "../stamp.routes";
 import { ZoneStampAccordion } from "./ZoneStampAccordion";
 
 const ZONE_SKELETON_COUNT = 3;
@@ -35,7 +35,9 @@ export function ZoneStampSection() {
   });
 
   // 방금 스탬프를 받은(또는 이미 받은) 부스가 있으면 그 구역을 펼쳐 보여줌
-  const stampedBoothParam = useSearchParams().get(STAMPED_BOOTH_PARAM);
+  const searchParams = useSearchParams();
+  const stampedBoothParam = searchParams.get(STAMPED_BOOTH_PARAM);
+  const stampKey = `${stampedBoothParam}-${searchParams.get(STAMPED_AT_PARAM)}`;
   const stampedBoothId = stampedBoothParam === null ? null : Number(stampedBoothParam);
 
   const collectedBoothIds = new Set(myStamps.map((stamp) => stamp.boothId));
@@ -55,8 +57,8 @@ export function ZoneStampSection() {
         {zones.map((zone) => (
           <li key={zone.zoneName}>
             <ZoneStampAccordion
-              // 다른 부스 스탬프를 받으면 펼침 상태를 새로 정함
-              key={stampedBoothParam}
+              // 스탬프를 받을 때마다(같은 부스 포함) 펼침 상태를 새로 정함
+              key={stampKey}
               defaultOpen={zone.booths.some((booth) => booth.boothId === stampedBoothId)}
               zoneName={zone.zoneName}
               requiredCount={zone.requiredCount}

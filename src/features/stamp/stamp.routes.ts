@@ -5,6 +5,8 @@ const BOOTH_ID_PARAM = "boothId";
 
 export const STAMP_BOARD_PATH = "/stamp";
 export const STAMPED_BOOTH_PARAM = "stampedBooth";
+// 같은 부스를 다시 적립해도 주소가 달라져 구역 펼침을 새로 정함
+export const STAMPED_AT_PARAM = "stampedAt";
 
 // 부스 운영자 QR에 담는 주소. 휴대폰 기본 카메라로 찍어도 이 화면으로 들어와 같은 처리를 거침
 export const STAMP_COLLECT_PATH = "/stamp/collect";
@@ -16,8 +18,9 @@ export function getBoothMapHref(boothId: number): string {
 }
 
 /** 스탬프 적립 결과를 보여줄 스탬프판 주소. 부스가 속한 구역을 펼친다 */
-export function getStampBoardHref(boothId: number): string {
-  return `${STAMP_BOARD_PATH}?${new URLSearchParams({ [STAMPED_BOOTH_PARAM]: String(boothId) })}`;
+export function getStampBoardHref(boothId: number, stampedAt: number): string {
+  const params = new URLSearchParams({ [STAMPED_BOOTH_PARAM]: String(boothId), [STAMPED_AT_PARAM]: String(stampedAt) });
+  return `${STAMP_BOARD_PATH}?${params}`;
 }
 
 /** QR 내용이 스탬프 적립 주소면 토큰을, 아니면 null을 돌려준다 */

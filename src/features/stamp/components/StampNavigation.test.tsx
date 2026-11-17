@@ -4,7 +4,7 @@ import { beforeEach, expect, it, vi } from "vitest";
 import { renderWithProviders } from "@/shared/test/render";
 import { ToastProvider } from "@/shared/ui/Toast";
 
-import { collectStamp } from "../api/stamp.api";
+import { type CollectStampResult, collectStamp } from "../api/stamp.api";
 import { StampNavigation } from "./StampNavigation";
 
 const scanner = vi.hoisted(() => ({
@@ -63,7 +63,7 @@ it("스탬프 QR을 인식하면 적립하고 모달을 닫은 뒤 그 부스 �
 
   expect(collectStamp).toHaveBeenCalledWith("booth-token", expect.anything());
   expect(await screen.findByText("스탬프를 받았어요!")).toBeInTheDocument();
-  expect(router.replace).toHaveBeenCalledWith("/stamp?stampedBooth=4");
+  expect(router.replace).toHaveBeenCalledWith(expect.stringMatching(/^\/stamp\?stampedBooth=4&stampedAt=\d+$/));
   await waitFor(() => expect(screen.queryByRole("dialog", { name: "스탬프 QR 스캔" })).not.toBeInTheDocument());
 });
 
@@ -74,7 +74,7 @@ it("이미 받은 부스 QR이면 이미 수집했다고 알리고 그 구역을
   await scan(STAMP_URL);
 
   expect(await screen.findByText("이미 수집한 스탬프입니다.")).toBeInTheDocument();
-  expect(router.replace).toHaveBeenCalledWith("/stamp?stampedBooth=2");
+  expect(router.replace).toHaveBeenCalledWith(expect.stringMatching(/^\/stamp\?stampedBooth=2&stampedAt=\d+$/));
 });
 
 it("스탬프 QR이 아니면 적립하지 않고 모달을 연 채로 다시 스캔하게 안내한다", async () => {
@@ -115,6 +115,25 @@ it("인식에 실패하면 잠시 쉬었다가 다시 인식한다", async () =>
   });
   await scan(STAMP_URL);
   expect(collectStamp).toHaveBeenCalledTimes(1);
+});
+
+it("적립 응답 전에 모달을 닫으면 응답이 와도 스탬프판으로 이동하지 않는다", async () => {
+  const response = { resolve: (_result: CollectStampResult) => {} };
+  vi.mocked(collectStamp).mockReturnValue(
+    new Promise((resolve) => {
+      response.resolve = resolve;
+    }),
+  );
+  const { user } = await openScanner();
+
+  const pendingScan = scanner.onDecode?.({ data: STAMP_URL });
+  await user.click(screen.getByRole("button", { name: "닫기" }));
+  await act(async () => {
+    response.resolve({ status: "collected", boothId: 4 });
+    await pendingScan;
+  });
+
+  expect(router.replace).not.toHaveBeenCalled();
 });
 
 it("모달을 닫으면 카메라를 끈다", async () => {
