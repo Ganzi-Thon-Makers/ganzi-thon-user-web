@@ -1,6 +1,6 @@
 import { LoginForm } from "../components/LoginForm";
 
-export function HomePage() {
+export function LoginPage() {
   return (
     <div>
       <h1 className="sr-only">로그인</h1>
