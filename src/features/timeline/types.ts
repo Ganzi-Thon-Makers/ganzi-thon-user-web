@@ -1,11 +1,11 @@
-export interface TimelineEvent {
+export interface Timeline {
   id: number;
   title: string;
-  description: string | null;
+  description: string;
   startTime: string;
   endTime: string;
 }
 
-export interface TimelineResponse {
-  data: TimelineEvent[];
+export interface TimetableResponse {
+  timetables: Timeline[];
 }

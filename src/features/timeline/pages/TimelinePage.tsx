@@ -1,34 +1,21 @@
-"use client";
-
-import { useSuspenseQuery } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import { Suspense } from "@suspensive/react";
 
 import { AppBar } from "@/shared/components/AppBar";
 import { PageShell } from "@/shared/components/PageShell";
 
-import { timelineQueries } from "../api/timeline.queries";
 import { TimelineList, TimelineListSkeleton } from "../components/TimelineList";
 
-function TimelinePageContent({ children }: { children: ReactNode }) {
-  return <div className="px-1">{children}</div>;
-}
-
 export function TimelinePage() {
-  const { data: events } = useSuspenseQuery(timelineQueries.list());
-
   return (
     <PageShell header={<AppBar title="타임라인" />}>
-      <TimelinePageContent>
-        <TimelineList events={events} />
-      </TimelinePageContent>
+      <div className="px-1">
+        <Suspense clientOnly fallback={<span hidden data-timeline-pending className="peer" />}>
+          <TimelineList />
+        </Suspense>
+        <div className="hidden peer-data-timeline-pending:block">
+          <TimelineListSkeleton />
+        </div>
+      </div>
     </PageShell>
-  );
-}
-
-export function TimelinePageSkeleton() {
-  return (
-    <TimelinePageContent>
-      <TimelineListSkeleton />
-    </TimelinePageContent>
   );
 }
