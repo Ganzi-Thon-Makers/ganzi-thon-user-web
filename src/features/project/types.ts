@@ -1,3 +1,5 @@
+import type { Part } from "@/shared/api/types";
+
 // 서버 Zone enum. 기능 명세서 PROJ-01-1: 3구역, 구역별 10팀
 export const ZONES = ["ZONE1", "ZONE2", "ZONE3"] as const;
 export type Zone = (typeof ZONES)[number];
@@ -9,8 +11,6 @@ export const ZONE_LABELS = {
 } satisfies Record<Zone, string>;
 
 export type Platform = "WEB" | "APP";
-
-export type Part = "PLAN" | "DESIGN" | "WEB" | "APP" | "SERVER";
 
 /** 서버 ProjectSummaryResponse 중 화면이 쓰는 필드 */
 export interface Project {
