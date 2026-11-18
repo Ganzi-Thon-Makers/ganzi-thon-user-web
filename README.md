@@ -23,9 +23,10 @@ pnpm dev           # http://localhost:3000
 | `pnpm format`   | 포맷 자동 수정                               |
 | `pnpm check`    | 타입체크 + 린트 + 포맷 검사 (CI와 같은 검사) |
 
-## 개발 규칙
+## 문서
 
-폴더 구조·데이터·상태·테스트 규칙은 [CLAUDE.md](./CLAUDE.md)에 있다.
+- 팀원용 안내: [docs/](./docs/README.md) — 구조, 개발 가이드, Git 흐름, AI 에이전트 사용법
+- AI 에이전트용 규칙: [CLAUDE.md](./CLAUDE.md) → [.claude/README.md](./.claude/README.md)
 
 커밋 메시지는 Conventional Commits(`feat: 로그인 화면 추가`)를 따르고, 커밋 시 lefthook이 포맷·린트·타입체크·테스트를 돌린다.
 

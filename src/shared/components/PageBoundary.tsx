@@ -5,17 +5,23 @@ import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
 import { PageError } from "./PageError";
+import { PageShell } from "./PageShell";
 import { PageSkeleton } from "./PageSkeleton";
 
 interface PageBoundaryProps {
   children: ReactNode;
   fallback?: ReactNode;
+  header?: ReactNode;
   /** SSR로 전환한 페이지에서만 false로 둔다. */
   clientOnly?: boolean;
 }
 
 function PageErrorFallback({ error, reset }: ErrorBoundaryFallbackProps) {
-  return <PageError error={error} onRetry={reset} />;
+  return (
+    <PageShell>
+      <PageError error={error} onRetry={reset} />
+    </PageShell>
+  );
 }
 
 /**
@@ -25,12 +31,13 @@ function PageErrorFallback({ error, reset }: ErrorBoundaryFallbackProps) {
  * 거의 클라이언트 렌더링 방침이라 useSuspenseQuery가 서버에서 실행되지 않게 막는다.
  * SSR로 전환하는 페이지는 clientOnly={false}로 두고 page.tsx에서 prefetch + HydrationBoundary를 붙인다.
  */
-export function PageBoundary({ children, fallback = <PageSkeleton />, clientOnly = true }: PageBoundaryProps) {
+export function PageBoundary({ children, fallback = <PageSkeleton />, header, clientOnly = true }: PageBoundaryProps) {
   return (
     <QueryErrorResetBoundary>
       {({ reset }) => (
         <ErrorBoundary onReset={reset} fallback={PageErrorFallback}>
-          <Suspense clientOnly={clientOnly} fallback={fallback}>
+          {/* 페이지 셸은 경계 안쪽에 있어 fallback·에러도 같은 셸로 감쌈 */}
+          <Suspense clientOnly={clientOnly} fallback={<PageShell header={header}>{fallback}</PageShell>}>
             {children}
           </Suspense>
         </ErrorBoundary>

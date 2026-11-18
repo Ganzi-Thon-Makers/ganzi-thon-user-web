@@ -90,6 +90,9 @@ importers:
       oxlint:
         specifier: ^1.92.0
         version: 1.92.0
+      react-devtools-cdt-mcp:
+        specifier: 0.1.0
+        version: 0.1.0
       tailwindcss:
         specifier: ^4
         version: 4.3.5
@@ -1619,6 +1622,9 @@ packages:
   punycode@2.3.1:
     resolution: {integrity: sha512-vYt7UD1U9Wg6138shLtLOvdAu+8DsC/ilFtEVHcH+wydcSpNE20AfSOduf6MkRFahL5FY7X1oU7nKVZFtfq8Fg==}
     engines: {node: '>=6'}
+
+  react-devtools-cdt-mcp@0.1.0:
+    resolution: {integrity: sha512-ruEhlMq+iTNl5uAIIUXfuKwbfLqADwE2BogM7mk7PtwE2FCTC5/rzu86YmWlCgKz5DjELre5AL6597y96/ziFQ==}
 
   react-dom@19.3.0:
     resolution: {integrity: sha512-JDk8dgif51OjFoDE70+OT9ICyYr+69HlmihNwp1+Nsfbna3t5sIiCa9ZJktDmQ4/1b/rn26hIAR2uYXDMr5r0Q==}
@@ -3207,6 +3213,8 @@ snapshots:
       react-is: 17.0.2
 
   punycode@2.3.1: {}
+
+  react-devtools-cdt-mcp@0.1.0: {}
 
   react-dom@19.3.0(react@19.3.0):
     dependencies:

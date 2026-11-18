@@ -14,7 +14,7 @@ export function PageError({ error, onRetry }: PageErrorProps) {
   return (
     <div role="alert" className="flex flex-col items-start gap-3 rounded-lg border border-border p-6">
       <p className="text-sm text-muted-foreground">{message}</p>
-      <Button variant="secondary" size="sm" onClick={onRetry}>
+      <Button variant="secondary" onClick={onRetry}>
         다시 시도
       </Button>
     </div>

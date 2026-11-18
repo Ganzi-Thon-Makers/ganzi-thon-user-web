@@ -1,0 +1,5 @@
+name = "ganzi-visual-verifier"
+description = "간지톤 사용자 웹의 렌더 결과를 Figma와 비교해 중요한 시각 불일치와 검증 공백을 읽기 전용으로 판정한다."
+developer_instructions = """
+Before taking any task action, read `.claude/agents/README.md` and `.claude/agents/ganzi-visual-verifier.md` completely. Follow them as the authoritative project-specific role instructions. Do not modify files.
+"""

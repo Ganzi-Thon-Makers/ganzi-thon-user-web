@@ -28,6 +28,14 @@
           {
             "name": "ky",
             "message": "HTTP 요청은 @/shared/api/client의 api 인스턴스를 사용하세요."
+          },
+          {
+            "name": "next/router",
+            "message": "App Router에서는 next/navigation을 사용하세요."
+          },
+          {
+            "name": "next/document",
+            "message": "App Router에서는 layout.tsx와 metadata API를 사용하세요."
           }
         ],
         "patterns": [
@@ -37,7 +45,38 @@
           }
         ]
       }
-    ]
+    ],
+    "eqeqeq": [
+      "error",
+      "always",
+      {
+        "null": "ignore"
+      }
+    ],
+    "no-alert": "error",
+    "prefer-const": "error",
+    "no-var": "error",
+    "no-implicit-coercion": "error",
+    "typescript/consistent-type-imports": [
+      "error",
+      {
+        "prefer": "type-imports",
+        "fixStyle": "inline-type-imports"
+      }
+    ],
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error",
+    "no-console": [
+      "error",
+      {
+        "allow": ["warn", "error"]
+      }
+    ],
+    "import/no-duplicates": "error",
+    "react/no-array-index-key": "error",
+    "no-nested-ternary": "error",
+    "react/button-has-type": "error",
+    "react/jsx-no-target-blank": "error"
   },
   "overrides": [
     {
@@ -50,6 +89,16 @@
               {
                 "group": ["@/features/**", "@/app/**"],
                 "message": "shared는 도메인을 몰라야 합니다. (의존 방향: app → features → shared)"
+              }
+            ],
+            "paths": [
+              {
+                "name": "next/router",
+                "message": "App Router에서는 next/navigation을 사용하세요."
+              },
+              {
+                "name": "next/document",
+                "message": "App Router에서는 layout.tsx와 metadata API를 사용하세요."
               }
             ]
           }
@@ -66,6 +115,14 @@
               {
                 "name": "ky",
                 "message": "HTTP 요청은 @/shared/api/client의 api 인스턴스를 사용하세요."
+              },
+              {
+                "name": "next/router",
+                "message": "App Router에서는 next/navigation을 사용하세요."
+              },
+              {
+                "name": "next/document",
+                "message": "App Router에서는 layout.tsx와 metadata API를 사용하세요."
               }
             ],
             "patterns": [

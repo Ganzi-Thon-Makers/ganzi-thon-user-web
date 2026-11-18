@@ -2,12 +2,15 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
   pull_request:
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
+
+permissions:
+  contents: read
 
 jobs:
   commitlint:
@@ -37,6 +40,13 @@ jobs:
       LEFTHOOK: 0 # CI에서는 git 훅 설치 생략
       # 빌드에 필요한 공개 환경변수. 실제 값은 저장소 Settings > Variables에 등록한다.
       NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL || 'https://jsonplaceholder.typicode.com' }}
+    # 단계별 결과를 PR 댓글에 쓰기 위해 내보낸다.
+    outputs:
+      typecheck: ${{ steps.typecheck.outcome }}
+      lint: ${{ steps.lint.outcome }}
+      format: ${{ steps.format.outcome }}
+      test: ${{ steps.test.outcome }}
+      build: ${{ steps.build.outcome }}
     steps:
       - uses: actions/checkout@v7
 
@@ -50,11 +60,104 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - name: Check (typecheck · lint · format)
-        run: pnpm check
+      # pnpm check를 단계별로 나눠 실패해도 끝까지 돌리고, 마지막 단계에서 job을 실패시킨다.
+      - name: TypeScript
+        id: typecheck
+        continue-on-error: true
+        run: pnpm typecheck
+
+      - name: Lint
+        id: lint
+        continue-on-error: true
+        run: pnpm lint
+
+      - name: 포맷
+        id: format
+        continue-on-error: true
+        run: pnpm format:check
 
       - name: Test
+        id: test
+        continue-on-error: true
         run: pnpm test:run
 
       - name: Build
+        id: build
+        continue-on-error: true
         run: pnpm build
+
+      - name: 실패한 단계가 있으면 실패 처리
+        if: contains(join(steps.*.outcome, ','), 'failure')
+        run: exit 1
+
+  comment:
+    # 취소된 실행은 댓글을 덮어쓰지 않는다. fork PR은 토큰에 쓰기 권한이 없어 건너뛴다.
+    needs: [commitlint, check]
+    if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork == false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        env:
+          COMMITLINT: ${{ needs.commitlint.result }}
+          TYPECHECK: ${{ needs.check.outputs.typecheck }}
+          LINT: ${{ needs.check.outputs.lint }}
+          FORMAT: ${{ needs.check.outputs.format }}
+          TEST: ${{ needs.check.outputs.test }}
+          BUILD: ${{ needs.check.outputs.build }}
+          CHECK_RESULT: ${{ needs.check.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        with:
+          script: |
+            // PR마다 댓글 하나를 두고 실행할 때마다 갱신한다.
+            const marker = "<!-- ci-result -->";
+            const rows = [
+              ["커밋 메시지", process.env.COMMITLINT],
+              ["TypeScript", process.env.TYPECHECK],
+              ["Lint", process.env.LINT],
+              ["포맷", process.env.FORMAT],
+              ["Test", process.env.TEST],
+              ["Build", process.env.BUILD],
+            ];
+            const status = { success: "🟢 통과", failure: "🔴 실패", skipped: "⚪ 스킵", cancelled: "⚪ 취소" };
+
+            // 통과 판정은 job 결과 기준. 설치 실패처럼 단계 결과가 비어도 통과로 보지 않는다.
+            const passed = process.env.COMMITLINT === "success" && process.env.CHECK_RESULT === "success";
+            const failed = rows.filter(([, result]) => result === "failure").map(([label]) => label);
+            let summary;
+            if (passed) {
+              summary = `**결과: 통과** — ${rows.length}개 단계 모두 통과`;
+            } else if (failed.length > 0) {
+              summary = `**결과: 실패** — ${rows.length}개 단계 중 ${failed.length}개 실패 (${failed.join(", ")})`;
+            } else {
+              summary = "**결과: 실패** — 단계별 결과를 확인하지 못했습니다. 실행 로그를 확인하세요.";
+            }
+
+            const commitUrl = `${context.payload.repository.html_url}/commit/${context.payload.pull_request.head.sha}`;
+            const body = [
+              marker,
+              "## CI 결과",
+              "",
+              summary,
+              "",
+              "| 단계 | 결과 |",
+              "| --- | --- |",
+              ...rows.map(([label, result]) => `| ${label} | ${status[result] ?? "-"} |`),
+              "",
+              `[기준 커밋](${commitUrl}) · [실행 로그](${process.env.RUN_URL})`,
+            ].join("\n");
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const comments = await github.paginate(github.rest.issues.listComments, { owner, repo, issue_number, per_page: 100 });
+            const existing = comments.find(
+              (comment) => comment.user?.login === "github-actions[bot]" && comment.body?.includes(marker),
+            );
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
