@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "@suspensive/react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 import { AppBar } from "@/shared/components/AppBar";
 import { PageShell } from "@/shared/components/PageShell";
@@ -12,11 +12,14 @@ import { TabIndicator, TabList, TabPanel, TabRoot, TabTrigger } from "@/shared/u
 import { ProjectList, ProjectListSkeleton } from "../components/ProjectList";
 import { VoteCompleteModal, VoteConfirmModal } from "../components/VoteModals";
 import { useProjectVoteFlow } from "../hooks/use-project-vote-flow";
-import { ZONE_LABELS, ZONES } from "../types";
+import { type Zone, ZONE_LABELS, ZONES } from "../types";
 
 export function ProjectPage() {
   const voteFlow = useProjectVoteFlow();
   const actionButtonRef = useRef<HTMLButtonElement>(null);
+  // 직접 고르기 전에는 투표한 프로젝트의 구역을 먼저 보여 줌(마이페이지 투표내역에서 진입)
+  const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
+  const zone = selectedZone ?? voteFlow.votedZone ?? ZONES[0];
   const { action } = voteFlow;
   const vote = voteFlow.isVoting
     ? { selectedProjectId: voteFlow.selectedProjectId, onSelect: voteFlow.selectProject }
@@ -30,7 +33,11 @@ export function ProjectPage() {
 
   return (
     // 탭 목록(header)과 패널(본문)이 같은 탭 상태를 써서 셸 바깥을 TabRoot로 감쌈
-    <TabRoot defaultValue={ZONES[0]} className="flex min-h-0 flex-1 flex-col">
+    <TabRoot
+      value={zone}
+      onValueChange={(value) => setSelectedZone(ZONES.find((item) => item === value) ?? null)}
+      className="flex min-h-0 flex-1 flex-col"
+    >
       <PageShell
         header={
           <div className="bg-gray800">
@@ -58,7 +65,8 @@ export function ProjectPage() {
                   {ZONE_LABELS[zone]}
                 </TabTrigger>
               ))}
-              <TabIndicator />
+              {/* 투표한 구역을 알기 전에는 숨겨, Zone1에서 투표한 구역으로 미끄러지는 모습을 없앰 */}
+              {voteFlow.votedZone !== undefined && <TabIndicator />}
             </TabList>
           </div>
         }
@@ -71,7 +79,15 @@ export function ProjectPage() {
             focusableWhenDisabled
             onClick={voteFlow.handleAction}
           >
-            {action.label}
+            {action.votedTitle ? (
+              // 팀 이름만 말줄임하고 뒤 문구는 항상 보이게 함
+              <span className="flex min-w-0">
+                <span className="min-w-0 truncate">{action.votedTitle}</span>
+                <span className="shrink-0">{action.label}</span>
+              </span>
+            ) : (
+              action.label
+            )}
           </Button>
         }
       >
@@ -79,7 +95,7 @@ export function ProjectPage() {
           <TabPanel key={zone} value={zone} className="pt-5.5">
             <h2 className="sr-only">{ZONE_LABELS[zone]} 프로젝트</h2>
             <Suspense fallback={<ProjectListSkeleton />}>
-              <ProjectList zone={zone} vote={vote} />
+              <ProjectList zone={zone} votedProjectId={voteFlow.votedProjectId} vote={vote} />
             </Suspense>
           </TabPanel>
         ))}

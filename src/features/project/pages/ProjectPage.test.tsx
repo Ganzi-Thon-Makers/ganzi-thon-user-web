@@ -1,10 +1,11 @@
-import { screen, waitFor, within } from "@testing-library/react";
+import { act, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/shared/test/render";
 import { ToastProvider } from "@/shared/ui/Toast";
 
 import { createVote, getMyProject, getProjects, getVotePeriod } from "../api/project.api";
+import { projectQueries } from "../api/project.queries";
 import type { Project, ProjectDetail, VotePeriod } from "../types";
 import { ProjectPage } from "./ProjectPage";
 
@@ -29,8 +30,22 @@ const myProject: ProjectDetail = {
 };
 
 /** ky HTTPError처럼 판별되는 서버 에러 (feature에서 ky를 직접 쓰지 않으려고 형태만 맞춤) */
-function serverError(status: number, code: string) {
-  return Object.assign(new Error(code), { name: "HTTPError", isKyError: true, response: { status }, data: { code } });
+function serverError(status: number, code: string, message: string) {
+  return Object.assign(new Error(code), {
+    name: "HTTPError",
+    isKyError: true,
+    response: { status },
+    data: { code, message },
+  });
+}
+
+/** 테스트에서 응답 시점을 직접 정하는 promise */
+function deferred<T>() {
+  let resolve: (value: T) => void = () => {};
+  const promise = new Promise<T>((res) => {
+    resolve = res;
+  });
+  return { promise, resolve };
 }
 
 // 투표 상태는 목록과 따로 불러와서, 받아오기 전에는 버튼이 비활성이다. 하단 버튼은 포커스를 잃지 않도록 aria-disabled로 막음
@@ -72,7 +87,55 @@ it("인기투표 → 프로젝트 선택 → 확인하면 투표하고 완료 �
   expect(createVote).toHaveBeenCalledWith(1, expect.anything());
   expect(await screen.findByText("투표가 완료되었습니다.")).toBeInTheDocument();
   await user.keyboard("{Escape}");
-  expect(await screen.findByRole("button", { name: "투표가 완료되었어요" })).toHaveAttribute("aria-disabled", "true");
+  expect(await screen.findByRole("button", { name: "Framey팀에게 투표 완료되었어요" })).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
+});
+
+it("투표 후 목록과 기간을 모두 다시 받은 뒤에 완료 모달을 띄운다", async () => {
+  const projects = deferred<Awaited<ReturnType<typeof getProjects>>>();
+  const period = deferred<VotePeriod>();
+  vi.mocked(createVote).mockImplementation(async () => {
+    vi.mocked(getProjects).mockReturnValue(projects.promise);
+    vi.mocked(getVotePeriod).mockReturnValue(period.promise);
+  });
+  const { user, queryClient } = renderPage();
+
+  await user.click(await findEnabledVoteButton());
+  await user.click(screen.getByRole("button", { name: "Framey 선택" }));
+  await user.click(screen.getByRole("button", { name: "투표하기" }));
+  await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "투표하기" }));
+  await waitFor(() => expect(getProjects).toHaveBeenCalledTimes(2));
+
+  const votedProjects = { ZONE1: [makeProject(1, "Framey", true)] };
+  projects.resolve(votedProjects);
+  await waitFor(() => expect(queryClient.getQueryData(projectQueries.list().queryKey)).toEqual(votedProjects));
+  // 다시 받는 동안 확인 모달이 남아 있다가 완료 모달로 이어짐
+  expect(screen.getByText("이 프로젝트에게 투표할까요?")).toBeInTheDocument();
+  expect(screen.queryByText("투표가 완료되었습니다.")).not.toBeInTheDocument();
+
+  period.resolve(openPeriod);
+  expect(await screen.findByText("투표가 완료되었습니다.")).toBeInTheDocument();
+});
+
+it("투표 후 목록을 다시 받지 못해도 완료 상태를 유지한다", async () => {
+  vi.mocked(createVote).mockImplementation(async () => {
+    vi.mocked(getProjects).mockRejectedValue(new Error("network"));
+  });
+  const { user } = renderPage();
+
+  await user.click(await findEnabledVoteButton());
+  await user.click(screen.getByRole("button", { name: "Framey 선택" }));
+  await user.click(screen.getByRole("button", { name: "투표하기" }));
+  await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "투표하기" }));
+
+  expect(await screen.findByText("투표가 완료되었습니다.")).toBeInTheDocument();
+  await user.keyboard("{Escape}");
+  expect(await screen.findByRole("button", { name: "Framey팀에게 투표 완료되었어요" })).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
 });
 
 it("투표 모드에서 뒤로 가면 선택을 지우고 목록으로 돌아간다", async () => {
@@ -105,9 +168,8 @@ it("투표에 실패하면 안내하고 완료 모달을 띄우지 않는다", a
   expect(screen.queryByText("투표가 완료되었습니다.")).not.toBeInTheDocument();
 });
 
-it("서버가 본인 팀 투표로 거절하면 본인 팀 안내를 보여 준다", async () => {
-  vi.mocked(getMyProject).mockResolvedValue(null);
-  vi.mocked(createVote).mockRejectedValue(serverError(400, "VOTE_OWN_PROJECT"));
+it("투표 규칙으로 거절되면 서버 안내 문구를 보여 준다", async () => {
+  vi.mocked(createVote).mockRejectedValue(serverError(403, "VOTE_PARTICIPANT_ONLY", "투표는 참가자만 할 수 있습니다."));
   const { user } = renderPage();
 
   await user.click(await findEnabledVoteButton());
@@ -115,7 +177,24 @@ it("서버가 본인 팀 투표로 거절하면 본인 팀 안내를 보여 준�
   await user.click(screen.getByRole("button", { name: "투표하기" }));
   await user.click(within(await screen.findByRole("dialog")).getByRole("button", { name: "투표하기" }));
 
+  expect(await screen.findByText("투표는 참가자만 할 수 있습니다.")).toBeInTheDocument();
+});
+
+it("내 프로젝트를 받기 전에 고른 본인 팀은 확인 전에 다시 막는다", async () => {
+  const mine = deferred<ProjectDetail | null>();
+  vi.mocked(getMyProject).mockReturnValue(mine.promise);
+  const { user, queryClient } = renderPage();
+
+  await user.click(await findEnabledVoteButton());
+  await user.click(screen.getByRole("button", { name: "우리팀 선택" }));
+  await act(async () => mine.resolve(myProject));
+  await waitFor(() => expect(queryClient.getQueryData(projectQueries.mine().queryKey)).toEqual(myProject));
+  await user.click(screen.getByRole("button", { name: "투표하기" }));
+
   expect(await screen.findByText("본인이 참여한 프로젝트에는 투표할 수 없어요.")).toBeInTheDocument();
+  // 토스트도 dialog 역할이라 확인 모달은 제목으로 확인
+  expect(screen.queryByText("이 프로젝트에게 투표할까요?")).not.toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "우리팀 선택" })).toHaveAttribute("aria-pressed", "false");
 });
 
 it("소속 팀이 없으면 어떤 프로젝트든 고를 수 있다", async () => {
@@ -167,7 +246,10 @@ it("이미 투표했으면 완료 상태로 막는다", async () => {
   vi.mocked(getProjects).mockResolvedValue({ ZONE1: [makeProject(1, "Framey", true)] });
   renderPage();
 
-  expect(await screen.findByRole("button", { name: "투표가 완료되었어요" })).toHaveAttribute("aria-disabled", "true");
+  expect(await screen.findByRole("button", { name: "Framey팀에게 투표 완료되었어요" })).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
 });
 
 it("투표 상태를 불러오지 못해도 목록은 보여 준다", async () => {
@@ -209,4 +291,49 @@ it("확인 모달이 열린 채 마감되면 모달을 닫는다", async () => {
   expect(await screen.findByRole("button", { name: "투표가 마감됐어요." })).toHaveAttribute("aria-disabled", "true");
   await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
   expect(createVote).not.toHaveBeenCalled();
+});
+
+it("일시중지 후 재개돼도 이전 선택과 확인 모달이 다시 나타나지 않는다", async () => {
+  const { user, queryClient } = renderPage();
+
+  await user.click(await findEnabledVoteButton());
+  await user.click(screen.getByRole("button", { name: "Framey 선택" }));
+  await user.click(screen.getByRole("button", { name: "투표하기" }));
+  expect(await screen.findByRole("dialog")).toBeInTheDocument();
+
+  vi.mocked(getVotePeriod).mockResolvedValue({ ...openPeriod, status: "PAUSED" });
+  await queryClient.refetchQueries();
+  await screen.findByRole("button", { name: "투표가 마감됐어요." });
+
+  vi.mocked(getVotePeriod).mockResolvedValue(openPeriod);
+  await queryClient.refetchQueries();
+
+  expect(await screen.findByRole("button", { name: "인기투표" })).toHaveAttribute("aria-disabled", "false");
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  expect(screen.queryByRole("button", { name: "Framey 선택" })).not.toBeInTheDocument();
+});
+
+it("투표한 뒤 마감돼도 투표한 팀을 보여 준다", async () => {
+  vi.mocked(getProjects).mockResolvedValue({ ZONE1: [makeProject(1, "Framey", true), makeProject(2, "우리팀")] });
+  vi.mocked(getVotePeriod).mockResolvedValue({ ...openPeriod, status: "ENDED" });
+  renderPage();
+
+  expect(await screen.findByRole("button", { name: "Framey팀에게 투표 완료되었어요" })).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
+});
+
+it("투표한 프로젝트가 있는 구역 탭을 먼저 보여 주고 그 카드를 투표한 프로젝트로 알린다", async () => {
+  vi.mocked(getProjects).mockResolvedValue({
+    ZONE1: [makeProject(2, "우리팀")],
+    ZONE2: [makeProject(1, "Framey", true)],
+  });
+  const { user } = renderPage();
+
+  await waitFor(() => expect(screen.getByRole("tab", { name: "Zone2" })).toHaveAttribute("aria-selected", "true"));
+  expect(await screen.findByRole("link", { name: /Framey.*투표한 프로젝트/ })).toBeInTheDocument();
+
+  await user.click(screen.getByRole("tab", { name: "Zone1" }));
+  expect(screen.getByRole("tab", { name: "Zone1" })).toHaveAttribute("aria-selected", "true");
 });
