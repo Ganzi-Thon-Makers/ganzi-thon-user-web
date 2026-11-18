@@ -1,3 +1,4 @@
+import { TimeoutError } from "ky";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
 import { clearAccessToken, getAccessToken, setAccessToken } from "./token";
@@ -14,7 +15,8 @@ async function mockClient(backend: (request: Request) => Promise<Response>) {
   vi.stubGlobal("fetch", fetch);
 
   const { api } = await import("./client");
-  return { api, fetch, replace };
+  const { getQueryClient } = await import("../lib/query-client");
+  return { api, fetch, replace, queryClient: getQueryClient() };
 }
 
 beforeEach(() => {
@@ -86,12 +88,13 @@ it("재발급한 토큰이 삭제되면 다음 401에서 다시 재발급한다"
   expect(replace).toHaveBeenCalledExactlyOnceWith("/");
 });
 
-it("새 access token으로 다시 보낸 요청이 401이어도 재시도를 반복하지 않는다", async () => {
-  const { api, fetch, replace } = await mockClient(async (request) =>
+it("새 access token으로 다시 보낸 조회가 401이면 쿼리를 자동 재시도하지 않는다", async () => {
+  const { api, fetch, replace, queryClient } = await mockClient(async (request) =>
     new URL(request.url).pathname === refreshPath ? refreshed() : unauthorized(),
   );
 
-  await expect(api.get("projects")).rejects.toMatchObject({ response: { status: 401 } });
+  const query = { queryKey: ["projects"], queryFn: () => api.get("projects").json(), retryDelay: 0 };
+  await expect(queryClient.fetchQuery(query)).rejects.toMatchObject({ response: { status: 401 } });
   expect(fetch).toHaveBeenCalledTimes(3);
   expect(getAccessToken()).toBe("fresh-token");
   expect(replace).not.toHaveBeenCalled();
@@ -112,23 +115,46 @@ it("이전 요청의 401은 새 로그인 토큰을 지우지 않는다", async 
 it.each([
   { failure: "server", expectedError: { response: { status: 502 } } },
   { failure: "network", expectedError: { name: "NetworkError" } },
-])("재발급의 일시 오류($failure)를 전달하고 다음 요청에서 다시 재발급한다", async ({ failure, expectedError }) => {
-  let refreshFailed = true;
-  const { api, replace } = await mockClient(async (request) => {
-    if (new URL(request.url).pathname === refreshPath) {
-      if (!refreshFailed) return refreshed();
-      if (failure === "network") throw new TypeError("Failed to fetch");
-      return new Response(null, { status: 502 });
-    }
+  { failure: "timeout", expectedError: { name: "TimeoutError" } },
+])(
+  "재발급 실패($failure) 시 자동 재시도를 생략하고 다음 조회에서 다시 재발급한다",
+  async ({ failure, expectedError }) => {
+    let refreshFailed = true;
+    const { api, fetch, replace, queryClient } = await mockClient(async (request) => {
+      if (new URL(request.url).pathname === refreshPath) {
+        if (!refreshFailed) return refreshed();
+        if (failure === "network") throw new TypeError("Failed to fetch");
+        if (failure === "timeout") throw new TimeoutError(request);
+        return new Response(null, { status: 502 });
+      }
 
-    return request.headers.get("Authorization") === "Bearer fresh-token" ? Response.json({ ok: true }) : unauthorized();
+      return request.headers.get("Authorization") === "Bearer fresh-token"
+        ? Response.json({ ok: true })
+        : unauthorized();
+    });
+
+    const query = { queryKey: ["projects"], queryFn: () => api.get("projects").json(), retryDelay: 0 };
+    await expect(queryClient.fetchQuery(query)).rejects.toMatchObject(expectedError);
+    expect(fetch).toHaveBeenCalledTimes(2);
+    expect(getAccessToken()).toBe("stored-token");
+    expect(replace).not.toHaveBeenCalled();
+
+    refreshFailed = false;
+    await expect(queryClient.fetchQuery(query)).resolves.toEqual({ ok: true });
+    expect(getAccessToken()).toBe("fresh-token");
+  },
+);
+
+it.each([
+  { failure: "server", expectedError: { response: { status: 500 } } },
+  { failure: "network", expectedError: { name: "NetworkError" } },
+])("일반 조회 오류($failure)는 한 번 자동 재시도한다", async ({ failure, expectedError }) => {
+  const { api, fetch, queryClient } = await mockClient(async () => {
+    if (failure === "network") throw new TypeError("Failed to fetch");
+    return new Response(null, { status: 500 });
   });
 
-  await expect(api.get("projects")).rejects.toMatchObject(expectedError);
-  expect(getAccessToken()).toBe("stored-token");
-  expect(replace).not.toHaveBeenCalled();
-
-  refreshFailed = false;
-  await expect(api.get("projects").json()).resolves.toEqual({ ok: true });
-  expect(getAccessToken()).toBe("fresh-token");
+  const query = { queryKey: ["projects"], queryFn: () => api.get("projects").json(), retryDelay: 0 };
+  await expect(queryClient.fetchQuery(query)).rejects.toMatchObject(expectedError);
+  expect(fetch).toHaveBeenCalledTimes(2);
 });

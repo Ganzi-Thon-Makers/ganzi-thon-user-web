@@ -13,6 +13,14 @@ interface ErrorBody {
   message?: string;
 }
 
+export function isAuthRequestError(error: unknown): boolean {
+  if (isHTTPError(error) && error.response.status === 401) return true;
+
+  if (!isHTTPError(error) && !isNetworkError(error) && !isTimeoutError(error)) return false;
+
+  return new URL(error.request.url).pathname === "/api/auth/refresh";
+}
+
 export function toApiError(error: unknown): ApiError {
   if (isHTTPError(error)) {
     const body = (error.data ?? {}) as ErrorBody;
