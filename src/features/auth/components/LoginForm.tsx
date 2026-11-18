@@ -2,7 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 import { toApiError } from "@/shared/api/error";
 import { Button } from "@/shared/ui/Button";
@@ -19,12 +19,14 @@ export function LoginForm() {
   });
   const [error, setError] = useState<string | undefined>();
 
+  const [isNavigating, startTransition] = useTransition();
+
   const { mutate, isPending } = useMutation(authMutations.login());
 
   const trimmedId = form.loginId.trim();
   const trimmedPw = form.password.trim();
 
-  const isSubmitDisabled = !trimmedId || !trimmedPw || isPending;
+  const isSubmitDisabled = !trimmedId || !trimmedPw || isPending || isNavigating;
 
   const handleChange = (id: keyof typeof form, value: string) => {
     setError(undefined);
@@ -38,7 +40,7 @@ export function LoginForm() {
 
     setError(undefined);
     mutate(form, {
-      onSuccess: () => router.replace("/timeline"),
+      onSuccess: () => startTransition(() => router.replace("/timeline")),
       onError: (err) => {
         const { message } = toApiError(err);
         setError(message);
