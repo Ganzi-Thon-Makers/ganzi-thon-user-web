@@ -3,16 +3,18 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PageBoundary } from "@/shared/components/PageBoundary";
 import { renderWithProviders } from "@/shared/test/render";
+import { ToastProvider } from "@/shared/ui/Toast";
 
 import { getMyPage } from "../api/mypage.api";
 import { mockMyPageProfile, mockMyPageTeam } from "../api/mypage.mock";
 import { MyPage } from "./MyPage";
 
 vi.mock("../api/mypage.api", { spy: true });
+vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn<(path: string) => void>() }) }));
 
 describe("MyPage", () => {
   it("프로필과 팀 정보를 불러오는 동안에도 스탬프 링크를 표시한다", async () => {
-    renderWithProviders(<MyPage />);
+    renderWithProviders(<MyPage />, { wrapper: ToastProvider });
 
     expect(screen.getByText("마이페이지 정보를 불러오는 중")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "모은스탬프" })).toBeInTheDocument();
@@ -30,6 +32,7 @@ describe("MyPage", () => {
       <PageBoundary clientOnly={false}>
         <MyPage />
       </PageBoundary>,
+      { wrapper: ToastProvider },
     );
 
     expect(await screen.findByRole("alert")).toBeInTheDocument();
@@ -38,15 +41,9 @@ describe("MyPage", () => {
   });
 
   it("투표내역과 모은스탬프를 각 화면으로 연결한다", () => {
-    renderWithProviders(<MyPage />);
+    renderWithProviders(<MyPage />, { wrapper: ToastProvider });
 
     expect(screen.getByRole("link", { name: "투표내역" })).toHaveAttribute("href", "/projects");
     expect(screen.getByRole("link", { name: "모은스탬프" })).toHaveAttribute("href", "/stamp");
-  });
-
-  it("연결 전인 로그아웃을 비활성 버튼으로 표시한다", () => {
-    renderWithProviders(<MyPage />);
-
-    expect(screen.getByRole("button", { name: "로그아웃" })).toBeDisabled();
   });
 });
