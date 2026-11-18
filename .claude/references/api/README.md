@@ -7,6 +7,7 @@
 
 | 도메인  | 파일         |
 | ------- | ------------ |
+| auth    | `auth.md`    |
 | project | `project.md` |
 | stamp   | `stamp.md`   |
 
