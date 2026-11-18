@@ -8,7 +8,7 @@ interface ProjectCardProps {
   summary: string;
   platform: "WEB" | "APP";
   isSelected?: boolean;
-  isDisabled?: boolean;
+  isDimmed?: boolean;
 }
 
 // 링크·투표 선택 같은 조작과 그 시맨틱은 감싸는 쪽 담당
@@ -18,7 +18,7 @@ export function ProjectCard({
   summary,
   platform,
   isSelected = false,
-  isDisabled = false,
+  isDimmed = false,
 }: ProjectCardProps) {
   return (
     <article
@@ -26,7 +26,7 @@ export function ProjectCard({
         "flex min-h-45 flex-col gap-3 overflow-hidden rounded-lg bg-gray800 pb-3.5",
         // outline으로 썸네일 위에 테두리 표시, 크기 변화 방지
         isSelected && "outline-2 -outline-offset-2 outline-red300",
-        isDisabled && "opacity-50",
+        isDimmed && "opacity-50",
       )}
     >
       <div className="relative h-22 shrink-0">
