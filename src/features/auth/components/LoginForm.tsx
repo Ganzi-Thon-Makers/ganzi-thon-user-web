@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { toApiError } from "@/shared/api/error";
-import { setAccessToken } from "@/shared/api/token";
 import { Button } from "@/shared/ui/Button";
 import { TextField } from "@/shared/ui/TextField";
 
@@ -20,18 +19,7 @@ export function LoginForm() {
   });
   const [error, setError] = useState<string | undefined>();
 
-  const { mutate, isPending } = useMutation({
-    ...authMutations.login(),
-    onSuccess: (data, _variables, _result, { client }) => {
-      client.clear();
-      setAccessToken(data.accessToken);
-      router.replace("/timeline");
-    },
-    onError: (err) => {
-      const { message } = toApiError(err);
-      setError(message);
-    },
-  });
+  const { mutate, isPending } = useMutation(authMutations.login());
 
   const trimmedId = form.loginId.trim();
   const trimmedPw = form.password.trim();
@@ -49,7 +37,13 @@ export function LoginForm() {
     if (isSubmitDisabled) return;
 
     setError(undefined);
-    mutate(form);
+    mutate(form, {
+      onSuccess: () => router.replace("/timeline"),
+      onError: (err) => {
+        const { message } = toApiError(err);
+        setError(message);
+      },
+    });
   };
 
   return (
