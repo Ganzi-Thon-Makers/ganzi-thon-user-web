@@ -18,6 +18,7 @@ export function HistoryCard({ label, href }: HistoryCardProps) {
           alt=""
           width={228}
           height={339}
+          loading="eager"
           className="absolute -top-3.75 left-3.75 w-17.25 max-w-none origin-top-left rotate-15"
         />
       </div>
