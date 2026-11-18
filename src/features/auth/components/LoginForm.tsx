@@ -1,26 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 
+import { toApiError } from "@/shared/api/error";
 import { Button } from "@/shared/ui/Button";
 import { TextField } from "@/shared/ui/TextField";
 
+import { authMutations } from "../api/auth.queries";
+
 export function LoginForm() {
+  const router = useRouter();
+
   const [form, setForm] = useState({
-    id: "",
-    pw: "",
+    loginId: "",
+    password: "",
   });
+  const [error, setError] = useState<string | undefined>();
 
-  const trimmedId = form.id.trim();
-  const trimmedPw = form.pw.trim();
+  const [isNavigating, startTransition] = useTransition();
 
-  const isSubmitDisabled = !trimmedId || !trimmedPw;
+  const { mutate, isPending } = useMutation(authMutations.login());
 
-  // TODO: API 요청에서 나온 에러 메시지를 setError로 담기
-  // API 연동할 때 아래 error 및 사용처 주석 해제
-  // const [error, setError] = useState<string | undefined>();
+  const trimmedId = form.loginId.trim();
+  const trimmedPw = form.password.trim();
+
+  const isSubmitDisabled = !trimmedId || !trimmedPw || isPending || isNavigating;
 
   const handleChange = (id: keyof typeof form, value: string) => {
+    setError(undefined);
     setForm((prev) => ({ ...prev, [id]: value }));
   };
 
@@ -29,7 +38,14 @@ export function LoginForm() {
 
     if (isSubmitDisabled) return;
 
-    // TODO: form state를 이용해서 API 연동하기
+    setError(undefined);
+    mutate(form, {
+      onSuccess: () => startTransition(() => router.replace("/timeline")),
+      onError: (err) => {
+        const { message } = toApiError(err);
+        setError(message);
+      },
+    });
   };
 
   return (
@@ -41,8 +57,8 @@ export function LoginForm() {
           </label>
           <TextField
             id="id"
-            value={form.id}
-            onValueChange={(v) => handleChange("id", v)}
+            value={form.loginId}
+            onValueChange={(v) => handleChange("loginId", v)}
             placeholder="이니셜 + 전화번호 뒷자리"
           />
         </div>
@@ -52,11 +68,11 @@ export function LoginForm() {
           </label>
           <TextField
             id="pw"
-            value={form.pw}
-            onValueChange={(v) => handleChange("pw", v)}
+            value={form.password}
+            onValueChange={(v) => handleChange("password", v)}
             placeholder="이니셜 + 랜덤 숫자"
             type="password"
-            // errorMessage={error}
+            errorMessage={error}
           />
         </div>
       </section>

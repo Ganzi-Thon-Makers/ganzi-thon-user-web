@@ -1,11 +1,13 @@
 import { isServer, QueryClient } from "@tanstack/react-query";
 
+import { isAuthRequestError } from "@/shared/api/error";
+
 function makeQueryClient(): QueryClient {
   return new QueryClient({
     defaultOptions: {
       queries: {
         staleTime: 60_000, // 팀 기본값. 필요하면 queryOptions에서 덮어쓴다.
-        retry: 1,
+        retry: (failureCount, error) => failureCount < 1 && !isAuthRequestError(error),
         refetchOnWindowFocus: false,
       },
     },
