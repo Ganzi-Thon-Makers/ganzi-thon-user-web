@@ -5,6 +5,7 @@ import { useRef, useState } from "react";
 
 import { AppBar } from "@/shared/components/AppBar";
 import { PageShell } from "@/shared/components/PageShell";
+import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/Button";
 import { ChevronLeftIcon } from "@/shared/ui/icons";
 import { TabIndicator, TabList, TabPanel, TabRoot, TabTrigger } from "@/shared/ui/Tab";
@@ -74,16 +75,17 @@ export function ProjectPage() {
           // 투표 모드 진입 직후 선택 전이라 비활성이 되어도 포커스를 잃지 않게 함
           <Button
             ref={actionButtonRef}
-            className="w-full"
+            // 서비스명이 길면 두 줄까지 보이도록 높이를 내용에 맞춤
+            className={cn("w-full", action.votedTitle && "h-auto min-h-12 whitespace-normal")}
             disabled={action.isDisabled}
             focusableWhenDisabled
             onClick={voteFlow.handleAction}
           >
             {action.votedTitle ? (
-              // 팀 이름만 말줄임하고 뒤 문구는 항상 보이게 함
-              <span className="flex min-w-0">
-                <span className="min-w-0 truncate">{action.votedTitle}</span>
-                <span className="shrink-0">{action.label}</span>
+              // 화면에는 서비스명만 보이고(디자이너 확인), 스크린리더는 "…팀에게 투표 완료되었어요"까지 읽음
+              <span className="line-clamp-2 break-keep">
+                {action.votedTitle}
+                <span className="sr-only">{action.label}</span>
               </span>
             ) : (
               action.label
@@ -106,7 +108,12 @@ export function ProjectPage() {
         isSubmitting={voteFlow.isSubmitting}
         onConfirm={voteFlow.submitVote}
       />
-      <VoteCompleteModal open={voteFlow.isCompleteOpen} onOpenChange={voteFlow.setIsCompleteOpen} />
+      <VoteCompleteModal
+        open={voteFlow.isCompleteOpen}
+        onOpenChange={voteFlow.setIsCompleteOpen}
+        // 닫히면 "투표 완료" 문구가 있는 하단 버튼으로 포커스를 돌려 결과를 다시 들을 수 있게 함
+        finalFocus={actionButtonRef}
+      />
     </TabRoot>
   );
 }
