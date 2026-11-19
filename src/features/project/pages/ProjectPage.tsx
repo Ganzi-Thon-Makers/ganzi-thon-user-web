@@ -80,11 +80,10 @@ export function ProjectPage() {
             onClick={voteFlow.handleAction}
           >
             {action.votedTitle ? (
-              // 화면에는 서비스명만 보이고(디자이너 확인), 스크린리더는 "…팀에게 투표 완료되었어요"까지 읽음
-              // 서비스명은 최대 15자(기능 명세서)라 한 줄에 들어감. 명세보다 긴 값만 말줄임
-              <span className="min-w-0 truncate">
-                {action.votedTitle}
-                <span className="sr-only">{action.label}</span>
+              // 서비스명(최대 15자, 기능 명세서)이 명세보다 길 때만 이름을 말줄임하고 뒤 문구는 항상 보이게 함
+              <span className="flex min-w-0">
+                <span className="min-w-0 truncate">{action.votedTitle}</span>
+                <span className="shrink-0">{action.label}</span>
               </span>
             ) : (
               action.label
