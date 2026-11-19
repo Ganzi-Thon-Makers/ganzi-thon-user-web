@@ -7,11 +7,11 @@ const refreshPath = "/api/auth/refresh";
 const unauthorized = () => new Response(null, { status: 401 });
 const refreshed = () => Response.json({ data: { accessToken: "fresh-token" } });
 
-async function mockClient(backend: (request: Request) => Promise<Response>) {
+async function mockClient(backend: (request: Request) => Promise<Response>, pathname?: string) {
   const replace = vi.fn<(path: string) => void>();
   const fetch = vi.fn<(request: Request) => Promise<Response>>(backend);
 
-  vi.stubGlobal("window", { localStorage, location: { origin: "http://localhost:3000", replace } });
+  vi.stubGlobal("window", { localStorage, location: { origin: "http://localhost:3000", pathname, replace } });
   vi.stubGlobal("fetch", fetch);
 
   const { api } = await import("./client");
@@ -69,6 +69,18 @@ it.each([true, false])(
     expect(replace).toHaveBeenCalledExactlyOnceWith("/");
   },
 );
+
+it("스탬프 적립 화면에서 로그인이 풀리면 돌아올 경로를 담아 한 번만 로그인 화면으로 보낸다", async () => {
+  clearAccessToken();
+  const { api, replace } = await mockClient(async () => unauthorized(), "/stamp/collect");
+  const { isLoginRedirectPending } = await import("./client");
+  expect(isLoginRedirectPending()).toBe(false);
+
+  await expect(api.post("stamps")).rejects.toMatchObject({ response: { status: 401 } });
+  await expect(api.get("stamps")).rejects.toMatchObject({ response: { status: 401 } });
+  expect(replace).toHaveBeenCalledExactlyOnceWith("/?next=%2Fstamp%2Fcollect");
+  expect(isLoginRedirectPending()).toBe(true);
+});
 
 it("재발급한 토큰이 삭제되면 다음 401에서 다시 재발급한다", async () => {
   clearAccessToken();

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { toApiError } from "@/shared/api/error";
+import { getAfterLoginPath } from "@/shared/lib/login-return";
 import { Button } from "@/shared/ui/Button";
 import { TextField } from "@/shared/ui/TextField";
 
@@ -40,7 +41,7 @@ export function LoginForm() {
 
     setError(undefined);
     mutate(form, {
-      onSuccess: () => startTransition(() => router.replace("/timeline")),
+      onSuccess: () => startTransition(() => router.replace(getAfterLoginPath(window.location.search))),
       onError: (err) => {
         const { message } = toApiError(err);
         setError(message);
