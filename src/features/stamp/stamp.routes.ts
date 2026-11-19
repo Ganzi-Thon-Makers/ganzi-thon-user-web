@@ -23,6 +23,11 @@ export function getStampBoardHref(boothId: number, stampedAt: number): string {
   return `${STAMP_BOARD_PATH}?${params}`;
 }
 
+/** 부스 QR에 담을 적립 주소. 휴대폰 기본 카메라로 찍어도 열리도록 전체 주소로 만든다 */
+export function getStampCollectUrl(origin: string, token: string): string {
+  return `${origin}${STAMP_COLLECT_PATH}?${new URLSearchParams({ [STAMP_TOKEN_PARAM]: token })}`;
+}
+
 /** QR 내용이 스탬프 적립 주소면 토큰을, 아니면 null을 돌려준다 */
 export function parseStampToken(qrText: string): string | null {
   if (!URL.canParse(qrText)) return null;

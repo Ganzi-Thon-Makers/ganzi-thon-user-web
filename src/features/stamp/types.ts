@@ -18,3 +18,14 @@ export interface StampZone {
   requiredCount: number;
   booths: StampBoardBooth[];
 }
+
+/** QR 발급 화면의 부스. 제목에 쓰는 서비스 이름은 `GET /api/v1/projects/me`의 `title` (STAMP-01-2) */
+export interface OperatorBooth {
+  serviceName: string;
+}
+
+/** 부스 운영자가 발급한 스탬프 QR 토큰. expiresAt은 서버 LocalDateTime 형식 */
+export interface StampToken {
+  token: string;
+  expiresAt: string;
+}

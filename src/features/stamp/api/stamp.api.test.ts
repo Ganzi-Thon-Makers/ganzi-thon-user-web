@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { collectStamp, getMyStamps } from "./stamp.api";
+import { collectStamp, getMyStamps, toLocalDateTime } from "./stamp.api";
 import { createMockStampToken } from "./stamp.mock";
 
 describe("stamp api (mock)", () => {
@@ -24,5 +24,14 @@ describe("stamp api (mock)", () => {
 
   it("스탬프판에 없는 부스 토큰이면 잘못된 토큰으로 알린다", async () => {
     await expect(collectStamp(createMockStampToken(999))).resolves.toEqual({ status: "invalid-token" });
+  });
+});
+
+describe("toLocalDateTime", () => {
+  it("기기 로컬 시각으로 다시 읽으면 같은 초를 가리키는 타임존 없는 문자열을 만든다", () => {
+    const date = new Date(2026, 10, 21, 13, 0, 59, 500);
+
+    expect(toLocalDateTime(date)).toBe("2026-11-21T13:00:59");
+    expect(new Date(toLocalDateTime(date)).getTime()).toBe(new Date(2026, 10, 21, 13, 0, 59).getTime());
   });
 });
