@@ -8,13 +8,14 @@ function formatRemaining(seconds: number) {
 
 interface StampQrStatusProps {
   remainingSeconds: number;
+  isExpired: boolean;
 }
 
-/** 발급한 QR의 남은 시간, 만료되면 재발급 안내 (Figma 875:47703 · 875:47714) */
-export function StampQrStatus({ remainingSeconds }: StampQrStatusProps) {
+/** 발급한 QR의 남은 시간, 만료되면 재발급 안내 (Figma 913:9514 · 913:9525) */
+export function StampQrStatus({ remainingSeconds, isExpired }: StampQrStatusProps) {
   const pillClassName = "rounded-full bg-gray800 px-4 py-2 text-center text-body-m-14 text-gray300 break-keep";
 
-  if (remainingSeconds === 0) {
+  if (isExpired) {
     return <output className={pillClassName}>QR 코드가 만료됐어요. 다시 발급해 주세요.</output>;
   }
 
