@@ -1,10 +1,9 @@
-import { TimelinePage, TimelinePageSkeleton } from "@/features/timeline/pages/TimelinePage";
-import { AppBar } from "@/shared/components/AppBar";
+import { TimelinePage } from "@/features/timeline/pages/TimelinePage";
 import { PageBoundary } from "@/shared/components/PageBoundary";
 
 export default function Page() {
   return (
-    <PageBoundary header={<AppBar title="타임라인" />} fallback={<TimelinePageSkeleton />}>
+    <PageBoundary clientOnly={false}>
       <TimelinePage />
     </PageBoundary>
   );

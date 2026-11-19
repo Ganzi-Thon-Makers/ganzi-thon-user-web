@@ -2,7 +2,7 @@ import { api } from "@/shared/api/client";
 import { toApiError } from "@/shared/api/error";
 import type { ApiResponse } from "@/shared/api/types";
 
-import type { StampBoard } from "../types";
+import type { OperatorBooth, StampBoard, StampToken } from "../types";
 
 /** 내 스탬프판: 구역별 전체 부스와 적립 여부, 럭키드로우 진행 */
 export async function getStampBoard(): Promise<StampBoard> {
@@ -43,4 +43,34 @@ export async function collectStamp(token: string): Promise<CollectStampResult> {
     if (failure) return failure;
     throw error;
   }
+}
+
+interface MyProjectResponse {
+  title: string;
+}
+
+/** QR 발급 화면 제목. 팀 계정이 속한 프로젝트의 서비스 이름 */
+export async function getOperatorBooth(): Promise<OperatorBooth> {
+  const response = await api.get("api/v1/projects/me").json<ApiResponse<MyProjectResponse>>();
+  return { serviceName: response.data.title };
+}
+
+interface QrTokenResponse {
+  token: string;
+  ttlSeconds: number;
+}
+
+/** 팀 계정 부스의 스탬프 QR 토큰을 새로 발급한다. 서버가 계정의 프로젝트로 부스를 찾는다 (STAMP-01-2) */
+export async function issueStampToken(): Promise<StampToken> {
+  const response = await api.post("api/v1/qr-tokens").json<ApiResponse<QrTokenResponse>>();
+  // 서버 expiresAt은 타임존 없는 시각이고 서버가 LocalDateTime.now()(JVM 기본 시간대)로 만들어 기기 시각과 어긋날 수 있음.
+  // 받은 시점 + ttlSeconds로 기기 기준 만료 시각을 만듦
+  const expiresAt = new Date(Date.now() + response.data.ttlSeconds * 1000);
+  return { token: response.data.token, expiresAt: toLocalDateTime(expiresAt) };
+}
+
+/** 화면이 기기 로컬 시각으로 읽는, 타임존 없는 시각 문자열 */
+export function toLocalDateTime(date: Date): string {
+  const offsetMs = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 19);
 }

@@ -42,12 +42,25 @@
 - 설정값: 토큰 유효 60초, 만료 후 유예 10초(E2E로 조정 예정), 연속 적립 제한 300초
 - QR 발급자는 부스 팀 계정(`Role.TEAM`)이다. 서버가 팀 계정의 프로젝트로 부스를 정한다. 재발급해도 이전 토큰을 무효화하지 않는다.
 
+### QR 발급 (dev Swagger 확인 2026-11-19, 프론트 연결됨)
+
+| Method | Path                  | Operation      | 권한          | 응답 `data`에서 쓰는 필드                             |
+| ------ | --------------------- | -------------- | ------------- | ----------------------------------------------------- |
+| POST   | `/api/v1/qr-tokens`   | —              | `TEAM`만      | `token`, `ttlSeconds`(60). `expiresAt`도 오지만 안 씀 |
+| GET    | `/api/v1/projects/me` | `getMyProject` | 로그인 사용자 | `title` → 화면 제목의 서비스 이름                     |
+
+- 화면은 서버 `expiresAt`을 쓰지 않고 `받은 시점 + ttlSeconds`로 만료 시각을 만든다. 서버 `QrTokenService`가 Seoul `Clock` 대신 `LocalDateTime.now()`(JVM 기본 시간대, Docker 기본 UTC)로 `expiresAt`을 만들어 기기 시각과 9시간 어긋날 수 있어서다. 서버가 `Clock`을 쓰도록 고치면 `expiresAt`으로 되돌려도 된다. 에러는 401, 403 `FORBIDDEN`(팀 계정 아님), 404 `USER_NOT_FOUND`·`BOOTH_NOT_FOUND`.
+- `projects/me`는 서버 `SecurityPaths`에 역할 제한이 없고, 사용자 `projectId`로 조회한다(`ProjectBoothQueryFacade.getMyProject`). 팀에 프로젝트가 없으면 404 `PROJECT_NOT_FOUND`이고, 이때 QR 발급 화면은 `PageError`로 넘어간다.
+- 팀 계정은 로그인 직후 `/operator/qr`로 이동한다. role은 access token의 `role` claim으로 판별한다(`auth.md`).
+
 ## 프론트 함수
 
 | 프론트 함수           | 용도                                       | 쿼리 키                                             |
 | --------------------- | ------------------------------------------ | --------------------------------------------------- |
 | `getStampBoard()`     | 스탬프판(구역별 부스·적립 여부·럭키드로우) | `["stamps", "board"]`                               |
 | `collectStamp(token)` | QR 토큰으로 적립                           | — (적립·이미 받음이면 `["stamps", "board"]` 무효화) |
+| `getOperatorBooth()`  | QR 발급 화면 제목                          | `["stamps", "operator-booth"]`                      |
+| `issueStampToken()`   | 스탬프 QR 토큰 발급                        | — (발급한 토큰은 캐시에 두지 않음)                  |
 
 ## 공통 응답 (서버 `common/dto`)
 

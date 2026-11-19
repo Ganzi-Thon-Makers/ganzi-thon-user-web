@@ -1,21 +1,25 @@
+"use client";
+
+import { useSuspenseQuery } from "@tanstack/react-query";
+
+import { timelineQueries } from "../api/timeline.queries";
 import { useNow } from "../hooks/use-now";
-import type { TimelineEvent } from "../types";
 import { TimelineItem } from "./TimelineItem";
 
-interface TimelineListProps {
-  events: TimelineEvent[];
-}
+export function TimelineList() {
+  const {
+    data: { timetables },
+  } = useSuspenseQuery(timelineQueries.list());
 
-export function TimelineList({ events }: TimelineListProps) {
   const currentTime = useNow();
 
-  if (events.length === 0) {
+  if (timetables.length === 0) {
     return <p className="py-4 text-body-r-16 text-gray300">등록된 일정이 없어요.</p>;
   }
 
   return (
     <ol className="flex list-decimal flex-col gap-2 marker:text-transparent">
-      {events.map((event) => (
+      {timetables.map((event) => (
         <li key={event.id}>
           <TimelineItem {...event} currentTime={currentTime} />
         </li>
