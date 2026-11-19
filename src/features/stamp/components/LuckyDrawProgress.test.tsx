@@ -3,22 +3,18 @@ import { beforeEach, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/shared/test/render";
 
-import { getMyStamps } from "../api/stamp.api";
-import { makeStamp } from "../stamp.fixtures";
+import { getStampBoard } from "../api/stamp.api";
+import { makeStampBoard } from "../stamp.fixtures";
 import { LuckyDrawProgress } from "./LuckyDrawProgress";
 
 vi.mock("../api/stamp.api");
-
-function makeStamps(count: number) {
-  return Array.from({ length: count }, (_, index) => makeStamp(index + 1));
-}
 
 beforeEach(() => {
   localStorage.clear();
 });
 
-it("15개를 모으면 응모 안내 모달을 보여주고, 닫으면 다시 보여주지 않는다", async () => {
-  vi.mocked(getMyStamps).mockResolvedValue(makeStamps(15));
+it("럭키드로우에 응모되면 응모 안내 모달을 보여주고, 닫으면 다시 보여주지 않는다", async () => {
+  vi.mocked(getStampBoard).mockResolvedValue(makeStampBoard({ collectedCount: 15 }));
 
   const { user, unmount } = renderWithProviders(<LuckyDrawProgress />);
 
@@ -34,7 +30,7 @@ it("15개를 모으면 응모 안내 모달을 보여주고, 닫으면 다시 �
 });
 
 it("화면에 보이지 않는 닫기 버튼으로도 응모 안내 모달을 닫을 수 있다", async () => {
-  vi.mocked(getMyStamps).mockResolvedValue(makeStamps(15));
+  vi.mocked(getStampBoard).mockResolvedValue(makeStampBoard({ collectedCount: 15 }));
 
   const { user } = renderWithProviders(<LuckyDrawProgress />);
 
@@ -44,8 +40,8 @@ it("화면에 보이지 않는 닫기 버튼으로도 응모 안내 모달을 �
   await waitFor(() => expect(modal).not.toBeInTheDocument());
 });
 
-it("15개 미만이면 응모 안내 모달을 보여주지 않는다", async () => {
-  vi.mocked(getMyStamps).mockResolvedValue(makeStamps(14));
+it("아직 응모 전이면 응모 안내 모달을 보여주지 않는다", async () => {
+  vi.mocked(getStampBoard).mockResolvedValue(makeStampBoard({ collectedCount: 14 }));
 
   renderWithProviders(<LuckyDrawProgress />);
 

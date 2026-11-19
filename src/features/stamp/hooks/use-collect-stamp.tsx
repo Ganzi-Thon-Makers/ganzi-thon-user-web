@@ -13,6 +13,12 @@ import { getStampBoardHref, STAMP_BOARD_PATH } from "../stamp.routes";
 const SCAN_FAILED_TOAST_ID = "stamp-scan-failed";
 const COLLECT_FAILED_TOAST_ID = "stamp-collect-failed";
 
+// 다시 스캔해도 받을 수 없는 경우의 안내
+const BLOCKED_MESSAGES = {
+  cooldown: "스탬프는 5분에 한 번 받을 수 있어요. 잠시 후 다시 스캔해 주세요.",
+  "own-booth": "우리 팀 부스의 스탬프는 받을 수 없어요.",
+} satisfies Record<"cooldown" | "own-booth", string>;
+
 interface CollectStampOptions {
   /** 응답을 받은 시점에 이 요청이 아직 유효한지. false면 화면을 옮기지 않는다 */
   isCurrent?: () => boolean;
@@ -45,7 +51,7 @@ export function useCollectStamp() {
 
     const result = await mutateAsync(token).catch(() => null);
     if (!result) {
-      // TODO: 요청 실패 문구가 디자인에 없어 임시 문구. 서버 에러 형식이 정해지면 원인별로 나눔
+      // TODO: 요청 실패 문구가 디자인에 없어 임시 문구
       toast.error("스탬프를 받지 못했어요. 잠시 후 다시 시도해 주세요.", {
         id: COLLECT_FAILED_TOAST_ID,
         data: { icon: <ErrorIcon /> },
@@ -60,11 +66,9 @@ export function useCollectStamp() {
       return false;
     }
 
-    if (result.status === "cooldown") {
-      // TODO: 연속 적립 제한(5분) 문구가 디자인에 없어 임시 문구
-      toast.error("스탬프는 5분에 한 번 받을 수 있어요. 잠시 후 다시 스캔해 주세요.", {
-        data: { icon: <ErrorIcon /> },
-      });
+    if (result.status === "cooldown" || result.status === "own-booth") {
+      // TODO: 연속 적립 제한(5분)·본인 팀 부스 문구가 디자인에 없어 임시 문구
+      toast.error(BLOCKED_MESSAGES[result.status], { data: { icon: <ErrorIcon /> } });
       // 적립한 부스가 없어 펼칠 구역 없이 스탬프판으로만 보냄
       if (isCurrent()) router.replace(STAMP_BOARD_PATH);
       return true;
