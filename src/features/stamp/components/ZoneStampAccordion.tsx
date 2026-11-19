@@ -19,15 +19,16 @@ interface ZoneStampAccordionProps {
   zoneName: string;
   requiredCount: number;
   stamps: ZoneStamp[];
+  defaultOpen?: boolean;
 }
 
-export function ZoneStampAccordion({ zoneName, requiredCount, stamps }: ZoneStampAccordionProps) {
+export function ZoneStampAccordion({ zoneName, requiredCount, stamps, defaultOpen }: ZoneStampAccordionProps) {
   const collectedCount = stamps.filter((stamp) => stamp.isCollected).length;
   const isCompleted = collectedCount >= requiredCount;
   const badgeLabel = isCompleted ? `${zoneName} 수료 완료` : `${zoneName} 수료까지 ${requiredCount - collectedCount}개`;
 
   return (
-    <CollapsibleRoot className="group rounded-lg bg-gray800 p-4">
+    <CollapsibleRoot defaultOpen={defaultOpen} className="group rounded-lg bg-gray800 p-4">
       <CollapsibleTrigger
         nativeButton={false}
         render={<div />}
