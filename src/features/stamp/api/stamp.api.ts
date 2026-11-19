@@ -25,7 +25,7 @@ export type CollectStampResult =
   | { status: "cooldown" }
   | { status: "own-booth" };
 
-// 서버 ErrorCode → 결과. 그 밖의 에러(참가자 아님·5xx 등)는 요청 실패로 던진다
+// 서버 ErrorCode → 결과. 그 밖의 에러(참가자 아님·5xx 등)는 요청 실패로 던짐
 const COLLECT_FAILURE_BY_CODE: Record<string, Exclude<CollectStampResult, { boothId: number }>> = {
   QR_TOKEN_EXPIRED: { status: "expired" },
   QR_TOKEN_NOT_FOUND: { status: "invalid-token" },
