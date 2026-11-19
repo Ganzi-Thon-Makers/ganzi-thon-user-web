@@ -46,7 +46,7 @@
 
 - 위치: `src/shared/ui/BottomNavigation.tsx`. 앱 경로·라벨을 알아서 `architecture.md` 배치 기준으로는 `shared/components`로 옮길 대상이다(별도 작업)
 - 용도: 하단 탭(타임라인·부스·프로젝트·마이)과 가운데 원형 버튼. 탭은 `next/link`와 `aria-current="page"`, 하단 safe-area와 가운데 홈 크기는 `globals.css`의 `bottom-navigation-metrics`가 맡는다
-- 사용 시점: 탭 화면은 `app/(main)/(tabs)/layout.tsx`가 이미 렌더한다. 가운데 버튼을 스탬프 링크 대신 QR 동작으로 바꿔야 하는 화면만 `onQrClick`을 넘긴다(`features/stamp/components/StampNavigation.tsx`)
+- 사용 시점: 탭 화면은 `app/(main)/(tabs)/layout.tsx`가 이미 렌더한다. 가운데 버튼을 스탬프 링크 대신 QR 동작으로 바꿔야 하는 화면만 `onQrClick`을 넘긴다(`features/stamp/components/StampNavigation.tsx`). access token의 `role`이 PARTICIPANT가 아니면(팀·관리자) 가운데 버튼과 홈을 그리지 않는다
 - 피해야 할 사용: 페이지에서 다시 렌더하지 않는다. 하단 탭이 없어야 하는 화면은 `app/(standalone)`에 둔다. 탭을 늘리면 가운데 홈 비율이 깨지므로 디자인을 먼저 확인한다
 - 관련 검증: `src/shared/ui/BottomNavigation.test.tsx`, 좁은 화면과 iOS safe-area 확인
 
