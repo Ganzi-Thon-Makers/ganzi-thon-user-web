@@ -1,7 +1,7 @@
 import { encode } from "uqr";
 
-// QR 리더가 경계를 찾도록 남기는 여백(모듈 수)
-const QUIET_ZONE_MODULES = 2;
+// QR 리더가 경계를 찾도록 남기는 여백(모듈 수). QR 표준 최소값 4
+const QUIET_ZONE_MODULES = 4;
 
 interface StampQrCodeProps {
   value: string;
