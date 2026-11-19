@@ -5,11 +5,20 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { toApiError } from "@/shared/api/error";
+import { getAccessTokenRole } from "@/shared/api/token";
 import { getAfterLoginPath } from "@/shared/lib/login-return";
 import { Button } from "@/shared/ui/Button";
 import { TextField } from "@/shared/ui/TextField";
 
 import { authMutations } from "../api/auth.queries";
+
+// 팀 계정은 부스 운영자라 스탬프 QR 발급 화면에서 시작
+const OPERATOR_HOME_PATH = "/operator/qr";
+
+// 팀 계정은 스탬프를 못 모아서 돌아갈 경로(스탬프 적립)가 있어도 QR 발급 화면으로 보냄
+function getAfterLoginHref() {
+  return getAccessTokenRole() === "TEAM" ? OPERATOR_HOME_PATH : getAfterLoginPath(window.location.search);
+}
 
 export function LoginForm() {
   const router = useRouter();
@@ -41,7 +50,7 @@ export function LoginForm() {
 
     setError(undefined);
     mutate(form, {
-      onSuccess: () => startTransition(() => router.replace(getAfterLoginPath(window.location.search))),
+      onSuccess: () => startTransition(() => router.replace(getAfterLoginHref())),
       onError: (err) => {
         const { message } = toApiError(err);
         setError(message);

@@ -1,32 +1,42 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, screen } from "@testing-library/react";
 import { expect, it, vi } from "vitest";
 
-import type { TimelineEvent } from "../types";
+import { renderWithProviders } from "@/shared/test/render";
+
+import { getTimetable } from "../api/timeline.api";
+import type { Timeline } from "../types";
 import { TimelineList } from "./TimelineList";
 
-const events: TimelineEvent[] = [
+vi.mock("../api/timeline.api");
+
+const timetables: Timeline[] = [
   {
     id: 1,
-    startTime: "2026-11-21T09:30:00",
-    endTime: "2026-11-21T10:30:00",
+    startTime: "09:30",
+    endTime: "10:30",
     title: "입장",
     description: "입장 안내",
   },
   {
     id: 2,
-    startTime: "2026-11-21T10:30:00",
-    endTime: "2026-11-21T11:00:00",
+    startTime: "10:30",
+    endTime: "11:00",
     title: "오프닝",
     description: "오프닝 안내",
   },
 ];
 
-it("목록을 열어둔 상태에서 다음 일정이 시작되면 진행 중 표시가 바뀐다", () => {
+it("목록을 열어둔 상태에서 다음 일정이 시작되면 진행 중 표시가 바뀐다", async () => {
+  vi.mocked(getTimetable).mockResolvedValueOnce({ timetables });
   vi.useFakeTimers();
   vi.setSystemTime(new Date("2026-11-21T01:29:59Z"));
 
+  const { queryClient, unmount } = renderWithProviders(<TimelineList />);
+
   try {
-    const { unmount } = render(<TimelineList events={events} />);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
 
     const entry = screen.getByRole("button", { name: /입장/ });
     const opening = screen.getByRole("button", { name: /오프닝/ });
@@ -40,6 +50,7 @@ it("목록을 열어둔 상태에서 다음 일정이 시작되면 진행 중 �
     expect(opening).toHaveAttribute("aria-current", "time");
 
     unmount();
+    queryClient.clear();
     expect(vi.getTimerCount()).toBe(0);
   } finally {
     vi.useRealTimers();

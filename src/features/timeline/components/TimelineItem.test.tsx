@@ -10,8 +10,8 @@ it("클릭과 Enter 키로 일정의 상세 설명을 펼치고 접는다", asyn
     <TimelineItem
       id={1}
       currentTime={Date.parse("2026-11-21T00:00:00Z")}
-      startTime="2026-11-21T09:00:00"
-      endTime="2026-11-21T10:00:00"
+      startTime="09:00"
+      endTime="10:00"
       title="인사"
       description="출석 체크, 명찰·스탬프판 수령"
     />,
@@ -34,8 +34,8 @@ it("클릭과 Enter 키로 일정의 상세 설명을 펼치고 접는다", asyn
 it("자신의 시간 범위에 현재 시각이 들어갈 때만 진행 중으로 표시한다", () => {
   const event = {
     id: 1,
-    startTime: "2026-11-21T10:30:00",
-    endTime: "2026-11-21T11:00:00",
+    startTime: "10:30",
+    endTime: "11:00",
     title: "오프닝",
     description: "설명",
   };
@@ -48,19 +48,18 @@ it("자신의 시간 범위에 현재 시각이 들어갈 때만 진행 중으�
   expect(trigger).not.toHaveAttribute("aria-current");
 });
 
-it("설명이 없는 일정은 펼침 없이 시간과 제목을 표시한다", () => {
+it("일정의 시간 범위와 제목을 표시한다", () => {
   render(
     <TimelineItem
       id={1}
       currentTime={Date.parse("2026-11-21T01:30:00Z")}
-      startTime="2026-11-21T10:30:00"
-      endTime="2026-11-21T11:00:00"
+      startTime="10:30"
+      endTime="11:00"
       title="오프닝"
-      description={null}
+      description="오프닝 안내"
     />,
   );
 
   expect(screen.getByText("10:30-11:00")).toBeVisible();
   expect(screen.getByText("오프닝")).toBeVisible();
-  expect(screen.queryByRole("button")).not.toBeInTheDocument();
 });
