@@ -1,20 +1,27 @@
-import type { BaseEntity } from "@/shared/api/types";
+// 서버 Zone enum
+export const STAMP_ZONES = ["ZONE1", "ZONE2", "ZONE3"] as const;
+export type StampZoneCode = (typeof STAMP_ZONES)[number];
 
-/** 사용자가 부스를 방문해 받은 스탬프. 사용자·부스 조합당 하나다. */
-export interface Stamp extends BaseEntity {
-  userId: number;
+/** 서버 StampBoardResponse.BoothStamp. 부스에 프로젝트가 없으면 boothName이 null이다. */
+export interface BoothStamp {
   boothId: number;
+  boothName: string | null;
+  boothNumber: number | null;
+  collected: boolean;
 }
 
-/** 스탬프판의 부스 한 칸. 서버 응답 형태는 아직 미정이라 화면에 필요한 필드만 둔다. */
-export interface StampBoardBooth {
-  boothId: number;
-  boothName: string;
+/** 서버 StampBoardResponse.ZoneStatus 중 화면이 쓰는 필드 */
+export interface ZoneStampStatus {
+  zone: StampZoneCode;
+  totalBooths: number;
+  collectedCount: number;
+  completed: boolean;
+  booths: BoothStamp[];
 }
 
-/** 스탬프판의 구역. requiredCount개를 모으면 구역 수료다. */
-export interface StampZone {
-  zoneName: string;
-  requiredCount: number;
-  booths: StampBoardBooth[];
+/** 서버 StampBoardResponse (GET /api/v1/stamps) */
+export interface StampBoard {
+  collectedCount: number;
+  luckyDrawEntered: boolean;
+  zoneStatuses: ZoneStampStatus[];
 }

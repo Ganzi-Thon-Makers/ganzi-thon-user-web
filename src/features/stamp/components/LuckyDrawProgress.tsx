@@ -11,12 +11,12 @@ import { LuckyDrawEnteredModal } from "./LuckyDrawEnteredModal";
 const LUCKY_DRAW_GOAL_COUNT = 15;
 
 export function LuckyDrawProgress() {
-  const { data: stamps } = useSuspenseQuery(stampQueries.mine());
-  const notice = useLuckyDrawNotice(stamps.length >= LUCKY_DRAW_GOAL_COUNT);
+  const { data: board } = useSuspenseQuery(stampQueries.board());
+  const notice = useLuckyDrawNotice(board.luckyDrawEntered);
 
   return (
     <>
-      <LuckyDrawCard collectedCount={stamps.length} goalCount={LUCKY_DRAW_GOAL_COUNT} />
+      <LuckyDrawCard collectedCount={board.collectedCount} goalCount={LUCKY_DRAW_GOAL_COUNT} />
       <LuckyDrawEnteredModal open={notice.isOpen} onClose={notice.dismiss} />
     </>
   );

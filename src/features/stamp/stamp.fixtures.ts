@@ -1,6 +1,22 @@
-import type { Stamp } from "./types";
+import type { StampBoard, StampZoneCode, ZoneStampStatus } from "./types";
 
-/** 테스트용 스탬프. id는 boothId와 같게 둔다. */
-export function makeStamp(boothId: number): Stamp {
-  return { id: boothId, createdAt: "2026-11-21T13:00:00", updatedAt: "2026-11-21T13:00:00", userId: 1, boothId };
+/** 테스트용 구역. 부스 이름은 `<boothId>팀`이다. */
+export function makeZoneStatus(zone: StampZoneCode, boothIds: number[], collectedIds: number[] = []): ZoneStampStatus {
+  const booths = boothIds.map((boothId) => ({
+    boothId,
+    boothName: `${boothId}팀`,
+    boothNumber: boothId,
+    collected: collectedIds.includes(boothId),
+  }));
+  const collectedCount = booths.filter((booth) => booth.collected).length;
+  return { zone, totalBooths: booths.length, collectedCount, completed: collectedCount >= 5, booths };
+}
+
+/** 테스트용 스탬프판. 기본은 빈 구역 없이 개수만 담는다. */
+export function makeStampBoard({
+  collectedCount = 0,
+  luckyDrawEntered = collectedCount >= 15,
+  zoneStatuses = [],
+}: Partial<StampBoard> = {}): StampBoard {
+  return { collectedCount, luckyDrawEntered, zoneStatuses };
 }
