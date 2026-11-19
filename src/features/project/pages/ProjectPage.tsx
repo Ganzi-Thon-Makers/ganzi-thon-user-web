@@ -5,7 +5,6 @@ import { useRef, useState } from "react";
 
 import { AppBar } from "@/shared/components/AppBar";
 import { PageShell } from "@/shared/components/PageShell";
-import { cn } from "@/shared/lib/cn";
 import { Button } from "@/shared/ui/Button";
 import { ChevronLeftIcon } from "@/shared/ui/icons";
 import { TabIndicator, TabList, TabPanel, TabRoot, TabTrigger } from "@/shared/ui/Tab";
@@ -75,15 +74,15 @@ export function ProjectPage() {
           // 투표 모드 진입 직후 선택 전이라 비활성이 되어도 포커스를 잃지 않게 함
           <Button
             ref={actionButtonRef}
-            // 서비스명이 길면 두 줄까지 보이도록 높이를 내용에 맞춤
-            className={cn("w-full", action.votedTitle && "h-auto min-h-12 whitespace-normal")}
+            className="w-full"
             disabled={action.isDisabled}
             focusableWhenDisabled
             onClick={voteFlow.handleAction}
           >
             {action.votedTitle ? (
               // 화면에는 서비스명만 보이고(디자이너 확인), 스크린리더는 "…팀에게 투표 완료되었어요"까지 읽음
-              <span className="line-clamp-2 break-keep">
+              // 서비스명은 최대 15자(기능 명세서)라 한 줄에 들어감. 명세보다 긴 값만 말줄임
+              <span className="min-w-0 truncate">
                 {action.votedTitle}
                 <span className="sr-only">{action.label}</span>
               </span>
