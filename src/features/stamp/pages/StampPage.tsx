@@ -11,8 +11,8 @@ import { ZoneStampSection, ZoneStampSectionSkeleton } from "../components/ZoneSt
 export function StampPage() {
   return (
     <PageShell isFullBleed>
-      {/* 상단 영역은 화면 끝까지 gray800으로 채움. PageShell 위 여백까지 덮도록 같은 값만큼 끌어올림 */}
-      <section className="relative -mt-[max(--spacing(10),env(safe-area-inset-top,0px))] rounded-b-xl bg-gray800 px-[max(--spacing(4),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))] pt-[max(--spacing(10),env(safe-area-inset-top,0px))] pb-6">
+      {/* 상단 영역은 화면 끝(상단 safe-area 포함)까지 gray800으로 채움 */}
+      <section className="relative rounded-b-xl bg-gray800 page-gutter-x page-gutter-top pb-6">
         {/* 좁은 화면에서 마스코트와 겹쳐도 글자가 위에 오도록 relative */}
         <div className="relative z-10 flex flex-col gap-1 break-keep">
           <h1 className="text-title-sb-24 text-white">스탬프 투어</h1>
@@ -25,6 +25,7 @@ export function StampPage() {
             alt=""
             width={324}
             height={405}
+            sizes="108px"
             loading="eager"
             className="absolute right-0.75 bottom-full w-27 translate-y-13.5"
           />
@@ -35,7 +36,7 @@ export function StampPage() {
           </div>
         </div>
       </section>
-      <div className="mt-7 px-[max(--spacing(4),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))]">
+      <div className="mt-7 page-gutter-x">
         <Suspense fallback={<ZoneStampSectionSkeleton />}>
           <ZoneStampSection />
         </Suspense>
