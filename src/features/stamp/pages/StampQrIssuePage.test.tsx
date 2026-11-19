@@ -43,7 +43,7 @@ async function expectFreshTimer() {
 beforeEach(() => {
   vi.useFakeTimers({ shouldAdvanceTime: true });
   vi.setSystemTime(new Date(2026, 10, 21, 13, 0, 0));
-  vi.mocked(getOperatorBooth).mockResolvedValue({ boothId: 5, serviceName: "5팀 서비스" });
+  vi.mocked(getOperatorBooth).mockResolvedValue({ serviceName: "5팀 서비스" });
 });
 
 afterEach(() => {
