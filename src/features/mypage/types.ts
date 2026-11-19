@@ -1,12 +1,12 @@
-export interface MyPageProfile {
+import type { Part } from "@/shared/api/types";
+
+export interface MyPageResponse {
+  userId: number;
   name: string;
   loginId: string;
-}
-
-export interface MyPageTeam {
-  name: string;
-  memberGroups: readonly {
-    part: "PLAN" | "DESIGN" | "WEB" | "APP" | "SERVER";
-    members: readonly { id: number; name: string }[];
+  teamNumber: number;
+  teamMemberList: {
+    name: string;
+    part: Part;
   }[];
 }

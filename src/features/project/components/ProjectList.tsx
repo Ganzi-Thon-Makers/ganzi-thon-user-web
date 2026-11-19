@@ -16,6 +16,8 @@ const cardActionClassName =
 
 interface ProjectListProps {
   zone: Zone;
+  /** 투표를 마쳤으면 투표한 프로젝트를 강조하고 나머지를 흐리게 표시 */
+  votedProjectId?: number | null;
   /** 있으면 투표 모드: 카드가 상세 링크 대신 선택 버튼이 됨 */
   vote?: {
     selectedProjectId: number | null;
@@ -23,7 +25,7 @@ interface ProjectListProps {
   };
 }
 
-export function ProjectList({ zone, vote }: ProjectListProps) {
+export function ProjectList({ zone, votedProjectId = null, vote }: ProjectListProps) {
   const { data: projectsByZone } = useSuspenseQuery(projectQueries.list());
   // 프로젝트가 없는 구역은 응답에서 키가 빠질 수 있음
   const projects = projectsByZone[zone] ?? [];
@@ -35,14 +37,15 @@ export function ProjectList({ zone, vote }: ProjectListProps) {
   return (
     <ul className="grid grid-cols-2 gap-x-2.5 gap-y-5">
       {projects.map((project) => {
+        const isHighlighted = (vote ? vote.selectedProjectId : votedProjectId) === project.id;
         const card = (
           <ProjectCard
             thumbnailSrc={project.thumbnailUrl}
             name={project.title}
             summary={project.summary}
             platform={project.platform}
-            isSelected={vote?.selectedProjectId === project.id}
-            isDisabled={vote !== undefined && vote.selectedProjectId !== project.id}
+            isSelected={isHighlighted}
+            isDimmed={(vote !== undefined || votedProjectId !== null) && !isHighlighted}
           />
         );
 
@@ -51,6 +54,8 @@ export function ProjectList({ zone, vote }: ProjectListProps) {
             <li key={project.id}>
               <Link href={`/projects/${project.id}`} className={cardActionClassName}>
                 {card}
+                {/* 테두리로만 보이는 투표 여부를 스크린리더에도 알림 */}
+                {isHighlighted && <span className="sr-only">투표한 프로젝트</span>}
               </Link>
             </li>
           );

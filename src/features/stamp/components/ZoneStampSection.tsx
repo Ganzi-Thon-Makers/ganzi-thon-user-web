@@ -1,9 +1,11 @@
 "use client";
 
 import { useSuspenseQueries } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { stampQueries } from "../api/stamp.queries";
+import { STAMPED_AT_PARAM, STAMPED_BOOTH_PARAM } from "../stamp.routes";
 import { ZoneStampAccordion } from "./ZoneStampAccordion";
 
 const ZONE_SKELETON_COUNT = 3;
@@ -32,6 +34,12 @@ export function ZoneStampSection() {
     queries: [stampQueries.mine(), stampQueries.zones()],
   });
 
+  // 방금 스탬프를 받은(또는 이미 받은) 부스가 있으면 그 구역을 펼쳐 보여줌
+  const searchParams = useSearchParams();
+  const stampedBoothParam = searchParams.get(STAMPED_BOOTH_PARAM);
+  const stampKey = `${stampedBoothParam}-${searchParams.get(STAMPED_AT_PARAM)}`;
+  const stampedBoothId = stampedBoothParam === null ? null : Number(stampedBoothParam);
+
   const collectedBoothIds = new Set(myStamps.map((stamp) => stamp.boothId));
   const boardBooths = zones.flatMap((zone) => zone.booths);
   // 스탬프판에 없는 부스의 스탬프는 세지 않아 "31/30" 같은 값이 나오지 않게 함
@@ -49,6 +57,9 @@ export function ZoneStampSection() {
         {zones.map((zone) => (
           <li key={zone.zoneName}>
             <ZoneStampAccordion
+              // 스탬프를 받을 때마다(같은 부스 포함) 펼침 상태를 새로 정함
+              key={stampKey}
+              defaultOpen={zone.booths.some((booth) => booth.boothId === stampedBoothId)}
               zoneName={zone.zoneName}
               requiredCount={zone.requiredCount}
               stamps={zone.booths.map((booth) => ({
