@@ -5,10 +5,18 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { toApiError } from "@/shared/api/error";
+import { getAccessTokenRole } from "@/shared/api/token";
 import { Button } from "@/shared/ui/Button";
 import { TextField } from "@/shared/ui/TextField";
 
 import { authMutations } from "../api/auth.queries";
+
+// 팀 계정은 부스 운영자라 스탬프 QR 발급 화면에서 시작
+const OPERATOR_HOME_PATH = "/operator/qr";
+
+function getHomePath() {
+  return getAccessTokenRole() === "TEAM" ? OPERATOR_HOME_PATH : "/timeline";
+}
 
 export function LoginForm() {
   const router = useRouter();
@@ -40,7 +48,7 @@ export function LoginForm() {
 
     setError(undefined);
     mutate(form, {
-      onSuccess: () => startTransition(() => router.replace("/timeline")),
+      onSuccess: () => startTransition(() => router.replace(getHomePath())),
       onError: (err) => {
         const { message } = toApiError(err);
         setError(message);
