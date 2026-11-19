@@ -1,7 +1,7 @@
 export interface Timeline {
   id: number;
   title: string;
-  description: string;
+  description: string | null;
   startTime: string;
   endTime: string;
 }

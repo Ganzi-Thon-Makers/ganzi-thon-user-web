@@ -8,8 +8,10 @@ interface TimelineItemProps extends Timeline {
   currentTime: number;
 }
 
+const eventDate = "2026-11-21";
+
 function parseEventTime(time: string) {
-  return Date.parse(`2026-11-21T${time}:00+09:00`);
+  return Date.parse(`${eventDate}T${time}:00+09:00`);
 }
 
 export function TimelineItem({ startTime, endTime, title, description, currentTime }: TimelineItemProps) {
@@ -17,11 +19,13 @@ export function TimelineItem({ startTime, endTime, title, description, currentTi
   const end = parseEventTime(endTime);
   const isOngoing = start <= currentTime && currentTime < end;
   const time = `${startTime}-${endTime}`;
+  const Container = description ? CollapsibleRoot : "div";
+  const Header = description ? CollapsibleTrigger : "div";
 
   return (
     // inset ring이라 진행 중이어도 크기가 그대로다.
-    <CollapsibleRoot className={cn("group rounded-lg bg-gray800", isOngoing && "ring-1 ring-red400 ring-inset")}>
-      <CollapsibleTrigger
+    <Container className={cn("group rounded-lg bg-gray800", isOngoing && "ring-1 ring-red400 ring-inset")}>
+      <Header
         aria-current={isOngoing ? "time" : undefined}
         className={cn(
           "flex items-center justify-between rounded-lg p-4",
@@ -39,7 +43,7 @@ export function TimelineItem({ startTime, endTime, title, description, currentTi
             className="shrink-0 text-gray200 group-data-open:rotate-180 motion-safe:transition-[rotate] motion-safe:duration-200 motion-safe:ease-out"
           />
         ) : null}
-      </CollapsibleTrigger>
+      </Header>
       {description ? (
         <CollapsiblePanel
           hiddenUntilFound
@@ -50,6 +54,6 @@ export function TimelineItem({ startTime, endTime, title, description, currentTi
           </div>
         </CollapsiblePanel>
       ) : null}
-    </CollapsibleRoot>
+    </Container>
   );
 }
