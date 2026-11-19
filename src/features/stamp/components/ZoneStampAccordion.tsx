@@ -7,7 +7,7 @@ import { ChevronDownIcon, ChevronUpIcon } from "@/shared/ui/icons";
 import { ProgressBar } from "@/shared/ui/ProgressBar";
 
 import { getBoothMapHref } from "../stamp.routes";
-import { StampCircle } from "./StampCircle";
+import { StampMark } from "./StampMark";
 
 interface ZoneStamp {
   boothName: string;
@@ -84,7 +84,7 @@ export function ZoneStampAccordion({ zoneName, requiredCount, stamps, defaultOpe
 function StampCell({ stamp }: { stamp: ZoneStamp }) {
   return (
     <span className="flex flex-col items-center gap-1">
-      <StampCircle isCollected={stamp.isCollected} />
+      <StampMark isCollected={stamp.isCollected} />
       <span className="w-full text-center text-caption-m-12 wrap-break-word text-white">{stamp.boothName}</span>
     </span>
   );
