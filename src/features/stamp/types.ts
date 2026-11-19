@@ -19,9 +19,8 @@ export interface StampZone {
   booths: StampBoardBooth[];
 }
 
-/** QR 발급 화면의 부스. 서버 응답 형태는 아직 미정이라 화면에 필요한 필드만 둔다 (STAMP-01-2) */
+/** QR 발급 화면의 부스. 제목에 쓰는 서비스 이름은 `GET /api/v1/projects/me`의 `title` (STAMP-01-2) */
 export interface OperatorBooth {
-  boothId: number;
   serviceName: string;
 }
 
