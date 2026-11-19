@@ -104,6 +104,7 @@ it("적립 요청이 실패하면 실패를 알리고 스탬프판으로 보낸�
 
   expect(await screen.findByText("스탬프를 받지 못했어요. 잠시 후 다시 시도해 주세요.")).toBeInTheDocument();
   await waitFor(() => expect(navigation.replace).toHaveBeenLastCalledWith("/stamp"));
+  expect(readPendingStampToken()).toBeNull();
 });
 
 it("서버가 토큰을 받지 않으면(만료) 보관한 토큰을 지운다", async () => {

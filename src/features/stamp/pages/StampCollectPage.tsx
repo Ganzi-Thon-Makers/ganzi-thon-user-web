@@ -25,12 +25,11 @@ export function StampCollectPage() {
     router.replace(STAMP_COLLECT_PATH);
     // 로그인이 풀려 로그인 화면으로 가도 로그인 뒤 이어서 적립하게 서버 응답 전까지 보관
     if (token) savePendingStampToken(token);
-    const isDone = await collectStamp(token, {
-      isCurrent: () => isMountedRef.current,
-      onRejected: clearPendingStampToken,
-    });
-    if (isDone) clearPendingStampToken();
-    if (!isDone && isMountedRef.current && !isLoginRedirectPending()) router.replace(STAMP_BOARD_PATH);
+    const isDone = await collectStamp(token, { isCurrent: () => isMountedRef.current });
+    // 로그인 화면으로 가는 중일 때만 남기고, 성공·실패와 상관없이 지움
+    if (isLoginRedirectPending()) return;
+    clearPendingStampToken();
+    if (!isDone && isMountedRef.current) router.replace(STAMP_BOARD_PATH);
   });
 
   useEffect(() => {
