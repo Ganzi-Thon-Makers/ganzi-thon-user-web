@@ -12,7 +12,7 @@ function BoothColumn({ booths }: BoothColumnProps) {
     <ul className="flex flex-col gap-3">
       {booths.map((booth) => (
         <li key={booth.boothId}>
-          <ModalTrigger render={<BoothButton />} payload={booth}>
+          <ModalTrigger render={<BoothButton />} payload={booth.boothId}>
             {booth.teamNumber}팀
           </ModalTrigger>
         </li>

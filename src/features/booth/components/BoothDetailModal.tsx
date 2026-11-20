@@ -1,11 +1,13 @@
 "use client";
 
+import { ErrorBoundary, Suspense } from "@suspensive/react";
+import { QueryErrorResetBoundary } from "@tanstack/react-query";
 import type { ReactNode } from "react";
 
 import { DeleteIcon } from "@/shared/ui/icons";
 import { ModalBackdrop, ModalClose, ModalPopup, ModalPortal, ModalRoot } from "@/shared/ui/Modal";
 
-import type { Booth } from "../types";
+import { BoothDetailError, BoothDetailLoading } from "./BoothDetailFallback";
 import { BoothDetailSummary } from "./BoothDetailSummary";
 
 interface BoothDetailModalProps {
@@ -14,11 +16,11 @@ interface BoothDetailModalProps {
 
 export function BoothDetailModal({ children }: BoothDetailModalProps) {
   return (
-    <ModalRoot<Booth>>
-      {({ payload: booth }) => (
+    <ModalRoot<number>>
+      {({ payload: boothId }) => (
         <>
           {children}
-          {booth ? (
+          {boothId !== undefined ? (
             <ModalPortal>
               <ModalBackdrop />
               <ModalPopup className="pointer-events-none top-[calc(50%-2.5rem)] max-h-[calc(100dvh-7.5rem)] w-[calc(100%-2*(max(--spacing(4),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))+(--spacing(1))))] max-w-126 rounded-none bg-transparent p-0 text-left shadow-none">
@@ -28,7 +30,15 @@ export function BoothDetailModal({ children }: BoothDetailModalProps) {
                 >
                   <DeleteIcon className="size-7" />
                 </ModalClose>
-                <BoothDetailSummary booth={booth} />
+                <QueryErrorResetBoundary key={boothId}>
+                  {({ reset }) => (
+                    <ErrorBoundary onReset={reset} fallback={BoothDetailError}>
+                      <Suspense fallback={<BoothDetailLoading />}>
+                        <BoothDetailSummary boothId={boothId} />
+                      </Suspense>
+                    </ErrorBoundary>
+                  )}
+                </QueryErrorResetBoundary>
               </ModalPopup>
             </ModalPortal>
           ) : null}

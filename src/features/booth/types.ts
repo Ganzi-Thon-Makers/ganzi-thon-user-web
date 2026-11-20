@@ -1,5 +1,4 @@
-export interface Booth {
-  id: number;
+export interface BoothDetail {
   title: string;
   teamName: string;
   summary: string;
