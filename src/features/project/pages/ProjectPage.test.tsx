@@ -87,10 +87,10 @@ it("인기투표 → 프로젝트 선택 → 확인하면 투표하고 완료 �
   expect(createVote).toHaveBeenCalledWith(1, expect.anything());
   expect(await screen.findByText("투표가 완료되었습니다.")).toBeInTheDocument();
   await user.keyboard("{Escape}");
-  expect(await screen.findByRole("button", { name: "Framey팀에게 투표 완료되었어요" })).toHaveAttribute(
-    "aria-disabled",
-    "true",
-  );
+  const doneButton = await screen.findByRole("button", { name: "Framey팀에게 투표 완료되었어요" });
+  expect(doneButton).toHaveAttribute("aria-disabled", "true");
+  // 완료 모달이 닫히면 결과 문구가 있는 하단 버튼으로 포커스가 돌아옴
+  await waitFor(() => expect(doneButton).toHaveFocus());
 });
 
 it("투표 후 목록과 기간을 모두 다시 받은 뒤에 완료 모달을 띄운다", async () => {
