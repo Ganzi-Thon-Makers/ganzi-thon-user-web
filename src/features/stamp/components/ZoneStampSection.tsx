@@ -1,14 +1,29 @@
 "use client";
 
-import { useSuspenseQueries } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 
 import { stampQueries } from "../api/stamp.queries";
 import { STAMPED_AT_PARAM, STAMPED_BOOTH_PARAM } from "../stamp.routes";
+import type { BoothStamp, StampZoneCode } from "../types";
 import { ZoneStampAccordion } from "./ZoneStampAccordion";
 
 const ZONE_SKELETON_COUNT = 3;
+// 서버 설정 stamp.zone-completion-threshold와 같은 값. 응답에 기준값이 없어 "수료까지 N개" 계산에만 씀
+const ZONE_COMPLETION_COUNT = 5;
+
+const ZONE_LABELS = {
+  ZONE1: "Zone 1",
+  ZONE2: "Zone 2",
+  ZONE3: "Zone 3",
+} satisfies Record<StampZoneCode, string>;
+
+// TODO: 프로젝트가 없는 부스는 서버가 이름을 주지 않아 부스 번호로 대신 표시함(디자인 확인 필요)
+function getBoothLabel({ boothName, boothNumber }: BoothStamp) {
+  if (boothName) return boothName;
+  return boothNumber === null ? "부스" : `${boothNumber}번 부스`;
+}
 
 interface ZoneStampSectionLayoutProps {
   total: ReactNode;
@@ -30,9 +45,7 @@ function ZoneStampSectionLayout({ total, children }: ZoneStampSectionLayoutProps
 }
 
 export function ZoneStampSection() {
-  const [{ data: myStamps }, { data: zones }] = useSuspenseQueries({
-    queries: [stampQueries.mine(), stampQueries.zones()],
-  });
+  const { data: board } = useSuspenseQuery(stampQueries.board());
 
   // 방금 스탬프를 받은(또는 이미 받은) 부스가 있으면 그 구역을 펼쳐 보여줌
   const searchParams = useSearchParams();
@@ -40,31 +53,31 @@ export function ZoneStampSection() {
   const stampKey = `${stampedBoothParam}-${searchParams.get(STAMPED_AT_PARAM)}`;
   const stampedBoothId = stampedBoothParam === null ? null : Number(stampedBoothParam);
 
-  const collectedBoothIds = new Set(myStamps.map((stamp) => stamp.boothId));
-  const boardBooths = zones.flatMap((zone) => zone.booths);
-  // 스탬프판에 없는 부스의 스탬프는 세지 않아 "31/30" 같은 값이 나오지 않게 함
-  const collectedCount = boardBooths.filter((booth) => collectedBoothIds.has(booth.boothId)).length;
+  const totalBooths = board.zoneStatuses.reduce((sum, zone) => sum + zone.totalBooths, 0);
+  // 서버 구역별 적립 개수의 합. 스탬프판에 없는 부스의 스탬프는 포함되지 않음
+  const collectedCount = board.zoneStatuses.reduce((sum, zone) => sum + zone.collectedCount, 0);
 
   return (
     <ZoneStampSectionLayout
       total={
         <p className="text-caption-r-12 text-gray300">
-          총 <span className="text-caption-sb-12 text-white">{collectedCount}</span>/{boardBooths.length}개
+          총 <span className="text-caption-sb-12 text-white">{collectedCount}</span>/{totalBooths}개
         </p>
       }
     >
       <ul className="flex flex-col gap-3">
-        {zones.map((zone) => (
-          <li key={zone.zoneName}>
+        {board.zoneStatuses.map((zone) => (
+          <li key={zone.zone}>
             <ZoneStampAccordion
               // 스탬프를 받을 때마다(같은 부스 포함) 펼침 상태를 새로 정함
               key={stampKey}
               defaultOpen={zone.booths.some((booth) => booth.boothId === stampedBoothId)}
-              zoneName={zone.zoneName}
-              requiredCount={zone.requiredCount}
+              zoneName={ZONE_LABELS[zone.zone]}
+              requiredCount={ZONE_COMPLETION_COUNT}
+              isCompleted={zone.completed}
               stamps={zone.booths.map((booth) => ({
-                boothName: booth.boothName,
-                isCollected: collectedBoothIds.has(booth.boothId),
+                boothName: getBoothLabel(booth),
+                isCollected: booth.collected,
                 boothId: booth.boothId,
               }))}
             />

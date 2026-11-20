@@ -11,12 +11,12 @@ import { LuckyDrawEnteredModal } from "./LuckyDrawEnteredModal";
 const LUCKY_DRAW_GOAL_COUNT = 15;
 
 export function LuckyDrawProgress() {
-  const { data: stamps } = useSuspenseQuery(stampQueries.mine());
-  const notice = useLuckyDrawNotice(stamps.length >= LUCKY_DRAW_GOAL_COUNT);
+  const { data: board } = useSuspenseQuery(stampQueries.board());
+  const notice = useLuckyDrawNotice(board.luckyDrawEntered);
 
   return (
     <>
-      <LuckyDrawCard collectedCount={stamps.length} goalCount={LUCKY_DRAW_GOAL_COUNT} />
+      <LuckyDrawCard collectedCount={board.collectedCount} goalCount={LUCKY_DRAW_GOAL_COUNT} />
       <LuckyDrawEnteredModal open={notice.isOpen} onClose={notice.dismiss} />
     </>
   );
@@ -25,7 +25,7 @@ export function LuckyDrawProgress() {
 // 뒤에 겹친 마스코트가 비치지 않게 불투명 바탕 위에서 깜빡임
 export function LuckyDrawProgressSkeleton() {
   return (
-    <div aria-busy="true" className="rounded-lg bg-background">
+    <div aria-busy="true" className="rounded-lg bg-gray800">
       <span className="sr-only">럭키드로우 진행 현황 불러오는 중</span>
       <div className="h-22.75 animate-pulse rounded-lg bg-muted" />
     </div>

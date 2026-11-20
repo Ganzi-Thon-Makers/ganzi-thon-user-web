@@ -2,22 +2,23 @@ import { cn } from "@/shared/lib/cn";
 import { CollapsiblePanel, CollapsibleRoot, CollapsibleTrigger } from "@/shared/ui/Collapsible";
 import { ChevronUpIcon } from "@/shared/ui/icons";
 
-import type { TimelineEvent } from "../types";
+import { type Timeline } from "../types";
 
-interface TimelineItemProps extends TimelineEvent {
+interface TimelineItemProps extends Timeline {
   currentTime: number;
 }
 
-// 목 응답의 오프셋 없는 LocalDateTime은 행사 현지 시각(KST)으로 해석한다.
+const eventDate = "2026-11-21";
+
 function parseEventTime(time: string) {
-  return Date.parse(`${time}+09:00`);
+  return Date.parse(`${eventDate}T${time}:00+09:00`);
 }
 
 export function TimelineItem({ startTime, endTime, title, description, currentTime }: TimelineItemProps) {
   const start = parseEventTime(startTime);
   const end = parseEventTime(endTime);
   const isOngoing = start <= currentTime && currentTime < end;
-  const time = `${startTime.slice(11, 16)}-${endTime.slice(11, 16)}`;
+  const time = `${startTime}-${endTime}`;
   const Container = description ? CollapsibleRoot : "div";
   const Header = description ? CollapsibleTrigger : "div";
 
@@ -33,7 +34,7 @@ export function TimelineItem({ startTime, endTime, title, description, currentTi
         )}
       >
         <span className="flex min-w-0 items-center gap-6">
-          <span className="shrink-0 text-body-r-16 text-gray300">{time}</span>
+          <span className="w-22.5 shrink-0 text-body-r-16 text-gray300">{time}</span>
           <span className="text-body-sb-16 break-keep text-gray50">{title}</span>
         </span>
         {description ? (
