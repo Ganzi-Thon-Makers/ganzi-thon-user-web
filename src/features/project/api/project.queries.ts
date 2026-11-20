@@ -17,7 +17,12 @@ export const projectQueries = {
   list: () => queryOptions({ queryKey: [...projectQueries.all(), "list"], queryFn: getProjects }),
   detail: (id: number) =>
     queryOptions({ queryKey: [...projectQueries.all(), "detail", id], queryFn: () => getProject(id) }),
-  mine: () => queryOptions({ queryKey: [...projectQueries.all(), "mine"], queryFn: getMyProject }),
+  mine: () =>
+    queryOptions({
+      queryKey: [...projectQueries.all(), "mine"],
+      queryFn: getMyProject,
+      select: (project) => project.id,
+    }),
   votePeriod: () =>
     queryOptions({
       queryKey: [...projectQueries.all(), "vote-period"],

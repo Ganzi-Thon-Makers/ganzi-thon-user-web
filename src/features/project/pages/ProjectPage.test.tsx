@@ -69,6 +69,21 @@ beforeEach(() => {
   vi.mocked(getMyProject).mockResolvedValue(myProject);
 });
 
+it("MY 링크를 로그인한 사용자의 프로젝트 상세로 연결한다", async () => {
+  renderPage();
+
+  expect(await screen.findByRole("link", { name: "MY" })).toHaveAttribute("href", "/projects/2");
+});
+
+it("소속 프로젝트가 없어도 프로젝트 목록을 볼 수 있다", async () => {
+  vi.mocked(getMyProject).mockRejectedValue(serverError(404, "PROJECT_NOT_FOUND", "소속 프로젝트가 없습니다."));
+  const { queryClient } = renderPage();
+
+  expect(await screen.findByText("Framey")).toBeInTheDocument();
+  await waitFor(() => expect(queryClient.getQueryState(projectQueries.mine().queryKey)?.status).toBe("error"));
+  expect(screen.queryByRole("link", { name: "MY" })).not.toBeInTheDocument();
+});
+
 it("인기투표 → 프로젝트 선택 → 확인하면 투표하고 완료 상태로 바뀐다", async () => {
   vi.mocked(createVote).mockImplementation(async () => {
     vi.mocked(getProjects).mockResolvedValue({ ZONE1: [makeProject(1, "Framey", true), makeProject(2, "우리팀")] });
@@ -181,7 +196,7 @@ it("투표 규칙으로 거절되면 서버 안내 문구를 보여 준다", asy
 });
 
 it("내 프로젝트를 받기 전에 고른 본인 팀은 확인 전에 다시 막는다", async () => {
-  const mine = deferred<ProjectDetail | null>();
+  const mine = deferred<ProjectDetail>();
   vi.mocked(getMyProject).mockReturnValue(mine.promise);
   const { user, queryClient } = renderPage();
 
@@ -198,8 +213,9 @@ it("내 프로젝트를 받기 전에 고른 본인 팀은 확인 전에 다시 
 });
 
 it("소속 팀이 없으면 어떤 프로젝트든 고를 수 있다", async () => {
-  vi.mocked(getMyProject).mockResolvedValue(null);
-  const { user } = renderPage();
+  vi.mocked(getMyProject).mockRejectedValue(serverError(404, "PROJECT_NOT_FOUND", "소속 프로젝트가 없습니다."));
+  const { user, queryClient } = renderPage();
+  await waitFor(() => expect(queryClient.getQueryState(projectQueries.mine().queryKey)?.status).toBe("error"));
 
   await user.click(await findEnabledVoteButton());
   await user.click(screen.getByRole("button", { name: "우리팀 선택" }));

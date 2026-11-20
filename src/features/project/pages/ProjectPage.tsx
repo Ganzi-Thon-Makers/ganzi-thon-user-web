@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense } from "@suspensive/react";
+import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 
 import { AppBar } from "@/shared/components/AppBar";
@@ -9,13 +10,15 @@ import { Button } from "@/shared/ui/Button";
 import { ChevronLeftIcon } from "@/shared/ui/icons";
 import { TabIndicator, TabList, TabPanel, TabRoot, TabTrigger } from "@/shared/ui/Tab";
 
+import { projectQueries } from "../api/project.queries";
 import { ProjectList, ProjectListSkeleton } from "../components/ProjectList";
 import { VoteCompleteModal, VoteConfirmModal } from "../components/VoteModals";
 import { useProjectVoteFlow } from "../hooks/use-project-vote-flow";
 import { type Zone, ZONE_LABELS, ZONES } from "../types";
 
 export function ProjectPage() {
-  const voteFlow = useProjectVoteFlow();
+  const { data: myProjectId } = useQuery(projectQueries.mine());
+  const voteFlow = useProjectVoteFlow(myProjectId);
   const actionButtonRef = useRef<HTMLButtonElement>(null);
   // 직접 고르기 전에는 투표한 프로젝트의 구역을 먼저 보여 줌(마이페이지 투표내역에서 진입)
   const [selectedZone, setSelectedZone] = useState<Zone | null>(null);
@@ -57,12 +60,12 @@ export function ProjectPage() {
                 className="bg-gray800"
               />
             ) : (
-              <AppBar title="프로젝트" withProfile className="bg-gray800" />
+              <AppBar title="프로젝트" myProjectId={myProjectId} className="bg-gray800" />
             )}
             <TabList>
-              {ZONES.map((zone) => (
-                <TabTrigger key={zone} value={zone}>
-                  {ZONE_LABELS[zone]}
+              {ZONES.map((z) => (
+                <TabTrigger key={z} value={z}>
+                  {ZONE_LABELS[z]}
                 </TabTrigger>
               ))}
               {/* 투표한 구역을 알기 전에는 숨겨, Zone1에서 투표한 구역으로 미끄러지는 모습을 없앰 */}
@@ -91,11 +94,11 @@ export function ProjectPage() {
           </Button>
         }
       >
-        {ZONES.map((zone) => (
-          <TabPanel key={zone} value={zone} className="pt-5.5">
-            <h2 className="sr-only">{ZONE_LABELS[zone]} 프로젝트</h2>
+        {ZONES.map((z) => (
+          <TabPanel key={z} value={z} className="pt-5.5">
+            <h2 className="sr-only">{ZONE_LABELS[z]} 프로젝트</h2>
             <Suspense fallback={<ProjectListSkeleton />}>
-              <ProjectList zone={zone} votedProjectId={voteFlow.votedProjectId} vote={vote} />
+              <ProjectList zone={z} votedProjectId={voteFlow.votedProjectId} vote={vote} />
             </Suspense>
           </TabPanel>
         ))}

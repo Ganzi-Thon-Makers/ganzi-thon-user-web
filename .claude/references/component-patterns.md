@@ -111,7 +111,7 @@
 
 - 위치: `src/shared/components/AppBar.tsx`
 - 용도: 페이지 제목과 선택적인 왼쪽 콘텐츠, MY 프로필 링크 표시
-- 사용 시점: 왼쪽 링크나 버튼은 `leading`에 전달하고, MY 링크가 필요한 화면은 `withProfile`을 지정한다. 생략한 영역은 공간을 차지하지 않는다.
+- 사용 시점: 왼쪽 링크나 버튼은 `leading`에 전달하고, MY 링크가 필요한 화면은 `myProjectId`로 내 프로젝트 ID를 전달한다. 생략한 영역은 공간을 차지하지 않는다.
 - 관련 검증: `src/shared/components/AppBar.test.tsx`
 
 ## Pattern: LogoutButton

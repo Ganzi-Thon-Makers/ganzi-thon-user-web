@@ -84,11 +84,10 @@ function getVoteAction(
 }
 
 // 인기투표: 투표 모드 진입 → 카드 선택 → 확인 모달 → 투표 → 완료 모달 (VOTE-01)
-export function useProjectVoteFlow() {
+export function useProjectVoteFlow(myProjectId: number | undefined) {
   // 투표 정보는 하단 버튼에만 필요해서, 목록 조회를 막지 않도록 suspend하지 않음
   const { data: period, isError } = useQuery(projectQueries.votePeriod());
   const { data: votedProject } = useQuery({ ...projectQueries.list(), select: findVotedProject });
-  const { data: myProjectId } = useQuery({ ...projectQueries.mine(), select: (project) => project?.id ?? null });
   const vote = useMutation(projectMutations.vote());
   const toast = useToast();
 
