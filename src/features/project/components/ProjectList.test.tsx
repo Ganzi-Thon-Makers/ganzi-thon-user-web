@@ -14,6 +14,30 @@ function makeProject(id: number, title: string): Project {
   return { id, title, summary: `${title} 소개`, platform: "WEB", thumbnailUrl: "/thumbnail.webp", isVoted: false };
 }
 
+it("투표를 마쳤으면 투표한 프로젝트 링크에만 투표했다고 알린다", async () => {
+  vi.mocked(getProjects).mockResolvedValue({ ZONE1: [makeProject(1, "Framey"), makeProject(2, "Ganzi")] });
+
+  renderWithProviders(<ProjectList zone="ZONE1" votedProjectId={1} />);
+
+  expect(await screen.findByRole("link", { name: /Framey.*투표한 프로젝트/ })).toBeInTheDocument();
+  expect(screen.getByRole("link", { name: /Ganzi/ })).not.toHaveAccessibleName(/투표한 프로젝트/);
+});
+
+it("투표 모드에서는 링크 대신 선택 버튼만 보여 준다", async () => {
+  vi.mocked(getProjects).mockResolvedValue({ ZONE1: [makeProject(1, "Framey")] });
+
+  renderWithProviders(
+    <ProjectList
+      zone="ZONE1"
+      votedProjectId={1}
+      vote={{ selectedProjectId: null, onSelect: vi.fn<(id: number) => void>() }}
+    />,
+  );
+
+  expect(await screen.findByRole("button", { name: "Framey 선택" })).toHaveAttribute("aria-pressed", "false");
+  expect(screen.queryByRole("link")).not.toBeInTheDocument();
+});
+
 it("선택한 구역의 프로젝트를 카드 목록으로 보여준다", async () => {
   vi.mocked(getProjects).mockResolvedValue({
     ZONE1: [makeProject(9, "Other")],

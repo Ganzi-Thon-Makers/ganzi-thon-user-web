@@ -33,7 +33,7 @@ const OWN_PROJECT_MESSAGE = "본인이 참여한 프로젝트에는 투표할 �
 interface VoteAction {
   label: string;
   isDisabled: boolean;
-  /** 투표한 팀 이름. 길 수 있어 화면에서 label 앞에 따로 말줄임 처리 */
+  /** 투표한 서비스명. 길 수 있어 화면에서 label 앞에 따로 말줄임 처리 */
   votedTitle?: string;
 }
 

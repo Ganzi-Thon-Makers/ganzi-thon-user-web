@@ -80,7 +80,7 @@ export function ProjectPage() {
             onClick={voteFlow.handleAction}
           >
             {action.votedTitle ? (
-              // 팀 이름만 말줄임하고 뒤 문구는 항상 보이게 함
+              // 서비스명(최대 15자, 기능 명세서)이 명세보다 길 때만 이름을 말줄임하고 뒤 문구는 항상 보이게 함
               <span className="flex min-w-0">
                 <span className="min-w-0 truncate">{action.votedTitle}</span>
                 <span className="shrink-0">{action.label}</span>
@@ -106,7 +106,12 @@ export function ProjectPage() {
         isSubmitting={voteFlow.isSubmitting}
         onConfirm={voteFlow.submitVote}
       />
-      <VoteCompleteModal open={voteFlow.isCompleteOpen} onOpenChange={voteFlow.setIsCompleteOpen} />
+      <VoteCompleteModal
+        open={voteFlow.isCompleteOpen}
+        onOpenChange={voteFlow.setIsCompleteOpen}
+        // 닫히면 "투표 완료" 문구가 있는 하단 버튼으로 포커스를 돌려 결과를 다시 들을 수 있게 함
+        finalFocus={actionButtonRef}
+      />
     </TabRoot>
   );
 }
