@@ -114,6 +114,13 @@
 - 사용 시점: 왼쪽 링크나 버튼은 `leading`에 전달하고, MY 링크가 필요한 화면은 `withProfile`을 지정한다. 생략한 영역은 공간을 차지하지 않는다.
 - 관련 검증: `src/shared/components/AppBar.test.tsx`
 
+## Pattern: LogoutButton
+
+- 위치: `src/shared/components/LogoutButton.tsx`
+- 용도: 현재 세션을 종료하고 로그인 화면으로 이동한다.
+- 사용 시점: 마이페이지와 팀 계정의 스탬프 QR 발급 화면에서 같은 로그아웃 동작을 제공한다.
+- 관련 검증: `src/shared/components/LogoutButton.test.tsx`
+
 ## Pattern: ProgressBar
 
 - 위치: `src/shared/ui/ProgressBar.tsx`

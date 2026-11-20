@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 
 import { toApiError } from "@/shared/api/error";
+import { sessionMutations } from "@/shared/api/session.queries";
 import { useToast } from "@/shared/ui/Toast";
-
-import { myPageMutations } from "../api/mypage.queries";
 
 export function LogoutButton() {
   const router = useRouter();
@@ -15,7 +14,7 @@ export function LogoutButton() {
   const { error } = useToast();
 
   const [isNavigating, startTransition] = useTransition();
-  const { mutate, isPending } = useMutation(myPageMutations.logout());
+  const { mutate, isPending } = useMutation(sessionMutations.logout());
 
   const isLogoutDisabled = isPending || isNavigating;
 

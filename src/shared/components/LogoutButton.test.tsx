@@ -1,18 +1,18 @@
 import { screen, waitFor } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
 
+import { logout } from "@/shared/api/session.api";
 import { clearAccessToken, getAccessToken, setAccessToken } from "@/shared/api/token";
 import { getQueryClient } from "@/shared/lib/query-client";
 import { renderWithProviders } from "@/shared/test/render";
 import { ToastProvider } from "@/shared/ui/Toast";
 
-import { logout } from "../api/mypage.api";
 import { LogoutButton } from "./LogoutButton";
 
 const { replace } = vi.hoisted(() => ({ replace: vi.fn<(path: string) => void>() }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }) }));
-vi.mock("../api/mypage.api", () => ({ logout: vi.fn<() => Promise<void>>() }));
+vi.mock("@/shared/api/session.api", () => ({ logout: vi.fn<() => Promise<void>>() }));
 
 const sessionQueryKey = ["session-test"];
 

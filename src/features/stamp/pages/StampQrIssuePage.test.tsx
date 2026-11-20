@@ -8,6 +8,7 @@ import { getOperatorBooth, issueStampToken } from "../api/stamp.api";
 import { StampQrIssuePage } from "./StampQrIssuePage";
 
 vi.mock("../api/stamp.api");
+vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn<(path: string) => void>() }) }));
 
 const TTL_SECONDS = 60;
 
