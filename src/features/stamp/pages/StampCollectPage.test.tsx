@@ -46,7 +46,12 @@ beforeEach(() => {
 
 it("주소의 토큰으로 스탬프를 받고, 토큰을 지운 뒤 스탬프판으로 보낸다", async () => {
   navigation.searchParams = new URLSearchParams({ token: "booth-token" });
-  vi.mocked(collectStamp).mockResolvedValue({ status: "collected", boothId: 3 });
+  vi.mocked(collectStamp).mockResolvedValue({
+    status: "collected",
+    boothId: 3,
+    collectedCount: 1,
+    luckyDrawEntered: false,
+  });
 
   renderPage();
 
@@ -73,7 +78,12 @@ it("토큰이 없으면 인식 실패를 알리고 스탬프판으로 보낸다"
 it("로그인 전에 찍어 보관한 토큰으로 로그인 뒤 스탬프를 받고 보관한 토큰을 지운다", async () => {
   navigation.searchParams = new URLSearchParams();
   savePendingStampToken("saved-token");
-  vi.mocked(collectStamp).mockResolvedValue({ status: "collected", boothId: 3 });
+  vi.mocked(collectStamp).mockResolvedValue({
+    status: "collected",
+    boothId: 3,
+    collectedCount: 1,
+    luckyDrawEntered: false,
+  });
 
   renderPage();
 
