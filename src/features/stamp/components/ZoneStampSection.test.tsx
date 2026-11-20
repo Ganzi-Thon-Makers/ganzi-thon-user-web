@@ -1,9 +1,10 @@
-import { screen } from "@testing-library/react";
+import { screen, waitFor } from "@testing-library/react";
 import { beforeEach, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/shared/test/render";
 
 import { getMyStampBooth, getStampBoard } from "../api/stamp.api";
+import { stampQueries } from "../api/stamp.queries";
 import { makeStampBoard, makeZoneStatus } from "../stamp.fixtures";
 import { ZoneStampSection } from "./ZoneStampSection";
 
@@ -48,7 +49,7 @@ it("내 부스를 스탬프 칸과 전체·구역별 현황에서 제외한다",
   const zone1Button = await screen.findByRole("button", { name: /Zone 1/ });
   const zone2Button = screen.getByRole("button", { name: /Zone 2/ });
 
-  expect(screen.getByText(/총/)).toHaveTextContent("총 0/29개");
+  await waitFor(() => expect(screen.getByText(/총/)).toHaveTextContent("총 0/29개"));
   expect(zone1Button).toHaveAccessibleName(/7개 중 0개/);
   expect(zone2Button).toHaveAccessibleName(/11개 중 0개/);
   expect(screen.getByRole("button", { name: /Zone 3/ })).toHaveAccessibleName(/11개 중 0개/);
@@ -59,6 +60,20 @@ it("내 부스를 스탬프 칸과 전체·구역별 현황에서 제외한다",
 
   await user.click(zone2Button);
   expect(await screen.findByRole("link", { name: /^9팀 미획득/ })).toBeInTheDocument();
+});
+
+it("내 부스 조회가 실패하면 전체 부스와 현황을 보여준다", async () => {
+  vi.mocked(getMyStampBooth).mockRejectedValue(new Error("내 부스 조회 실패"));
+  vi.mocked(getStampBoard).mockResolvedValue(makeStampBoard({ zoneStatuses: [makeZoneStatus("ZONE1", [1, 2], [2])] }));
+
+  const { user, queryClient } = renderWithProviders(<ZoneStampSection />);
+  await waitFor(() => expect(queryClient.getQueryState(stampQueries.myBooth().queryKey)?.status).toBe("error"));
+  const zoneButton = screen.getByRole("button", { name: /Zone 1/ });
+
+  expect(screen.getByText(/총/)).toHaveTextContent("총 1/2개");
+  expect(zoneButton).toHaveAccessibleName(/2개 중 1개/);
+  await user.click(zoneButton);
+  expect(await screen.findByRole("link", { name: /^1팀 미획득/ })).toBeInTheDocument();
 });
 
 it("방금 스탬프를 받은 부스가 주소에 있으면 그 부스의 구역만 펼친다", async () => {

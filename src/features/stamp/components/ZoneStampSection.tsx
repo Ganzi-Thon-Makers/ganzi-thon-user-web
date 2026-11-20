@@ -1,6 +1,6 @@
 "use client";
 
-import { useSuspenseQueries } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import type { ReactNode } from "react";
 
@@ -45,9 +45,9 @@ function ZoneStampSectionLayout({ total, children }: ZoneStampSectionLayoutProps
 }
 
 export function ZoneStampSection() {
-  const [{ data: board }, { data: myBooth }] = useSuspenseQueries({
-    queries: [stampQueries.board(), stampQueries.myBooth()],
-  });
+  const { data: board } = useSuspenseQuery(stampQueries.board());
+  const myBoothQuery = useQuery(stampQueries.myBooth());
+  const myBooth = myBoothQuery.isSuccess ? myBoothQuery.data : null;
 
   // 방금 스탬프를 받은(또는 이미 받은) 부스가 있으면 그 구역을 펼쳐 보여줌
   const searchParams = useSearchParams();
@@ -56,7 +56,7 @@ export function ZoneStampSection() {
   const stampedBoothId = stampedBoothParam === null ? null : Number(stampedBoothParam);
 
   const zones = board.zoneStatuses.map((zone) => {
-    if (myBooth === null || zone.zone !== myBooth.zone) return zone;
+    if (!myBooth || zone.zone !== myBooth.zone) return zone;
     return { ...zone, booths: zone.booths.filter((booth) => booth.boothNumber !== myBooth.boothNumber) };
   });
   const booths = zones.flatMap((zone) => zone.booths);
