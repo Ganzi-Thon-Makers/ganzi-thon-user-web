@@ -3,7 +3,7 @@ import Link from "next/link";
 import { cn } from "@/shared/lib/cn";
 import { Badge } from "@/shared/ui/Badge";
 import { CollapsiblePanel, CollapsibleRoot, CollapsibleTrigger } from "@/shared/ui/Collapsible";
-import { ChevronDownIcon, ChevronUpIcon } from "@/shared/ui/icons";
+import { ChevronDownIcon } from "@/shared/ui/icons";
 import { ProgressBar } from "@/shared/ui/ProgressBar";
 
 import { getBoothMapHref } from "../stamp.routes";
@@ -61,14 +61,20 @@ export function ZoneStampAccordion({
           <span className="sr-only">
             {stamps.length}개 중 {collectedCount}개
           </span>
-          <ChevronDownIcon aria-hidden className="shrink-0 text-gray50 group-data-open:hidden" />
-          <ChevronUpIcon aria-hidden className="hidden shrink-0 text-gray50 group-data-open:block" />
+          <ChevronDownIcon
+            aria-hidden
+            className="shrink-0 text-gray50 group-data-open:rotate-180 motion-safe:transition-[rotate] motion-safe:duration-200 motion-safe:ease-out"
+          />
         </span>
         <ProgressBar aria-hidden value={collectedCount} max={stamps.length} isComplete={isCompleted} />
       </CollapsibleTrigger>
-      <CollapsiblePanel hiddenUntilFound>
+      {/* 타임라인과 같은 펼침 애니메이션. clip-path로 접히는 동안 넘친 칸은 가리고, 좌우·아래 포커스 링 자리는 남김 */}
+      <CollapsiblePanel
+        hiddenUntilFound
+        className="motion-safe:h-(--collapsible-panel-height) motion-safe:transition-[height] motion-safe:duration-200 motion-safe:ease-out motion-safe:[clip-path:inset(0_-0.25rem_0)] motion-safe:data-ending-style:h-0 motion-safe:data-starting-style:h-0"
+      >
         {/* 칸 폭은 고정하고 칸 사이만 줄어들게 해 좁은 화면에서 넘침 방지 */}
-        <ul className="mt-5 grid grid-cols-[repeat(4,--spacing(15))] justify-between gap-y-2">
+        <ul className="grid grid-cols-[repeat(4,--spacing(15))] justify-between gap-y-2 pt-5 pb-1">
           {stamps.map((stamp) => (
             <li key={stamp.boothId} className="w-15">
               {stamp.isCollected ? (
