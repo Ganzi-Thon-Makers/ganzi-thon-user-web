@@ -16,6 +16,8 @@ const cardActionClassName =
 
 interface ProjectListProps {
   zone: Zone;
+  /** 투표를 마쳤으면 투표한 프로젝트를 스크린리더에 알림 */
+  votedProjectId?: number | null;
   /** 있으면 투표 모드: 카드가 상세 링크 대신 선택 버튼이 됨 */
   vote?: {
     selectedProjectId: number | null;
@@ -23,7 +25,7 @@ interface ProjectListProps {
   };
 }
 
-export function ProjectList({ zone, vote }: ProjectListProps) {
+export function ProjectList({ zone, votedProjectId = null, vote }: ProjectListProps) {
   const { data: projectsByZone } = useSuspenseQuery(projectQueries.list());
   // 프로젝트가 없는 구역은 응답에서 키가 빠질 수 있음
   const projects = projectsByZone[zone] ?? [];
@@ -35,14 +37,17 @@ export function ProjectList({ zone, vote }: ProjectListProps) {
   return (
     <ul className="grid grid-cols-2 gap-x-2.5 gap-y-5">
       {projects.map((project) => {
+        const isSelected = vote?.selectedProjectId === project.id;
+        const isVoted = !vote && votedProjectId === project.id;
         const card = (
           <ProjectCard
             thumbnailSrc={project.thumbnailUrl}
             name={project.title}
             summary={project.summary}
             platform={project.platform}
-            isSelected={vote?.selectedProjectId === project.id}
-            isDisabled={vote !== undefined && vote.selectedProjectId !== project.id}
+            isSelected={isSelected}
+            // 테두리·흐림은 고르는 중일 때만. 투표 후에는 평소 목록과 같게 둠 (Figma 737:5246)
+            isDimmed={vote !== undefined && !isSelected}
           />
         );
 
@@ -51,6 +56,8 @@ export function ProjectList({ zone, vote }: ProjectListProps) {
             <li key={project.id}>
               <Link href={`/projects/${project.id}`} className={cardActionClassName}>
                 {card}
+                {/* 화면에는 표시하지 않는 투표 여부를 스크린리더에 알림 */}
+                {isVoted && <span className="sr-only">투표한 프로젝트</span>}
               </Link>
             </li>
           );

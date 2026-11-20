@@ -28,7 +28,7 @@ export function ProjectDetailPage() {
             <Link
               href="/projects"
               aria-label="프로젝트 목록으로 돌아가기"
-              className="grid size-full place-items-center"
+              className="grid size-full place-items-center focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-primary"
             >
               <ChevronLeftIcon aria-hidden />
             </Link>

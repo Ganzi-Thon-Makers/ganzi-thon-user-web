@@ -65,7 +65,7 @@ type ToastViewportProps = ComponentProps<typeof BaseToast.Viewport>;
 function ToastViewport({ className, ...props }: ToastViewportProps) {
   return (
     <BaseToast.Viewport
-      className={mergeStateClassName("toast-viewport fixed inset-x-5 z-50 mx-auto max-w-80", className)}
+      className={mergeStateClassName("toast-viewport fixed inset-x-5 z-60 mx-auto max-w-80", className)}
       {...props}
     />
   );

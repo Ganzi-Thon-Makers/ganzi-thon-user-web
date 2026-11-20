@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { type RefObject, useEffect, useEffectEvent } from "react";
 
 import { Button } from "@/shared/ui/Button";
 import {
@@ -42,17 +43,30 @@ export function VoteConfirmModal({ open, onOpenChange, isSubmitting, onConfirm }
   );
 }
 
+// 완료 안내는 잠깐 보여 주고 닫음 (VOTE-01 디자인 주석: 2초 후 자동 닫힘, 바깥 터치 시 즉시 닫힘)
+const COMPLETE_MODAL_AUTO_CLOSE_MS = 2000;
+
 interface VoteCompleteModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** 닫힌 뒤 포커스를 옮길 곳. 열어 준 버튼(확인 모달)이 이미 사라져서 호출자가 정함 */
+  finalFocus?: RefObject<HTMLElement | null>;
 }
 
-export function VoteCompleteModal({ open, onOpenChange }: VoteCompleteModalProps) {
+export function VoteCompleteModal({ open, onOpenChange, finalFocus }: VoteCompleteModalProps) {
+  const close = useEffectEvent(() => onOpenChange(false));
+
+  useEffect(() => {
+    if (!open) return;
+    const timeoutId = window.setTimeout(close, COMPLETE_MODAL_AUTO_CLOSE_MS);
+    return () => window.clearTimeout(timeoutId);
+  }, [open]);
+
   return (
     <ModalRoot open={open} onOpenChange={onOpenChange}>
       <ModalPortal>
         <ModalBackdrop />
-        <ModalPopup className="items-center gap-3 pt-4 pb-6 outline-hidden">
+        <ModalPopup finalFocus={finalFocus} className="items-center gap-3 pt-4 pb-6 outline-hidden">
           <Image src="/check.webp" alt="" width={60} height={60} />
           <div className="flex flex-col gap-2">
             <ModalTitle>투표가 완료되었습니다.</ModalTitle>

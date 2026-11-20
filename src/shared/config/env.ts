@@ -8,4 +8,7 @@ function required(name: string, value: string | undefined): string {
 
 export const env = {
   NEXT_PUBLIC_API_URL: required("NEXT_PUBLIC_API_URL", process.env.NEXT_PUBLIC_API_URL),
+  NEXT_PUBLIC_SITE_URL: required("NEXT_PUBLIC_SITE_URL", process.env.NEXT_PUBLIC_SITE_URL),
+  // Vercel이 main 배포에만 production을 넣음(develop은 preview). 서버에서만 읽힘
+  IS_PRODUCTION_DEPLOY: process.env.VERCEL_ENV === "production",
 } as const;

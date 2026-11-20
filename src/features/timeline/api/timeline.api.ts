@@ -1,10 +1,9 @@
-import { mockResponse } from "@/shared/api/mock";
+import { api } from "@/shared/api/client";
+import { type ApiResponse } from "@/shared/api/types";
 
-import type { TimelineEvent } from "../types";
-import { mockTimelineResponse } from "./timeline.mock";
+import type { TimetableResponse } from "../types";
 
-// TODO: 타임라인 API 계약이 확정되면 서버 요청으로 교체한다.
-export async function getTimelineEvents(): Promise<TimelineEvent[]> {
-  const { data } = await mockResponse(mockTimelineResponse);
-  return data;
+export async function getTimetable(): Promise<TimetableResponse> {
+  const response = await api.get<ApiResponse<TimetableResponse>>("/api/v1/timetable").json();
+  return response.data;
 }

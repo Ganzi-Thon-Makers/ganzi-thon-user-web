@@ -214,6 +214,16 @@ body {
   isolation: isolate;
 }
 
+/* 페이지 본문 좌우 여백. 좌우 safe-area보다 좁아지지 않음 */
+@utility page-gutter-x {
+  padding-inline: max(--spacing(4), env(safe-area-inset-left, 0px), env(safe-area-inset-right, 0px));
+}
+
+/* 헤더 없는 페이지의 위 여백. 상단 safe-area보다 좁아지지 않음 */
+@utility page-gutter-top {
+  padding-top: max(--spacing(10), env(safe-area-inset-top, 0px));
+}
+
 @utility bottom-navigation-metrics {
   --nav-button-size: 64px;
   --nav-button-overhang: 13px;

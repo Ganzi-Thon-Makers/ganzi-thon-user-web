@@ -1,54 +1,83 @@
 # stamp API
 
-부스 방문 스탬프 적립·조회와 스탬프판 구성. 명세 확인일: 2026-11-15 (서버 `dev` 5ce528c 기준)
-
-서버에 스탬프 컨트롤러가 아직 없어 Swagger 계약이 없다. 아래는 서버 엔티티로 확인한 사실과, 프론트가 목 데이터로 임시로 쓰는 형태를 나눠 적는다. 컨트롤러가 나오면 Endpoints와 응답 스키마를 Swagger 기준으로 다시 채운다.
+부스 방문 스탬프 적립·조회와 QR 발급. 명세 확인일: 2026-11-19 (서버 `dev` PR #15 병합본, dev Swagger `/v3/api-docs`)
 
 ## Endpoints
 
-| Method | Path | Operation | 비고                                             |
-| ------ | ---- | --------- | ------------------------------------------------ |
-| —      | —    | —         | 미정. 프론트는 `stamp.api.ts`에서 목 응답을 쓴다 |
+| Method | Path                | 권한            | 요청        | 응답 `data`                                           |
+| ------ | ------------------- | --------------- | ----------- | ----------------------------------------------------- |
+| GET    | `/api/v1/stamps`    | `PARTICIPANT`만 | —           | `StampBoardResponse`                                  |
+| POST   | `/api/v1/stamps`    | `PARTICIPANT`만 | `{ token }` | `StampCollectResponse`                                |
+| POST   | `/api/v1/qr-tokens` | `TEAM`만        | —           | `token`, `expiresAt`(LocalDateTime), `ttlSeconds`(60) |
 
-프론트가 필요로 하는 동작(서버와 합의 전):
+### StampBoardResponse
 
-| 프론트 함수       | 용도                      | 쿼리 키               |
-| ----------------- | ------------------------- | --------------------- |
-| `getMyStamps()`   | 내 스탬프 목록            | `["stamps", "mine"]`  |
-| `getStampZones()` | 스탬프판 구역·구역별 부스 | `["stamps", "zones"]` |
-| `createStamp(id)` | 부스 스탬프 적립          | —                     |
+| Field                  | Type    | 비고                              |
+| ---------------------- | ------- | --------------------------------- |
+| `collectedCount`       | number  | 전체 적립 개수                    |
+| `remainingToLuckyDraw` | number  | 15개까지 남은 개수 (화면은 안 씀) |
+| `luckyDrawEntered`     | boolean | 럭키드로우 응모 여부              |
+| `zoneStatuses[]`       | array   | `ZONE1`~`ZONE3` 순서              |
 
-## Stamp (서버 엔티티 `stamp`)
+`zoneStatuses[]`: `zone`, `totalBooths`, `collectedCount`, `remainingCount`(= 전체 − 적립, 수료까지 남은 개수 아님), `completed`(적립 ≥ 서버 설정 `stamp.zone-completion-threshold`, 지금 5), `booths[]`
 
-| Field       | Type   | 비고                                    |
-| ----------- | ------ | --------------------------------------- |
-| `id`        | number | `BaseEntity`                            |
-| `createdAt` | string | `LocalDateTime`, 타임존 없는 ISO 문자열 |
-| `updatedAt` | string | `LocalDateTime`                         |
-| `userId`    | number | not null                                |
-| `boothId`   | number | not null. `(user_id, booth_id)` unique  |
+`booths[]`: `boothId`, `boothName`(팀 이름, 부스에 프로젝트가 없으면 null), `boothNumber`, `collected`, `collectedAt`
 
-## Booth (서버 엔티티 `booth`, 참고)
+참가자 스탬프판에서는 `GET /api/v1/projects/me`의 `zone`과 `boothNumber`로 후보를 좁힌 뒤 `teamName`을 스탬프판의 `boothName`과 비교한다. 두 이름은 서버에서 같은 프로젝트의 팀 이름으로 채운다. 일치하는 후보가 한 곳일 때만 해당 `boothId`를 제외한다. dev Swagger `platform` 그룹과 서버 코드에서 2026-11-21 확인.
 
-| Field         | Type   | 비고                             |
-| ------------- | ------ | -------------------------------- |
-| `id`          | number | `BaseEntity`                     |
-| `projectId`   | number | nullable, unique                 |
-| `zone`        | string | enum `ZONE1` · `ZONE2` · `ZONE3` |
-| `roomNumber`  | string | 최대 20자                        |
-| `boothNumber` | number |                                  |
+### StampCollectResponse
+
+`boothId`, `collectedCount`, `remainingToLuckyDraw`, `luckyDrawEntered`, `luckyDrawJustEntered`, `alreadyCollected`
+
+이미 적립한 부스면 에러 대신 200 + `alreadyCollected: true`로 응답한다(어느 부스인지 알려주려고).
+
+### 적립 에러
+
+| 상황               | 상태 | `code`                   | 프론트 결과(`CollectStampResult`) |
+| ------------------ | ---- | ------------------------ | --------------------------------- |
+| 유효하지 않은 토큰 | 400  | `QR_TOKEN_NOT_FOUND`     | `invalid-token`                   |
+| 만료된 토큰        | 400  | `QR_TOKEN_EXPIRED`       | `expired`                         |
+| 본인 팀 부스       | 400  | `STAMP_OWN_BOOTH`        | `own-booth`                       |
+| 5분 내 연속 적립   | 429  | `STAMP_COOLDOWN`         | `cooldown`                        |
+| 참가자가 아님      | 403  | `STAMP_PARTICIPANT_ONLY` | (요청 실패로 던짐)                |
+
+- 설정값: 토큰 유효 60초, 만료 후 유예 10초(E2E로 조정 예정), 연속 적립 제한 300초
+- QR 발급자는 부스 팀 계정(`Role.TEAM`)이다. 서버가 팀 계정의 프로젝트로 부스를 정한다. 재발급해도 이전 토큰을 무효화하지 않는다.
+
+### QR 발급 (dev Swagger 확인 2026-11-19, 프론트 연결됨)
+
+| Method | Path                  | Operation      | 권한          | 응답 `data`에서 쓰는 필드         |
+| ------ | --------------------- | -------------- | ------------- | --------------------------------- |
+| POST   | `/api/v1/qr-tokens`   | —              | `TEAM`만      | `token`, `expiresAt`              |
+| GET    | `/api/v1/projects/me` | `getMyProject` | 로그인 사용자 | `title` → 화면 제목의 서비스 이름 |
+
+- 운영자 화면의 만료 시각은 서버 `expiresAt`을 기준으로 한다. dev와 운영 서버가 오프셋 없이 내려주는 KST 시각에 `+09:00`을 붙인다. 에러는 401, 403 `FORBIDDEN`(팀 계정 아님), 404 `USER_NOT_FOUND`·`BOOTH_NOT_FOUND`.
+- `projects/me`는 서버 `SecurityPaths`에 역할 제한이 없고, 사용자 `projectId`로 조회한다(`ProjectBoothQueryFacade.getMyProject`). 팀에 프로젝트가 없으면 404 `PROJECT_NOT_FOUND`이고, 이때 QR 발급 화면은 `PageError`로 넘어간다.
+- 팀 계정은 로그인 직후 `/operator/qr`로 이동한다. role은 access token의 `role` claim으로 판별한다(`auth.md`).
+
+## 프론트 함수
+
+| 프론트 함수           | 용도                                       | 쿼리 키                                           |
+| --------------------- | ------------------------------------------ | ------------------------------------------------- |
+| `getStampBoard()`     | 스탬프판(구역별 부스·적립 여부·럭키드로우) | `["stamps", "board"]`                             |
+| `getMyStampBooth()`   | 참가자 본인 부스의 구역·번호 조회          | `["stamps", "my-booth"]`                          |
+| `collectStamp(token)` | QR 토큰으로 적립                           | — (적립·이미 받음이면 `["stamps", "board"]` 갱신) |
+| `getOperatorBooth()`  | QR 발급 화면 제목                          | `["stamps", "operator-booth"]`                    |
+| `issueStampToken()`   | 스탬프 QR 토큰 발급                        | — (발급한 토큰은 캐시에 두지 않음)                |
 
 ## 공통 응답 (서버 `common/dto`)
 
-| 형태              | 필드                                                         |
-| ----------------- | ------------------------------------------------------------ |
-| `SuccessResponse` | `data`, `message` (null이면 키 생략)                         |
-| `ErrorResponse`   | `message`, `errors?: { field, reason }[]` (null이면 키 생략) |
+| 형태              | 필드                                                                          |
+| ----------------- | ----------------------------------------------------------------------------- |
+| `SuccessResponse` | `data`, `message` (null이면 키 생략)                                          |
+| `ErrorResponse`   | `status`, `code`(`ErrorCode` 이름), `message`, `errors?: { field, reason }[]` |
 
 ## 구현 메모
 
-- 같은 부스 스탬프는 한 번만 받는다(DB unique 제약). 중복 적립 시 에러 코드·상태는 아직 없다. 목은 `Error("이미 스탬프를 받은 부스입니다.")`로 거절한다.
-- 프론트 `StampZone`·`StampBoardBooth`는 화면용 임시 형태다. 서버 `Booth`에는 부스 이름이 없고(`projectId`로 프로젝트에서 가져와야 할 것으로 보임), 구역 수료 기준 `requiredCount`도 서버·명세에 없다.
-- 럭키드로우 응모(15개 최초 달성 시 자동 응모)는 서버 엔티티가 없다. 응모 여부를 서버가 내려줄지 프론트가 개수로 판단할지 미정.
-- 서버 `ErrorResponse`에 `code` 필드가 없다. `shared/api/error.ts`의 `ErrorBody`(`code`, `message`)와 어긋나므로, 공통 envelope 처리 시 함께 맞춘다.
-- 인증 필요 여부: 내 스탬프 조회·적립은 로그인 사용자 기준이 될 것으로 보이나 미확인.
+- 적립(STAMP-03)은 부스 운영자 QR의 토큰으로 한다. QR 내용은 `<사이트 주소>/stamp/collect?token=<토큰>`이라 앱 스캐너와 휴대폰 기본 카메라가 같은 처리를 거친다.
+- 적립·중복 성공 응답은 캐시된 스탬프판의 방금 받은 칸, 적립 개수와 응모 여부에 먼저 반영한 뒤 스탬프판을 재조회한다.
+- `collectStamp(token)`은 경우마다 화면 안내가 달라서 에러 대신 결과로 돌려준다(위 적립 에러 표). `code`를 결과로 바꾸는 일은 `stamp.api.ts`에서 한다. 만료·유효하지 않은 토큰은 같은 스캔 동안 다시 보내지 않는다.
+- 구역 수료는 적립 직후 캐시에서 현재 서버 설정과 같은 기준(5개)으로 갱신하고, 재조회 응답의 `completed`로 동기화한다. "수료까지 N개"도 같은 기준으로 계산한다. Figma 시안은 기준 3개로 보여 디자인 확인이 필요하다.
+- 럭키드로우 최초 응모 안내는 이번 적립 응답의 `luckyDrawJustEntered`가 true일 때만 띄운다. 안내는 스탬프판으로 이동하는 동안 메모리에 보관하고 한 번 표시하면 지운다.
+- 화면 문구: 디자인에는 "이미 수집한 스탬프입니다."만 있다. 만료는 부스 운영자에게 새 QR 발급을 요청하도록 안내하고, 연속 적립 제한·본인 팀 부스는 임시 문구다(TODO).
+- 참가자가 아닌 계정(TEAM·ADMIN)은 스탬프판 조회도 403이다. 이 경우 화면 처리는 정해지지 않았다.

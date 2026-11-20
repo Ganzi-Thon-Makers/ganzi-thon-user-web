@@ -2,16 +2,20 @@
 
 import { Suspense } from "@suspensive/react";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 
 import { PageShell } from "@/shared/components/PageShell";
 
 import { boothQueries } from "../api/booth.queries";
 import { BoothGuideBanner } from "../components/BoothGuideBanner";
 import { BoothZoneMap, BoothZoneMapSkeleton } from "../components/BoothZoneMap";
+
 function BoothMapContent() {
   const { data: zones } = useSuspenseQuery(boothQueries.list());
+  // 스탬프판에서 누른 부스 (/booths?boothId=N)
+  const boothIdParam = useSearchParams().get("boothId");
 
-  return <BoothZoneMap zones={zones} />;
+  return <BoothZoneMap zones={zones} initialBoothId={boothIdParam === null ? undefined : Number(boothIdParam)} />;
 }
 
 export function BoothPage() {

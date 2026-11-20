@@ -13,9 +13,10 @@ const ZONE_LABELS: Record<BoothZoneCode, string> = { ZONE1: "Zone1", ZONE2: "Zon
 
 interface ZoneRoomsProps {
   rooms: BoothRoom[];
+  defaultRoomNumber?: string;
 }
 
-function ZoneRooms({ rooms }: ZoneRoomsProps) {
+function ZoneRooms({ rooms, defaultRoomNumber }: ZoneRoomsProps) {
   const firstRoom = rooms[0];
 
   if (!firstRoom) return <p>등록된 호실이 없어요</p>;
@@ -28,7 +29,7 @@ function ZoneRooms({ rooms }: ZoneRoomsProps) {
           <BoothRoomMap room={firstRoom} />
         </>
       ) : (
-        <TabRoot defaultValue={firstRoom.number} className="flex flex-1 flex-col">
+        <TabRoot defaultValue={defaultRoomNumber ?? firstRoom.number} className="flex flex-1 flex-col">
           <ClassroomTabList roomNumbers={rooms.map((room) => room.number)} />
           {rooms.map((room) => (
             <TabPanel key={room.number} value={room.number} className="flex flex-1 flex-col">
@@ -41,18 +42,30 @@ function ZoneRooms({ rooms }: ZoneRoomsProps) {
   );
 }
 
-interface BoothZoneMapProps {
-  zones: BoothZone[];
+function findBoothLocation(zones: BoothZone[], boothId: number) {
+  for (const zone of zones) {
+    const room = zone.rooms.find((item) => item.booths.some((booth) => booth.boothId === boothId));
+    if (room) return { zoneCode: zone.code, roomNumber: room.number };
+  }
+  return null;
 }
 
-export function BoothZoneMap({ zones }: BoothZoneMapProps) {
+interface BoothZoneMapProps {
+  zones: BoothZone[];
+  /** 이 부스의 구역·호실을 먼저 보여 주고 상세를 연다. 없는 부스면 무시 */
+  initialBoothId?: number;
+}
+
+export function BoothZoneMap({ zones, initialBoothId }: BoothZoneMapProps) {
   const firstZone = zones[0];
 
   if (!firstZone) return <p className="py-5 text-body-r-14">등록된 부스가 없어요</p>;
 
+  const location = initialBoothId === undefined ? null : findBoothLocation(zones, initialBoothId);
+
   return (
-    <BoothDetailModal>
-      <TabRoot defaultValue={firstZone.code} className="mt-2">
+    <BoothDetailModal initialBoothId={location ? initialBoothId : undefined}>
+      <TabRoot defaultValue={location?.zoneCode ?? firstZone.code} className="mt-2">
         <TabList aria-label="Zone" className="-mx-4 w-auto">
           {zones.map((zone) => (
             <TabTrigger key={zone.code} value={zone.code}>
@@ -63,7 +76,10 @@ export function BoothZoneMap({ zones }: BoothZoneMapProps) {
         </TabList>
         {zones.map((zone) => (
           <TabPanel key={zone.code} value={zone.code} className={MAP_PANEL_CLASS}>
-            <ZoneRooms rooms={zone.rooms} />
+            <ZoneRooms
+              rooms={zone.rooms}
+              defaultRoomNumber={location?.zoneCode === zone.code ? location.roomNumber : undefined}
+            />
           </TabPanel>
         ))}
       </TabRoot>

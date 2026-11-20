@@ -68,3 +68,24 @@ export async function refresh(request: NextRequest) {
 
   return response;
 }
+
+export async function logout(request: NextRequest) {
+  if (!isSameOrigin(request)) return authError(403, "허용되지 않은 요청이에요.");
+
+  const authorization = request.headers.get("authorization");
+  try {
+    const upstream = await backendApi.post("api/v1/auth/logout", {
+      headers: authorization ? { authorization } : undefined,
+      throwHttpErrors: false,
+    });
+    if (!upstream.ok) {
+      return NextResponse.json(await upstream.json(), { status: upstream.status });
+    }
+
+    const response = new NextResponse(null, { status: 204 });
+    response.cookies.delete({ name: cookieName, ...cookieOptions });
+    return response;
+  } catch {
+    return authError(502, "잠시 후 다시 시도해 주세요.");
+  }
+}

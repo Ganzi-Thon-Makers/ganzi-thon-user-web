@@ -7,7 +7,7 @@ import { ChevronDownIcon, ChevronUpIcon } from "@/shared/ui/icons";
 import { ProgressBar } from "@/shared/ui/ProgressBar";
 
 import { getBoothMapHref } from "../stamp.routes";
-import { StampCircle } from "./StampCircle";
+import { StampMark } from "./StampMark";
 
 interface ZoneStamp {
   boothName: string;
@@ -18,16 +18,26 @@ interface ZoneStamp {
 interface ZoneStampAccordionProps {
   zoneName: string;
   requiredCount: number;
+  /** 수료 여부는 서버 판정을 따른다 */
+  isCompleted: boolean;
   stamps: ZoneStamp[];
+  defaultOpen?: boolean;
 }
 
-export function ZoneStampAccordion({ zoneName, requiredCount, stamps }: ZoneStampAccordionProps) {
+export function ZoneStampAccordion({
+  zoneName,
+  requiredCount,
+  isCompleted,
+  stamps,
+  defaultOpen,
+}: ZoneStampAccordionProps) {
   const collectedCount = stamps.filter((stamp) => stamp.isCollected).length;
-  const isCompleted = collectedCount >= requiredCount;
-  const badgeLabel = isCompleted ? `${zoneName} 수료 완료` : `${zoneName} 수료까지 ${requiredCount - collectedCount}개`;
+  // 서버가 아직 미수료로 판정했는데 기준값이 어긋나 0개 이하가 되는 경우를 막음
+  const remainingCount = Math.max(1, requiredCount - collectedCount);
+  const badgeLabel = isCompleted ? `${zoneName} 수료 완료` : `${zoneName} 수료까지 ${remainingCount}개`;
 
   return (
-    <CollapsibleRoot className="group rounded-lg bg-gray800 p-4">
+    <CollapsibleRoot defaultOpen={defaultOpen} className="group rounded-lg bg-gray800 p-4">
       <CollapsibleTrigger
         nativeButton={false}
         render={<div />}
@@ -83,7 +93,7 @@ export function ZoneStampAccordion({ zoneName, requiredCount, stamps }: ZoneStam
 function StampCell({ stamp }: { stamp: ZoneStamp }) {
   return (
     <span className="flex flex-col items-center gap-1">
-      <StampCircle isCollected={stamp.isCollected} />
+      <StampMark isCollected={stamp.isCollected} />
       <span className="w-full text-center text-caption-m-12 wrap-break-word text-white">{stamp.boothName}</span>
     </span>
   );

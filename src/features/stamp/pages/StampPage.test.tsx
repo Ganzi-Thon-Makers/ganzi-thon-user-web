@@ -1,18 +1,21 @@
 import { screen } from "@testing-library/react";
-import { expect, it, vi } from "vitest";
+import { beforeEach, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/shared/test/render";
 
-import { getMyStamps, getStampZones } from "../api/stamp.api";
-import { makeStamp } from "../stamp.fixtures";
-import type { Stamp } from "../types";
+import { getMyStampBooth, getStampBoard } from "../api/stamp.api";
+import { makeStampBoard } from "../stamp.fixtures";
 import { StampPage } from "./StampPage";
 
+vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams() }));
 vi.mock("../api/stamp.api");
 
+beforeEach(() => {
+  vi.mocked(getMyStampBooth).mockResolvedValue(null);
+});
+
 it("모은 스탬프 수로 럭키드로우까지 남은 개수를 보여준다", async () => {
-  vi.mocked(getMyStamps).mockResolvedValue([makeStamp(1), makeStamp(2)]);
-  vi.mocked(getStampZones).mockResolvedValue([]);
+  vi.mocked(getStampBoard).mockResolvedValue(makeStampBoard({ collectedCount: 2 }));
 
   renderWithProviders(<StampPage />);
 
@@ -20,8 +23,7 @@ it("모은 스탬프 수로 럭키드로우까지 남은 개수를 보여준다"
 });
 
 it("스탬프를 불러오는 중에도 제목과 섹션 제목은 바로 보여준다", () => {
-  vi.mocked(getMyStamps).mockReturnValue(new Promise<Stamp[]>(() => {}));
-  vi.mocked(getStampZones).mockReturnValue(new Promise(() => {}));
+  vi.mocked(getStampBoard).mockReturnValue(new Promise(() => {}));
 
   renderWithProviders(<StampPage />);
 

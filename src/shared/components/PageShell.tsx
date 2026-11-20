@@ -7,7 +7,7 @@ interface PageShellProps {
   footer?: ReactNode;
   /** gradient: 본문 위에 겹치는 그라데이션 배경(기본), solid: 본문과 나뉘는 단색 바 */
   footerStyle?: "gradient" | "solid";
-  /** 본문 좌우 여백을 빼고 화면 끝까지 채움. 여백·좌우 safe-area는 본문이 맡음 */
+  /** 본문 여백을 빼고 화면 끝까지 채움. 좌우와(헤더가 없으면) 위 여백·safe-area는 본문이 맡음(page-gutter-x·page-gutter-top) */
   isFullBleed?: boolean;
   children: ReactNode;
 }
@@ -28,8 +28,8 @@ export function PageShell({ header, footer, footerStyle = "gradient", isFullBlee
         <div
           className={cn(
             "flex-1 pb-(--page-content-clearance,0px)",
-            !isFullBleed && "px-[max(--spacing(4),env(safe-area-inset-left,0px),env(safe-area-inset-right,0px))]",
-            !header && "pt-[max(--spacing(10),env(safe-area-inset-top,0px))]",
+            !isFullBleed && "page-gutter-x",
+            !header && !isFullBleed && "page-gutter-top",
           )}
         >
           {children}

@@ -5,11 +5,14 @@
 - 명세 출처: 백엔드 Swagger (주소는 `NEXT_PUBLIC_API_URL` 기준. 문서에 주소 값을 직접 쓰지 않는다)
 - 관련 파일만 읽는다. 모든 도메인 문서를 한꺼번에 읽지 않는다.
 
-| 도메인  | 파일         |
-| ------- | ------------ |
-| auth    | `auth.md`    |
-| project | `project.md` |
-| stamp   | `stamp.md`   |
+| 도메인   | 파일          |
+| -------- | ------------- |
+| auth     | `auth.md`     |
+| booth    | `booth.md`    |
+| mypage   | `mypage.md`   |
+| project  | `project.md`  |
+| stamp    | `stamp.md`    |
+| timeline | `timeline.md` |
 
 ## 도메인 파일 형식 (`<도메인>.md`)
 
