@@ -51,8 +51,8 @@
 | ------------ | -------------- | ---------------------------------------------------------------- |
 | `status`     | `VoteStatus`   | `NOT_STARTED`·`IN_PROGRESS`·`PAUSED`·`ENDED`                     |
 | `startTime`  | string \| null | offset 없는 LocalDateTime(서버 시각 KST). 일정 미등록이면 `null` |
-| `endTime`    | string \| null | 화면 미사용                                                      |
-| `serverTime` | string         | 화면 미사용. 카운트다운이 필요해지면 시계 오차 보정에 씀         |
+| `endTime`    | string \| null | 마감 경계에서 투표 UI 잠금                                       |
+| `serverTime` | string         | 서버 시각 기준 시작·마감까지 남은 시간 계산                      |
 
 ## 투표 에러 code
 
