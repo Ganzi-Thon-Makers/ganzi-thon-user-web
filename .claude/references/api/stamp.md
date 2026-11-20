@@ -23,6 +23,8 @@
 
 `booths[]`: `boothId`, `boothName`(팀 이름, 부스에 프로젝트가 없으면 null), `boothNumber`, `collected`, `collectedAt`
 
+참가자 스탬프판에서는 `GET /api/v1/projects/me`의 `zone`·`boothNumber`와 일치하는 칸을 제외하고, 남은 목록에서 전체·구역별 현황을 계산한다. 두 필드의 조합은 부스마다 유일하다. 내 프로젝트나 부스가 없으면(`PROJECT_NOT_FOUND`·`BOOTH_NOT_FOUND`) 전체 목록을 표시한다.
+
 ### StampCollectResponse
 
 `boothId`, `collectedCount`, `remainingToLuckyDraw`, `luckyDrawEntered`, `luckyDrawJustEntered`, `alreadyCollected`
@@ -58,6 +60,7 @@
 | 프론트 함수           | 용도                                       | 쿼리 키                                             |
 | --------------------- | ------------------------------------------ | --------------------------------------------------- |
 | `getStampBoard()`     | 스탬프판(구역별 부스·적립 여부·럭키드로우) | `["stamps", "board"]`                               |
+| `getMyStampBooth()`   | 참가자 본인 부스의 구역·번호 조회          | `["stamps", "my-booth"]`                            |
 | `collectStamp(token)` | QR 토큰으로 적립                           | — (적립·이미 받음이면 `["stamps", "board"]` 무효화) |
 | `getOperatorBooth()`  | QR 발급 화면 제목                          | `["stamps", "operator-booth"]`                      |
 | `issueStampToken()`   | 스탬프 QR 토큰 발급                        | — (발급한 토큰은 캐시에 두지 않음)                  |

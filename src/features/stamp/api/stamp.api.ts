@@ -2,12 +2,28 @@ import { api } from "@/shared/api/client";
 import { toApiError } from "@/shared/api/error";
 import type { ApiResponse } from "@/shared/api/types";
 
-import type { OperatorBooth, StampBoard, StampToken } from "../types";
+import type { OperatorBooth, StampBoard, StampToken, StampZoneCode } from "../types";
 
 /** 내 스탬프판: 구역별 전체 부스와 적립 여부, 럭키드로우 진행 */
 export async function getStampBoard(): Promise<StampBoard> {
   const response = await api.get("api/v1/stamps").json<ApiResponse<StampBoard>>();
   return response.data;
+}
+
+interface MyStampBooth {
+  zone: StampZoneCode;
+  boothNumber: number;
+}
+
+export async function getMyStampBooth(): Promise<MyStampBooth | null> {
+  try {
+    const { data } = await api.get("api/v1/projects/me").json<ApiResponse<MyStampBooth>>();
+    return data;
+  } catch (error) {
+    const { code } = toApiError(error);
+    if (code === "PROJECT_NOT_FOUND" || code === "BOOTH_NOT_FOUND") return null;
+    throw error;
+  }
 }
 
 /** 서버 StampCollectResponse 중 화면이 쓰는 필드 */
