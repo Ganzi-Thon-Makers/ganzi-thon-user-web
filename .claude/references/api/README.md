@@ -8,6 +8,7 @@
 | 도메인   | 파일          |
 | -------- | ------------- |
 | auth     | `auth.md`     |
+| booth    | `booth.md`    |
 | mypage   | `mypage.md`   |
 | project  | `project.md`  |
 | stamp    | `stamp.md`    |
