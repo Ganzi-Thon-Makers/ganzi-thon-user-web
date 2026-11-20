@@ -57,7 +57,13 @@ export function ZoneStampSection() {
 
   const zones = board.zoneStatuses.map((zone) => {
     if (!myBooth || zone.zone !== myBooth.zone) return zone;
-    return { ...zone, booths: zone.booths.filter((booth) => booth.boothNumber !== myBooth.boothNumber) };
+
+    const [ownBooth, duplicate] = zone.booths.filter(
+      (booth) => booth.boothNumber === myBooth.boothNumber && booth.boothName === myBooth.teamName,
+    );
+    if (!ownBooth || duplicate) return zone;
+
+    return { ...zone, booths: zone.booths.filter(({ boothId }) => boothId !== ownBooth.boothId) };
   });
   const booths = zones.flatMap((zone) => zone.booths);
   const totalBooths = booths.length;
