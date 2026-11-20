@@ -1,6 +1,6 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
 
-import type { StampBoard } from "../types";
+import { type StampBoard, ZONE_COMPLETION_COUNT } from "../types";
 import {
   type CollectStampResult,
   collectStamp,
@@ -24,7 +24,9 @@ function applyCollectedStamp(board: StampBoard, result: Extract<CollectStampResu
     const booths = zone.booths.map((booth) =>
       booth.boothId === result.boothId ? { ...booth, collected: true } : booth,
     );
-    return { ...zone, booths, collectedCount: booths.filter((booth) => booth.collected).length };
+    const collectedCount = booths.filter((booth) => booth.collected).length;
+    const completed = zone.completed || collectedCount >= ZONE_COMPLETION_COUNT;
+    return { ...zone, booths, collectedCount, completed };
   });
 
   return {
