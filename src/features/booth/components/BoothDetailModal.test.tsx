@@ -2,41 +2,59 @@ import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { expect, it } from "vitest";
 
-import { mockBoothZones } from "../api/booth.mock";
-import { BoothZoneMap } from "./BoothZoneMap";
+import { ModalTrigger } from "@/shared/ui/Modal";
+
+import type { Booth } from "../types";
+import { BoothButton } from "./BoothButton";
+import { BoothDetailModal } from "./BoothDetailModal";
+
+const booth: Booth = {
+  id: 1,
+  title: "서비스 1",
+  teamName: "104호 팀 1",
+  platform: "APP",
+  thumbnailUrl: "/thumbnail.webp",
+  summary: "서비스를 체험해 볼 수 있어요.",
+};
+
+function renderBoothDetail() {
+  render(
+    <BoothDetailModal>
+      <ModalTrigger render={<BoothButton />} payload={booth}>
+        {booth.title}
+      </ModalTrigger>
+    </BoothDetailModal>,
+  );
+}
 
 it("누른 부스의 정보를 표시하고 Escape로 닫으면 포커스를 버튼으로 돌려준다", async () => {
   const user = userEvent.setup();
-  render(<BoothZoneMap zones={mockBoothZones} />);
-  const booth = screen.getByRole("button", { name: "서비스 2" });
+  renderBoothDetail();
+  const trigger = screen.getByRole("button", { name: booth.title });
 
-  await user.click(booth);
+  await user.click(trigger);
 
-  const modal = await screen.findByRole("dialog", { name: "서비스 2" });
-  expect(within(modal).getByText("104호 팀 2")).toBeInTheDocument();
-  expect(within(modal).getByText("APP")).toBeInTheDocument();
-  expect(within(modal).getByRole("img", { name: "서비스 2 썸네일" })).toBeInTheDocument();
-  expect(modal).toHaveAccessibleDescription("104호 부스에서 팀 2의 서비스를 체험해 볼 수 있어요.");
+  const modal = await screen.findByRole("dialog", { name: booth.title });
+  expect(within(modal).getByText(booth.teamName)).toBeInTheDocument();
+  expect(within(modal).getByText(booth.platform)).toBeInTheDocument();
+  expect(within(modal).getByRole("img", { name: `${booth.title} 썸네일` })).toBeInTheDocument();
+  expect(modal).toHaveAccessibleDescription(booth.summary);
 
   await user.keyboard("{Escape}");
 
   await waitFor(() => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(booth).toHaveFocus();
+    expect(trigger).toHaveFocus();
   });
 });
 
-it("다른 호실의 부스를 선택하면 해당 부스 정보가 열리고 닫기 버튼으로 닫을 수 있다", async () => {
+it("닫기 버튼으로 부스 정보를 닫는다", async () => {
   const user = userEvent.setup();
-  render(<BoothZoneMap zones={mockBoothZones} />);
+  renderBoothDetail();
 
-  await user.click(screen.getByRole("tab", { name: "Zone3" }));
-  await user.click(screen.getByRole("tab", { name: "204호" }));
-  await user.click(screen.getByRole("button", { name: "서비스 1" }));
+  await user.click(screen.getByRole("button", { name: booth.title }));
 
-  const modal = await screen.findByRole("dialog", { name: "서비스 1" });
-  expect(within(modal).getByText("204호 팀 1")).toBeInTheDocument();
-  expect(within(modal).getByText("WEB")).toBeInTheDocument();
+  const modal = await screen.findByRole("dialog", { name: booth.title });
   await user.click(within(modal).getByRole("button", { name: "부스 상세 닫기" }));
   await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
 });

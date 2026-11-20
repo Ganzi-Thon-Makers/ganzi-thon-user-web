@@ -9,10 +9,10 @@ import { ClassroomTabList } from "./ClassroomTabList";
 it("호실 탭을 누르면 해당 호실 패널로 바뀐다", async () => {
   const user = userEvent.setup();
   render(
-    <TabRoot defaultValue={201}>
-      <ClassroomTabList roomNumbers={[201, 202]} />
-      <TabPanel value={201}>201호 배치도</TabPanel>
-      <TabPanel value={202}>202호 배치도</TabPanel>
+    <TabRoot defaultValue="201">
+      <ClassroomTabList roomNumbers={["201", "202"]} />
+      <TabPanel value="201">201호 배치도</TabPanel>
+      <TabPanel value="202">202호 배치도</TabPanel>
     </TabRoot>,
   );
 

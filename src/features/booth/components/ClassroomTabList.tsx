@@ -1,7 +1,7 @@
 import { TabList, TabTrigger } from "@/shared/ui/Tab";
 
 interface ClassroomTabListProps {
-  roomNumbers: number[];
+  roomNumbers: string[];
 }
 
 export function ClassroomTabList({ roomNumbers }: ClassroomTabListProps) {

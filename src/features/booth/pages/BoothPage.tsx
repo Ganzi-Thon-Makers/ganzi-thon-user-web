@@ -8,6 +8,7 @@ import { PageShell } from "@/shared/components/PageShell";
 import { boothQueries } from "../api/booth.queries";
 import { BoothGuideBanner } from "../components/BoothGuideBanner";
 import { BoothZoneMap, BoothZoneMapSkeleton } from "../components/BoothZoneMap";
+
 function BoothMapContent() {
   const { data: zones } = useSuspenseQuery(boothQueries.list());
 
