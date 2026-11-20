@@ -12,7 +12,7 @@ export function BoothDetailLoading() {
       <ModalDescription render={<output />} className="sr-only">
         부스 정보를 불러오는 중이에요.
       </ModalDescription>
-      <div className="aspect-252/101 rounded-t-lg bg-gray700 motion-safe:animate-pulse" />
+      <div className="h-50.5 rounded-t-lg bg-gray700 motion-safe:animate-pulse" />
       <div className="flex flex-col gap-4 px-5 pt-6 pb-5 motion-safe:animate-pulse">
         <div>
           <div className="flex items-start justify-between gap-3">
