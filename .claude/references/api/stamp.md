@@ -19,7 +19,7 @@
 | `luckyDrawEntered`     | boolean | 럭키드로우 응모 여부              |
 | `zoneStatuses[]`       | array   | `ZONE1`~`ZONE3` 순서              |
 
-`zoneStatuses[]`: `zone`, `totalBooths`, `collectedCount`, `remainingCount`(= 전체 − 적립, 수료까지 남은 개수 아님), `completed`(적립 ≥ 서버 설정 `stamp.zone-completion-threshold`, 지금 5), `booths[]`
+`zoneStatuses[]`: `zone`, `totalBooths`, `collectedCount`, `remainingCount`(= 전체 − 적립, 수료까지 남은 개수 아님), `completed`(적립 ≥ 서버 설정 `stamp.zone-completion-threshold`, 3), `booths[]`
 
 `booths[]`: `boothId`, `boothName`(팀 이름, 부스에 프로젝트가 없으면 null), `boothNumber`, `collected`, `collectedAt`
 
@@ -77,7 +77,7 @@
 - 적립(STAMP-03)은 부스 운영자 QR의 토큰으로 한다. QR 내용은 `<사이트 주소>/stamp/collect?token=<토큰>`이라 앱 스캐너와 휴대폰 기본 카메라가 같은 처리를 거친다.
 - 적립·중복 성공 응답은 캐시된 스탬프판의 방금 받은 칸, 적립 개수와 응모 여부에 먼저 반영한 뒤 스탬프판을 재조회한다.
 - `collectStamp(token)`은 경우마다 화면 안내가 달라서 에러 대신 결과로 돌려준다(위 적립 에러 표). `code`를 결과로 바꾸는 일은 `stamp.api.ts`에서 한다. 만료·유효하지 않은 토큰은 같은 스캔 동안 다시 보내지 않는다.
-- 구역 수료는 적립 직후 캐시에서 현재 서버 설정과 같은 기준(5개)으로 갱신하고, 재조회 응답의 `completed`로 동기화한다. "수료까지 N개"도 같은 기준으로 계산한다. Figma 시안은 기준 3개로 보여 디자인 확인이 필요하다.
+- 구역 수료는 적립 직후 캐시에서 서버 설정과 같은 기준(3개)으로 갱신하고, 재조회 응답의 `completed`로 동기화한다. "수료까지 N개"도 같은 기준으로 계산한다.
 - 럭키드로우 최초 응모 안내는 이번 적립 응답의 `luckyDrawJustEntered`가 true일 때만 띄운다. 안내는 스탬프판으로 이동하는 동안 메모리에 보관하고 한 번 표시하면 지운다.
 - 화면 문구: 디자인에는 "이미 수집한 스탬프입니다."만 있다. 만료는 부스 운영자에게 새 QR 발급을 요청하도록 안내하고, 연속 적립 제한·본인 팀 부스는 임시 문구다(TODO).
 - 참가자가 아닌 계정(TEAM·ADMIN)은 스탬프판 조회도 403이다. 이 경우 화면 처리는 정해지지 않았다.

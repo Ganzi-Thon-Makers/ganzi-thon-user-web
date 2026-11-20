@@ -7,14 +7,14 @@ import { stampMutations, stampQueries } from "./stamp.queries";
 
 vi.mock("./stamp.api");
 
-it("다섯 번째 스탬프의 적립과 구역 수료는 재조회 전에 같이 반영되며 조회 실패 후에도 유지된다", async () => {
+it("세 번째 스탬프의 적립과 구역 수료는 재조회 전에 같이 반영되며 조회 실패 후에도 유지된다", async () => {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false, staleTime: Infinity } } });
   const options = stampQueries.board();
-  const zone = makeZoneStatus("ZONE1", [1, 2, 3, 4, 5, 6], [1, 2, 3, 4]);
+  const zone = makeZoneStatus("ZONE1", [1, 2, 3, 4, 5, 6], [1, 2]);
   client.setQueryData(options.queryKey, makeStampBoard({ collectedCount: 14, zoneStatuses: [zone] }));
   vi.mocked(collectStamp).mockResolvedValue({
     status: "collected",
-    boothId: 5,
+    boothId: 3,
     collectedCount: 15,
     luckyDrawEntered: true,
     luckyDrawJustEntered: true,
@@ -27,14 +27,14 @@ it("다섯 번째 스탬프의 적립과 구역 수료는 재조회 전에 같�
     await new MutationObserver(client, stampMutations.collect()).mutate("token");
 
     expect(client.getQueryData(options.queryKey)?.zoneStatuses[0]).toMatchObject({
-      collectedCount: 5,
+      collectedCount: 3,
       completed: true,
     });
     await vi.waitFor(() => expect(query.getCurrentResult().isRefetchError).toBe(true));
     expect(query.getCurrentResult().data).toMatchObject({
       collectedCount: 15,
       luckyDrawEntered: true,
-      zoneStatuses: [{ collectedCount: 5, completed: true }],
+      zoneStatuses: [{ collectedCount: 3, completed: true }],
     });
   } finally {
     unsubscribe();

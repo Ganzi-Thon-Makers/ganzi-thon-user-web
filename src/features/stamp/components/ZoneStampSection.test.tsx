@@ -31,9 +31,9 @@ it("내 스탬프를 구역별 수집 현황과 전체 개수로 보여준다", 
   renderWithProviders(<ZoneStampSection />);
 
   expect(await screen.findByRole("heading", { name: "구역별 스탬프 현황" })).toBeInTheDocument();
-  expect(screen.getByText("Zone 1 수료까지 3개")).toBeInTheDocument();
+  expect(screen.getByText("Zone 1 수료까지 1개")).toBeInTheDocument();
   expect(screen.getByText("6개 중 2개")).toBeInTheDocument();
-  expect(screen.getByText("Zone 2 수료까지 5개")).toBeInTheDocument();
+  expect(screen.getByText("Zone 2 수료까지 3개")).toBeInTheDocument();
   expect(screen.getByText(/총/)).toHaveTextContent("총 2/13개");
 });
 

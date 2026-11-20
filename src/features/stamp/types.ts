@@ -1,5 +1,5 @@
 // 서버 stamp.zone-completion-threshold. API 응답에는 기준값이 내려오지 않는다.
-export const ZONE_COMPLETION_COUNT = 5;
+export const ZONE_COMPLETION_COUNT = 3;
 
 // 서버 Zone enum
 export const STAMP_ZONES = ["ZONE1", "ZONE2", "ZONE3"] as const;
