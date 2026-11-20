@@ -60,6 +60,7 @@
 | 프론트 함수           | 용도                                       | 쿼리 키                                             |
 | --------------------- | ------------------------------------------ | --------------------------------------------------- |
 | `getStampBoard()`     | 스탬프판(구역별 부스·적립 여부·럭키드로우) | `["stamps", "board"]`                               |
+| `getMyStampBooth()`   | 참가자 본인 부스의 구역·번호 조회          | `["stamps", "my-booth"]`                            |
 | `collectStamp(token)` | QR 토큰으로 적립                           | — (적립·이미 받음이면 `["stamps", "board"]` 무효화) |
 | `getOperatorBooth()`  | QR 발급 화면 제목                          | `["stamps", "operator-booth"]`                      |
 | `issueStampToken()`   | 스탬프 QR 토큰 발급                        | — (발급한 토큰은 캐시에 두지 않음)                  |
