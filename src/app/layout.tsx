@@ -8,6 +8,8 @@ import { Providers } from "./providers";
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
+  // robots.txt로 막으면 카톡 등 링크 미리보기 수집도 막혀서, 검색 노출만 막는 noindex 사용
+  robots: { index: false, follow: false },
   title: "양갱즈",
   description: "2026 간지톤 참가자를 위한 서비스",
   openGraph: {
