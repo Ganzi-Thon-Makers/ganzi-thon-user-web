@@ -144,7 +144,7 @@ it("모달을 닫으면 카메라를 끈다", async () => {
   await waitFor(() => expect(scanner.destroy).toHaveBeenCalled());
 });
 
-it("만료 토큰을 다시 인식해도 만료 안내를 덮거나 적립을 재요청하지 않는다", async () => {
+it("같은 만료 QR은 안내가 닫힌 뒤 다시 표시하고 적립을 재요청하지 않는다", async () => {
   vi.mocked(collectStamp).mockResolvedValue({ status: "expired" });
   const { user } = await openScanner();
   vi.useFakeTimers({ shouldAdvanceTime: true });
@@ -157,6 +157,15 @@ it("만료 토큰을 다시 인식해도 만료 안내를 덮거나 적립을 �
     vi.advanceTimersByTime(1500);
   });
   await scan(STAMP_URL);
+  const notice = "만료된 QR 코드예요. 부스 운영자에게 새 QR 발급을 요청해 주세요.";
+  expect(screen.getAllByText(notice)).toHaveLength(1);
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(3700);
+  });
+  expect(screen.queryByText(notice)).not.toBeInTheDocument();
+
+  await scan(STAMP_URL);
+  expect(await screen.findByText(notice)).toBeInTheDocument();
   expect(collectStamp).toHaveBeenCalledTimes(1);
   expect(screen.queryByText("QR 코드를 인식 못했어요. 다시 스캔해 주세요.")).not.toBeInTheDocument();
 

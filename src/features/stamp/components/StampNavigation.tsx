@@ -17,7 +17,7 @@ interface RejectedStampToken {
 
 export function StampNavigation() {
   const [isScanOpen, setIsScanOpen] = useState(false);
-  const { collectStamp } = useCollectStamp();
+  const { collectStamp, showScanFailed } = useCollectStamp();
   const toast = useToast();
   // 모달을 열고 닫을 때마다 바뀌어, 이전 스캔의 늦은 응답이 지금 화면을 바꾸지 않게 함
   const scanSessionRef = useRef(0);
@@ -36,8 +36,10 @@ export function StampNavigation() {
     const token = parseStampToken(text);
     const rejected = rejectedTokenRef.current;
     const isRejectedToken = rejected?.token === token;
-    // 같은 만료 QR은 이전 안내를 일반 인식 실패로 덮어쓰지 않음
-    if (isRejectedToken && rejected.status === "expired") return false;
+    if (isRejectedToken && rejected.status === "expired") {
+      showScanFailed("expired");
+      return false;
+    }
 
     const isDone = await collectStamp(isRejectedToken ? null : token, {
       isCurrent: isCurrentSession,

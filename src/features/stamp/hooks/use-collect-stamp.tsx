@@ -2,6 +2,7 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useRef } from "react";
 
 import { isLoginRedirectPending } from "@/shared/api/client";
 import { ErrorIcon, SuccessIcon } from "@/shared/ui/icons";
@@ -31,15 +32,22 @@ interface CollectStampOptions {
 export function useCollectStamp() {
   const router = useRouter();
   const toast = useToast();
+  const hasExpiredNotice = useRef(false);
   const { mutateAsync } = useMutation(stampMutations.collect());
 
   function showScanFailed(status: "invalid-token" | "expired" = "invalid-token") {
-    const message =
-      status === "expired"
-        ? "만료된 QR 코드예요. 부스 운영자에게 새 QR 발급을 요청해 주세요."
-        : "QR 코드를 인식 못했어요. 다시 스캔해 주세요.";
+    const isExpired = status === "expired";
+    if (isExpired && hasExpiredNotice.current) return;
+    hasExpiredNotice.current = isExpired;
+
+    const message = isExpired
+      ? "만료된 QR 코드예요. 부스 운영자에게 새 QR 발급을 요청해 주세요."
+      : "QR 코드를 인식 못했어요. 다시 스캔해 주세요.";
     toast.error(message, {
       id: SCAN_FAILED_TOAST_ID,
+      onClose: () => {
+        hasExpiredNotice.current = false;
+      },
       data: { icon: <ErrorIcon /> },
     });
   }
@@ -90,5 +98,5 @@ export function useCollectStamp() {
     return true;
   }
 
-  return { collectStamp };
+  return { collectStamp, showScanFailed };
 }
