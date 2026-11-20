@@ -12,13 +12,8 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: vi.fn<(path: st
 
 const TTL_SECONDS = 60;
 
-function toLocalDateTime(date: Date) {
-  const offsetMs = date.getTimezoneOffset() * 60_000;
-  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 19);
-}
-
 function tokenExpiringIn(seconds: number, token: string) {
-  return { token, expiresAt: toLocalDateTime(new Date(Date.now() + seconds * 1000)) };
+  return { token, expiresAt: new Date(Date.now() + seconds * 1000).toISOString() };
 }
 
 async function renderIssuedPage() {
@@ -98,5 +93,27 @@ it("받을 때부터 만료된 QR은 자동으로 다시 발급하지 않는다"
   expect(await screen.findByText("QR 코드가 만료됐어요. 다시 발급해 주세요.")).toBeInTheDocument();
   await act(async () => vi.advanceTimersByTime(TTL_SECONDS * 1000));
 
+  expect(issueStampToken).toHaveBeenCalledTimes(2);
+});
+
+it("60초짜리 QR 발급 응답이 2.5초 늦으면 남은 58초를 표시하고 서버 만료에 맞춰 다시 발급한다", async () => {
+  vi.mocked(issueStampToken).mockImplementationOnce(async () => {
+    const { expiresAt } = tokenExpiringIn(TTL_SECONDS, "delayed");
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+    return { token: "delayed", expiresAt };
+  });
+  vi.mocked(issueStampToken).mockImplementation(async () => tokenExpiringIn(TTL_SECONDS, "fresh"));
+
+  renderWithProviders(
+    <ToastProvider>
+      <StampQrIssuePage />
+    </ToastProvider>,
+  );
+  await clickIssue();
+  await act(async () => vi.advanceTimersByTimeAsync(2500));
+  expect(screen.getByRole("timer")).toHaveTextContent("00:58");
+  expect(issueStampToken).toHaveBeenCalledTimes(1);
+
+  await act(async () => vi.advanceTimersByTimeAsync(58000));
   expect(issueStampToken).toHaveBeenCalledTimes(2);
 });
