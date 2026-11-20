@@ -24,7 +24,7 @@ interface CollectStampOptions {
   /** 응답을 받은 시점에 이 요청이 아직 유효한지. false면 화면을 옮기지 않는다 */
   isCurrent?: () => boolean;
   /** 서버가 이 토큰을 받지 않을 때(만료·잘못된 토큰). 같은 토큰을 다시 보내지 않는 데 쓴다 */
-  onRejected?: () => void;
+  onRejected?: (status: "invalid-token" | "expired") => void;
 }
 
 /** 스탬프 QR 토큰으로 적립하고 결과를 토스트와 스탬프판 구역 펼침으로 안내한다 (STAMP-03) */
@@ -33,8 +33,12 @@ export function useCollectStamp() {
   const toast = useToast();
   const { mutateAsync } = useMutation(stampMutations.collect());
 
-  function showScanFailed() {
-    toast.error("QR 코드를 인식 못했어요. 다시 스캔해 주세요.", {
+  function showScanFailed(status: "invalid-token" | "expired" = "invalid-token") {
+    const message =
+      status === "expired"
+        ? "만료된 QR 코드예요. 부스 운영자에게 새 QR 발급을 요청해 주세요."
+        : "QR 코드를 인식 못했어요. 다시 스캔해 주세요.";
+    toast.error(message, {
       id: SCAN_FAILED_TOAST_ID,
       data: { icon: <ErrorIcon /> },
     });
@@ -62,10 +66,9 @@ export function useCollectStamp() {
       return false;
     }
 
-    // TODO: 만료 문구가 디자인에 없어 인식 실패 문구를 함께 씀
     if (result.status === "invalid-token" || result.status === "expired") {
-      onRejected?.();
-      showScanFailed();
+      onRejected?.(result.status);
+      showScanFailed(result.status);
       return false;
     }
 

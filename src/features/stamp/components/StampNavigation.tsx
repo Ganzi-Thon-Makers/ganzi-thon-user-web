@@ -10,6 +10,11 @@ import { useCollectStamp } from "../hooks/use-collect-stamp";
 import { parseStampToken } from "../stamp.routes";
 import { StampScanModal } from "./StampScanModal";
 
+interface RejectedStampToken {
+  token: string;
+  status: "invalid-token" | "expired";
+}
+
 export function StampNavigation() {
   const [isScanOpen, setIsScanOpen] = useState(false);
   const { collectStamp } = useCollectStamp();
@@ -17,7 +22,7 @@ export function StampNavigation() {
   // 모달을 열고 닫을 때마다 바뀌어, 이전 스캔의 늦은 응답이 지금 화면을 바꾸지 않게 함
   const scanSessionRef = useRef(0);
   // 서버가 거절한 토큰. 같은 QR을 비추는 동안 다시 요청하지 않고, 모달을 다시 열면 비움
-  const rejectedTokenRef = useRef<string | null>(null);
+  const rejectedTokenRef = useRef<RejectedStampToken | null>(null);
 
   function handleOpenChange(open: boolean) {
     scanSessionRef.current += 1;
@@ -29,11 +34,15 @@ export function StampNavigation() {
     const session = scanSessionRef.current;
     const isCurrentSession = () => scanSessionRef.current === session;
     const token = parseStampToken(text);
-    // 거절된 토큰은 요청 없이 인식 실패 안내만 다시 보여줌
-    const isDone = await collectStamp(token === rejectedTokenRef.current ? null : token, {
+    const rejected = rejectedTokenRef.current;
+    const isRejectedToken = rejected?.token === token;
+    // 같은 만료 QR은 이전 안내를 일반 인식 실패로 덮어쓰지 않음
+    if (isRejectedToken && rejected.status === "expired") return false;
+
+    const isDone = await collectStamp(isRejectedToken ? null : token, {
       isCurrent: isCurrentSession,
-      onRejected: () => {
-        if (isCurrentSession()) rejectedTokenRef.current = token;
+      onRejected: (status) => {
+        if (token !== null && isCurrentSession()) rejectedTokenRef.current = { token, status };
       },
     });
     if (isDone && isCurrentSession()) setIsScanOpen(false);
