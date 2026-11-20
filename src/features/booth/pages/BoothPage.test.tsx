@@ -1,15 +1,22 @@
 import { screen, within } from "@testing-library/react";
-import { expect, it, vi } from "vitest";
+import { beforeEach, expect, it, vi } from "vitest";
 
 import { PageBoundary } from "@/shared/components/PageBoundary";
 import { renderWithProviders } from "@/shared/test/render";
 
-import { getBoothZones } from "../api/booth.api";
+import { getBoothDetail, getBoothZones } from "../api/booth.api";
 import { boothQueries } from "../api/booth.queries";
 import type { BoothListResponse } from "../types";
 import { BoothPage } from "./BoothPage";
 
 vi.mock("../api/booth.api");
+
+const navigation = vi.hoisted(() => ({ searchParams: new URLSearchParams() }));
+vi.mock("next/navigation", () => ({ useSearchParams: () => navigation.searchParams }));
+
+beforeEach(() => {
+  navigation.searchParams = new URLSearchParams();
+});
 
 const boothListResponse: BoothListResponse = {
   booths: {
@@ -82,4 +89,22 @@ it("부스 조회가 실패하면 다시 시도할 수 있다", async () => {
   await user.click(screen.getByRole("button", { name: "다시 시도" }));
 
   expect(await screen.findByRole("heading", { name: "104호" })).toBeVisible();
+});
+
+it("주소에 부스가 있으면 그 부스의 구역·호실을 보여 주고 상세를 연다", async () => {
+  navigation.searchParams = new URLSearchParams({ boothId: "204" });
+  vi.mocked(getBoothZones).mockResolvedValueOnce(boothListResponse);
+  vi.mocked(getBoothDetail).mockResolvedValueOnce({
+    title: "프로젝트",
+    teamName: "9팀",
+    summary: "소개",
+    thumbnailUrl: "/thumbnail.webp",
+    platform: "WEB",
+  });
+  renderBoothPage();
+
+  expect(await screen.findByRole("dialog", { name: "프로젝트" })).toBeInTheDocument();
+  expect(getBoothDetail).toHaveBeenCalledWith(204);
+  expect(screen.getByRole("tab", { name: "Zone2", selected: true, hidden: true })).toBeInTheDocument();
+  expect(screen.getByRole("tab", { name: "202호", selected: true, hidden: true })).toBeInTheDocument();
 });

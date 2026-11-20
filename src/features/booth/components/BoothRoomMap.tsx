@@ -2,6 +2,7 @@ import { ModalTrigger } from "@/shared/ui/Modal";
 
 import type { BoothListItem, BoothRoom } from "../types";
 import { BoothButton } from "./BoothButton";
+import { getBoothTriggerId } from "./BoothDetailModal";
 
 interface BoothColumnProps {
   booths: BoothListItem[];
@@ -12,7 +13,7 @@ function BoothColumn({ booths }: BoothColumnProps) {
     <ul className="flex flex-col gap-3">
       {booths.map((booth) => (
         <li key={booth.boothId}>
-          <ModalTrigger render={<BoothButton />} payload={booth.boothId}>
+          <ModalTrigger id={getBoothTriggerId(booth.boothId)} render={<BoothButton />} payload={booth.boothId}>
             {booth.teamNumber}팀
           </ModalTrigger>
         </li>

@@ -10,13 +10,22 @@ import { ModalBackdrop, ModalClose, ModalPopup, ModalPortal, ModalRoot } from "@
 import { BoothDetailError, BoothDetailLoading } from "./BoothDetailFallback";
 import { BoothDetailSummary } from "./BoothDetailSummary";
 
+export function getBoothTriggerId(boothId: number) {
+  return `booth-${boothId}`;
+}
+
 interface BoothDetailModalProps {
+  /** 처음부터 상세를 열어 둘 부스. 그 부스 버튼이 화면에 있어야 열린다 */
+  initialBoothId?: number;
   children: ReactNode;
 }
 
-export function BoothDetailModal({ children }: BoothDetailModalProps) {
+export function BoothDetailModal({ initialBoothId, children }: BoothDetailModalProps) {
   return (
-    <ModalRoot<number>>
+    <ModalRoot<number>
+      defaultOpen={initialBoothId !== undefined}
+      defaultTriggerId={initialBoothId === undefined ? undefined : getBoothTriggerId(initialBoothId)}
+    >
       {({ payload: boothId }) => (
         <>
           {children}
