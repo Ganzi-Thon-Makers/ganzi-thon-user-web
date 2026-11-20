@@ -75,7 +75,7 @@ export function BottomNavigation({ onQrClick }: BottomNavigationProps) {
   const canCollectStamp = useCanCollectStamp();
 
   return (
-    <nav className="sticky bottom-0 z-10 -mt-(--nav-cutout-depth) flex w-full shrink-0 gap-4 px-[max(--spacing(6),var(--nav-safe-inline))] pb-[env(safe-area-inset-bottom,0px)] bottom-navigation-metrics">
+    <nav className="sticky bottom-0 z-10 -mt-(--nav-cutout-depth) flex w-full shrink-0 gap-4 px-[max(--spacing(6),var(--nav-safe-inline))] pb-[env(safe-area-inset-bottom,0px)] bottom-navigation-metrics [view-transition-name:bottom-nav]">
       <div
         className={cn(
           "pointer-events-none absolute inset-0 rounded-t-[20px] bg-gray800",

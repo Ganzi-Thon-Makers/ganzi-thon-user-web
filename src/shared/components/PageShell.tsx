@@ -20,7 +20,7 @@ export function PageShell({ header, footer, footerStyle = "gradient", isFullBlee
       {header && <div className="shrink-0 pt-[env(safe-area-inset-top,0px)]">{header}</div>}
       <div
         className={cn(
-          "flex min-h-0 flex-1 flex-col overflow-y-auto",
+          "scrollbar-none flex min-h-0 flex-1 flex-col overflow-y-auto",
           // 키보드 포커스가 하단 내비게이션·footer 아래로 숨지 않게 스크롤 기준을 올림 (footer 기본 높이 = 여백 70px + 버튼 48px)
           footer ? "scroll-pb-[calc(var(--shell-inset-bottom)+--spacing(29.5))]" : "scroll-pb-(--shell-inset-bottom)",
         )}

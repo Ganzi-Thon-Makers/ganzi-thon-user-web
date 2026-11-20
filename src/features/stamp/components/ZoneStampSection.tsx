@@ -103,8 +103,20 @@ export function ZoneStampSectionSkeleton() {
     <ZoneStampSectionLayout total={<div className="h-4.5 w-14 animate-pulse rounded-sm bg-muted" />}>
       <div aria-busy="true" className="flex flex-col gap-3">
         <span className="sr-only">구역별 스탬프 현황 불러오는 중</span>
+        {/* ZoneStampAccordion을 접은 모양(구역명·배지·개수 줄과 진행 바) */}
         {Array.from({ length: ZONE_SKELETON_COUNT }, (_, index) => (
-          <div key={index} className="h-19 animate-pulse rounded-lg bg-muted" />
+          <div
+            key={index}
+            aria-hidden
+            className="flex flex-col gap-3 rounded-lg bg-gray800 p-4 motion-safe:animate-pulse"
+          >
+            <div className="flex h-6.5 items-center gap-2">
+              <div className="h-4 w-14 rounded-sm bg-gray700" />
+              <div className="h-5.75 w-24 rounded-xs bg-gray700" />
+              <div className="ml-auto h-5 w-10 rounded-sm bg-gray700" />
+            </div>
+            <div className="h-1.5 rounded-full bg-gray700" />
+          </div>
         ))}
       </div>
     </ZoneStampSectionLayout>

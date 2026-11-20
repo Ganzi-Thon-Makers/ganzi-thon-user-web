@@ -81,12 +81,33 @@ export function ProjectList({ zone, votedProjectId = null, vote }: ProjectListPr
   );
 }
 
+// ProjectCard와 같은 골격(썸네일·제목·소개 2줄)
 export function ProjectListSkeleton() {
   return (
-    <div aria-busy="true" aria-label="프로젝트 목록 불러오는 중" className="grid grid-cols-2 gap-x-2.5 gap-y-5">
+    <output aria-busy="true" className="grid grid-cols-2 gap-x-2.5 gap-y-5">
+      <span className="sr-only">프로젝트 목록 불러오는 중</span>
       {Array.from({ length: SKELETON_CARD_COUNT }, (_, index) => (
-        <div key={index} className="h-45 animate-pulse rounded-lg bg-muted" />
+        <div
+          key={index}
+          aria-hidden
+          className="flex min-h-45 flex-col gap-3 overflow-hidden rounded-lg bg-gray800 pb-3.5 motion-safe:animate-pulse"
+        >
+          <div className="h-22 shrink-0 bg-gray700" />
+          <div className="flex flex-col gap-1.5 px-2">
+            <div className="flex h-lh items-center text-body-sb-16">
+              <div className="h-4 w-2/3 rounded-sm bg-gray700" />
+            </div>
+            <div>
+              <div className="flex h-lh items-center text-caption-r-12">
+                <div className="h-3 w-full rounded-xs bg-gray700" />
+              </div>
+              <div className="flex h-lh items-center text-caption-r-12">
+                <div className="h-3 w-3/4 rounded-xs bg-gray700" />
+              </div>
+            </div>
+          </div>
+        </div>
       ))}
-    </div>
+    </output>
   );
 }
