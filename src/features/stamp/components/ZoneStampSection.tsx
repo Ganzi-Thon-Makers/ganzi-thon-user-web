@@ -6,12 +6,10 @@ import type { ReactNode } from "react";
 
 import { stampQueries } from "../api/stamp.queries";
 import { STAMPED_AT_PARAM, STAMPED_BOOTH_PARAM } from "../stamp.routes";
-import type { BoothStamp, StampZoneCode } from "../types";
+import { type BoothStamp, type StampZoneCode, ZONE_COMPLETION_COUNT } from "../types";
 import { ZoneStampAccordion } from "./ZoneStampAccordion";
 
 const ZONE_SKELETON_COUNT = 3;
-// 서버 설정 stamp.zone-completion-threshold와 같은 값. 응답에 기준값이 없어 "수료까지 N개" 계산에만 씀
-const ZONE_COMPLETION_COUNT = 5;
 
 const ZONE_LABELS = {
   ZONE1: "Zone 1",

@@ -56,7 +56,12 @@ async function scan(text: string) {
 }
 
 it("스탬프 QR을 인식하면 적립하고 모달을 닫은 뒤 그 부스 구역을 펼친 스탬프판으로 보낸다", async () => {
-  vi.mocked(collectStamp).mockResolvedValue({ status: "collected", boothId: 4 });
+  vi.mocked(collectStamp).mockResolvedValue({
+    status: "collected",
+    boothId: 4,
+    collectedCount: 1,
+    luckyDrawEntered: false,
+  });
   await openScanner();
 
   await scan(STAMP_URL);
@@ -68,7 +73,12 @@ it("스탬프 QR을 인식하면 적립하고 모달을 닫은 뒤 그 부스 �
 });
 
 it("이미 받은 부스 QR이면 이미 수집했다고 알리고 그 구역을 펼친다", async () => {
-  vi.mocked(collectStamp).mockResolvedValue({ status: "already-collected", boothId: 2 });
+  vi.mocked(collectStamp).mockResolvedValue({
+    status: "already-collected",
+    boothId: 2,
+    collectedCount: 1,
+    luckyDrawEntered: false,
+  });
   await openScanner();
 
   await scan(STAMP_URL);
@@ -109,7 +119,12 @@ it("인식에 실패하면 잠시 쉬었다가 다시 인식한다", async () =>
   await scan(STAMP_URL);
   expect(collectStamp).not.toHaveBeenCalled();
 
-  vi.mocked(collectStamp).mockResolvedValue({ status: "collected", boothId: 1 });
+  vi.mocked(collectStamp).mockResolvedValue({
+    status: "collected",
+    boothId: 1,
+    collectedCount: 1,
+    luckyDrawEntered: false,
+  });
   await act(async () => {
     vi.advanceTimersByTime(1500);
   });
@@ -129,7 +144,7 @@ it("적립 응답 전에 모달을 닫으면 응답이 와도 스탬프판으로
   const pendingScan = scanner.onDecode?.({ data: STAMP_URL });
   await user.click(screen.getByRole("button", { name: "닫기" }));
   await act(async () => {
-    response.resolve({ status: "collected", boothId: 4 });
+    response.resolve({ status: "collected", boothId: 4, collectedCount: 1, luckyDrawEntered: false });
     await pendingScan;
   });
 

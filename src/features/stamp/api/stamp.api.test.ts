@@ -16,15 +16,25 @@ afterEach(() => {
 
 describe("collectStamp", () => {
   it("새로 적립하면 적립한 부스를 알려준다", async () => {
-    respondWith({ data: { boothId: 2, alreadyCollected: false } });
+    respondWith({ data: { boothId: 2, alreadyCollected: false, collectedCount: 1, luckyDrawEntered: false } });
 
-    await expect(collectStamp("token")).resolves.toEqual({ status: "collected", boothId: 2 });
+    await expect(collectStamp("token")).resolves.toEqual({
+      status: "collected",
+      boothId: 2,
+      collectedCount: 1,
+      luckyDrawEntered: false,
+    });
   });
 
   it("이미 받은 부스면 그 부스와 함께 이미 받았다고 알려준다", async () => {
-    respondWith({ data: { boothId: 1, alreadyCollected: true } });
+    respondWith({ data: { boothId: 1, alreadyCollected: true, collectedCount: 1, luckyDrawEntered: false } });
 
-    await expect(collectStamp("token")).resolves.toEqual({ status: "already-collected", boothId: 1 });
+    await expect(collectStamp("token")).resolves.toEqual({
+      status: "already-collected",
+      boothId: 1,
+      collectedCount: 1,
+      luckyDrawEntered: false,
+    });
   });
 
   it.each([
