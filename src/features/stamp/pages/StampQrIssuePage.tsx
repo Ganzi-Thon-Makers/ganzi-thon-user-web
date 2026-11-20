@@ -3,6 +3,7 @@
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useEffectEvent, useState } from "react";
 
+import { LogoutButton } from "@/shared/components/LogoutButton";
 import { PageShell } from "@/shared/components/PageShell";
 import { Button } from "@/shared/ui/Button";
 import { ErrorIcon } from "@/shared/ui/icons";
@@ -57,9 +58,12 @@ export function StampQrIssuePage() {
   return (
     <PageShell
       footer={
-        <Button className="w-full" disabled={isValidQrShown || issueToken.isPending} onClick={handleIssue}>
-          스탬프 QR 발급
-        </Button>
+        <>
+          <Button className="w-full" disabled={isValidQrShown || issueToken.isPending} onClick={handleIssue}>
+            스탬프 QR 발급
+          </Button>
+          <LogoutButton />
+        </>
       }
     >
       <div className="flex min-h-full flex-col items-center justify-center gap-6 py-6">

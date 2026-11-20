@@ -1,9 +1,9 @@
 import { Suspense } from "@suspensive/react";
 
+import { LogoutButton } from "@/shared/components/LogoutButton";
 import { PageShell } from "@/shared/components/PageShell";
 
 import { HistoryCard } from "../components/HistoryCard";
-import { LogoutButton } from "../components/LogoutButton";
 import { MyPageDetails, MyPageDetailsSkeleton } from "../components/MyPageDetails";
 
 export function MyPage() {
