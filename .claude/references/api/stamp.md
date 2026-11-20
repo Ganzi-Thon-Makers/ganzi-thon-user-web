@@ -23,7 +23,7 @@
 
 `booths[]`: `boothId`, `boothName`(팀 이름, 부스에 프로젝트가 없으면 null), `boothNumber`, `collected`, `collectedAt`
 
-참가자 스탬프판에서는 `GET /api/v1/projects/me`의 `zone`·`boothNumber`와 일치하는 칸을 제외하고, 남은 목록에서 전체·구역별 현황을 계산한다. 두 필드의 조합은 부스마다 유일하다. 내 프로젝트나 부스가 없으면(`PROJECT_NOT_FOUND`·`BOOTH_NOT_FOUND`) 전체 목록을 표시한다.
+참가자 스탬프판에서는 `GET /api/v1/projects/me`의 `zone`과 `boothNumber`로 후보를 좁힌 뒤 `teamName`을 스탬프판의 `boothName`과 비교한다. 두 이름은 서버에서 같은 프로젝트의 팀 이름으로 채운다. 일치하는 후보가 한 곳일 때만 해당 `boothId`를 제외한다. dev Swagger `platform` 그룹과 서버 코드에서 2026-11-21 확인.
 
 ### StampCollectResponse
 

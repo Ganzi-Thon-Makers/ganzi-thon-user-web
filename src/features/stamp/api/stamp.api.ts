@@ -11,6 +11,7 @@ export async function getStampBoard(): Promise<StampBoard> {
 }
 
 interface MyStampBooth {
+  teamName: string;
   zone: StampZoneCode;
   boothNumber: number;
 }
