@@ -6,7 +6,8 @@ import { BoothDetailModal } from "./BoothDetailModal";
 import { BoothRoomMap } from "./BoothRoomMap";
 import { ClassroomTabList } from "./ClassroomTabList";
 
-const MAP_PANEL_CLASS = "mx-1.5 mt-4.5";
+// 키보드로 이동할 때 포커스된 요소가 위에 붙은 Zone 탭(h-12) 아래로 숨지 않게 함
+const MAP_PANEL_CLASS = "mx-1.5 mt-4.5 [&_:focus-visible]:scroll-mt-12";
 const MAP_ROOM_CLASS = "flex min-h-112.5 flex-col rounded-lg bg-gray800 p-5";
 const ROOM_LABEL_CLASS = "mx-auto rounded-full py-1.5 text-body-sb-14";
 const ZONE_LABELS: Record<BoothZoneCode, string> = { ZONE1: "Zone1", ZONE2: "Zone2", ZONE3: "Zone3" };
@@ -66,7 +67,11 @@ export function BoothZoneMap({ zones, initialBoothId }: BoothZoneMapProps) {
   return (
     <BoothDetailModal initialBoothId={location ? initialBoothId : undefined}>
       <TabRoot defaultValue={location?.zoneCode ?? firstZone.code} className="mt-2">
-        <TabList aria-label="Zone" className="-mx-4 w-auto">
+        {/* 지도를 내려 봐도 구역을 바로 바꿀 수 있게 탭만 위에 붙임(배너는 스크롤됨) */}
+        <TabList
+          aria-label="Zone"
+          className="sticky top-[env(safe-area-inset-top,0px)] z-20 -mx-4 w-auto bg-background"
+        >
           {zones.map((zone) => (
             <TabTrigger key={zone.code} value={zone.code}>
               {ZONE_LABELS[zone.code]}
