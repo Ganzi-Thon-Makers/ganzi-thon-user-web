@@ -33,6 +33,7 @@ interface StampCollectResponse {
   alreadyCollected: boolean;
   collectedCount: number;
   luckyDrawEntered: boolean;
+  luckyDrawJustEntered: boolean;
 }
 
 /** QR 토큰으로 스탬프를 받은 결과. 화면이 경우마다 다르게 안내해서 에러 대신 결과로 돌려준다 */
@@ -60,6 +61,7 @@ export async function collectStamp(token: string): Promise<CollectStampResult> {
       boothId: data.boothId,
       collectedCount: data.collectedCount,
       luckyDrawEntered: data.luckyDrawEntered,
+      luckyDrawJustEntered: data.luckyDrawJustEntered,
     };
   } catch (error) {
     const failure = COLLECT_FAILURE_BY_CODE[toApiError(error).code];

@@ -1,9 +1,11 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useSearchParams } from "next/navigation";
 
 import { stampQueries } from "../api/stamp.queries";
 import { useLuckyDrawNotice } from "../hooks/use-lucky-draw-notice";
+import { STAMPED_AT_PARAM } from "../stamp.routes";
 import { LuckyDrawCard } from "./LuckyDrawCard";
 import { LuckyDrawEnteredModal } from "./LuckyDrawEnteredModal";
 
@@ -12,14 +14,24 @@ const LUCKY_DRAW_GOAL_COUNT = 15;
 
 export function LuckyDrawProgress() {
   const { data: board } = useSuspenseQuery(stampQueries.board());
-  const notice = useLuckyDrawNotice(board.luckyDrawEntered);
+  const stampedAt = useSearchParams().get(STAMPED_AT_PARAM);
 
   return (
     <>
       <LuckyDrawCard collectedCount={board.collectedCount} goalCount={LUCKY_DRAW_GOAL_COUNT} />
-      <LuckyDrawEnteredModal open={notice.isOpen} onClose={notice.dismiss} />
+      <LuckyDrawNotice key={stampedAt} stampedAt={stampedAt} />
     </>
   );
+}
+
+interface LuckyDrawNoticeProps {
+  stampedAt: string | null;
+}
+
+function LuckyDrawNotice({ stampedAt }: LuckyDrawNoticeProps) {
+  const notice = useLuckyDrawNotice(stampedAt);
+
+  return <LuckyDrawEnteredModal open={notice.isOpen} onClose={notice.dismiss} />;
 }
 
 // 뒤에 겹친 마스코트가 비치지 않게 불투명 바탕 위에서 깜빡임

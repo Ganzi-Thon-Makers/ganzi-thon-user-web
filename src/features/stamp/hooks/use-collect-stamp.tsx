@@ -10,6 +10,7 @@ import { useToast } from "@/shared/ui/Toast";
 
 import { stampMutations } from "../api/stamp.queries";
 import { getStampBoardHref, STAMP_BOARD_PATH } from "../stamp.routes";
+import { queueLuckyDrawNotice } from "./use-lucky-draw-notice";
 
 // 같은 QR을 계속 비추는 동안 실패 토스트가 쌓이지 않게 같은 id로 갱신
 const SCAN_FAILED_TOAST_ID = "stamp-scan-failed";
@@ -94,7 +95,11 @@ export function useCollectStamp() {
       toast.error("이미 수집한 스탬프입니다.", { data: { icon: <ErrorIcon /> } });
     }
     // 요청 중 모달을 닫거나 화면을 떠났으면 결과만 알리고 이동하지 않음
-    if (isCurrent()) router.replace(getStampBoardHref(result.boothId, Date.now()));
+    if (isCurrent()) {
+      const stampedAt = Date.now();
+      if (result.status === "collected" && result.luckyDrawJustEntered) queueLuckyDrawNotice(stampedAt);
+      router.replace(getStampBoardHref(result.boothId, stampedAt));
+    }
     return true;
   }
 

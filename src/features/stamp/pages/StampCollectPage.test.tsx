@@ -6,8 +6,10 @@ import type * as client from "@/shared/api/client";
 import { renderWithProviders } from "@/shared/test/render";
 import { ToastProvider } from "@/shared/ui/Toast";
 
-import { collectStamp } from "../api/stamp.api";
+import { collectStamp, getStampBoard } from "../api/stamp.api";
+import { LuckyDrawProgress } from "../components/LuckyDrawProgress";
 import { readPendingStampToken, savePendingStampToken } from "../pending-stamp-token";
+import { makeStampBoard } from "../stamp.fixtures";
 import { StampCollectPage } from "./StampCollectPage";
 
 const navigation = vi.hoisted(() => ({
@@ -51,6 +53,7 @@ it("주소의 토큰으로 스탬프를 받고, 토큰을 지운 뒤 스탬프�
     boothId: 3,
     collectedCount: 1,
     luckyDrawEntered: false,
+    luckyDrawJustEntered: false,
   });
 
   renderPage();
@@ -83,6 +86,7 @@ it("로그인 전에 찍어 보관한 토큰으로 로그인 뒤 스탬프를 �
     boothId: 3,
     collectedCount: 1,
     luckyDrawEntered: false,
+    luckyDrawJustEntered: false,
   });
 
   renderPage();
@@ -128,4 +132,26 @@ it("서버가 토큰을 받지 않으면(만료) 보관한 토큰을 지운다",
     await screen.findByText("만료된 QR 코드예요. 부스 운영자에게 새 QR 발급을 요청해 주세요."),
   ).toBeInTheDocument();
   expect(readPendingStampToken()).toBeNull();
+});
+
+it("기본 카메라로 처음 응모하면 이동한 스탬프판에서 안내를 보여준다", async () => {
+  navigation.searchParams = new URLSearchParams({ token: "booth-token" });
+  vi.mocked(collectStamp).mockResolvedValue({
+    status: "collected",
+    boothId: 3,
+    collectedCount: 15,
+    luckyDrawEntered: true,
+    luckyDrawJustEntered: true,
+  });
+  vi.mocked(getStampBoard).mockResolvedValue(makeStampBoard({ collectedCount: 15 }));
+  const collectView = renderPage();
+
+  expect(await screen.findByText("스탬프를 받았어요!")).toBeInTheDocument();
+  const href = navigation.replace.mock.calls.at(-1)?.[0];
+  expect(href).toMatch(/^\/stamp\?stampedBooth=3&stampedAt=\d+$/);
+  navigation.searchParams = new URL(href ?? "", "https://ganzithon.com").searchParams;
+  collectView.unmount();
+  renderWithProviders(<LuckyDrawProgress />);
+
+  expect(await screen.findByRole("dialog", { name: "럭키드로우 자동 응모되었습니다!" })).toBeInTheDocument();
 });

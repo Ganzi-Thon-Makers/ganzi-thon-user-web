@@ -17,6 +17,7 @@ it("다섯 번째 스탬프의 적립과 구역 수료는 재조회 전에 같�
     boothId: 5,
     collectedCount: 15,
     luckyDrawEntered: true,
+    luckyDrawJustEntered: true,
   });
   vi.mocked(getStampBoard).mockRejectedValue(new Error("조회 실패"));
   const query = new QueryObserver(client, options);
@@ -51,6 +52,7 @@ it("중복 응답을 다시 적용해도 이미 적립된 칸과 개수가 그�
     boothId: 2,
     collectedCount: 2,
     luckyDrawEntered: false,
+    luckyDrawJustEntered: false,
   });
   const mutation = new MutationObserver(client, stampMutations.collect());
 
