@@ -10,13 +10,18 @@ const refreshed = () => Response.json({ data: { accessToken: "fresh-token" } });
 async function mockClient(backend: (request: Request) => Promise<Response>, pathname?: string) {
   const replace = vi.fn<(path: string) => void>();
   const fetch = vi.fn<(request: Request) => Promise<Response>>(backend);
+  const pageEvents = new EventTarget();
 
-  vi.stubGlobal("window", { localStorage, location: { origin: "http://localhost:3000", pathname, replace } });
+  vi.stubGlobal("window", {
+    localStorage,
+    location: { origin: "http://localhost:3000", pathname, replace },
+    addEventListener: pageEvents.addEventListener.bind(pageEvents),
+  });
   vi.stubGlobal("fetch", fetch);
 
   const { api } = await import("./client");
   const { getQueryClient } = await import("../lib/query-client");
-  return { api, fetch, replace, queryClient: getQueryClient() };
+  return { api, fetch, replace, pageEvents, queryClient: getQueryClient() };
 }
 
 beforeEach(() => {
@@ -80,6 +85,21 @@ it("스탬프 적립 화면에서 로그인이 풀리면 돌아올 경로를 담
   await expect(api.get("stamps")).rejects.toMatchObject({ response: { status: 401 } });
   expect(replace).toHaveBeenCalledExactlyOnceWith("/?next=%2Fstamp%2Fcollect");
   expect(isLoginRedirectPending()).toBe(true);
+});
+
+it("뒤로 가기로 복원된 화면에서 다시 로그인이 풀리면 로그인 화면으로 다시 보낸다", async () => {
+  clearAccessToken();
+  const { api, replace, pageEvents } = await mockClient(async () => unauthorized(), "/stamp/collect");
+  const { isLoginRedirectPending } = await import("./client");
+
+  await expect(api.post("stamps")).rejects.toMatchObject({ response: { status: 401 } });
+  pageEvents.dispatchEvent(Object.assign(new Event("pageshow"), { persisted: false }));
+  expect(isLoginRedirectPending()).toBe(true);
+  pageEvents.dispatchEvent(Object.assign(new Event("pageshow"), { persisted: true }));
+  expect(isLoginRedirectPending()).toBe(false);
+
+  await expect(api.post("stamps")).rejects.toMatchObject({ response: { status: 401 } });
+  expect(replace).toHaveBeenCalledTimes(2);
 });
 
 it("재발급한 토큰이 삭제되면 다음 401에서 다시 재발급한다", async () => {

@@ -64,6 +64,11 @@ async function getRefreshedToken(authorization: string | null) {
         clearAccessToken();
         if (!isRedirectingToLogin) {
           isRedirectingToLogin = true;
+          // 뒤로 가기로 bfcache에서 이 화면이 복원되면 이동이 끝난 것이라 다음 401에서 다시 보낼 수 있게 풂.
+          // 첫 로드의 pageshow(persisted=false)는 이동 중이라 무시
+          window.addEventListener("pageshow", (event) => {
+            if (event.persisted) isRedirectingToLogin = false;
+          });
           window.location.replace(getLoginHref(window.location.pathname));
         }
       }
