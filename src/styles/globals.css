@@ -248,7 +248,7 @@ body {
   }
 }
 
-/* 탭 이동 디졸브 (NavigationLayout의 ViewTransition) */
+/* 페이지 이동 디졸브 (PageBoundary의 ViewTransition) */
 ::view-transition-old(.page-fade),
 ::view-transition-new(.page-fade) {
   animation-duration: 100ms;

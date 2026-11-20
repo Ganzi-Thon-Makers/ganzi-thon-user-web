@@ -2,7 +2,7 @@
 
 import { ErrorBoundary, type ErrorBoundaryFallbackProps, Suspense } from "@suspensive/react";
 import { QueryErrorResetBoundary } from "@tanstack/react-query";
-import type { ReactNode } from "react";
+import { type ReactNode, ViewTransition } from "react";
 
 import { PageError } from "./PageError";
 import { PageShell } from "./PageShell";
@@ -33,15 +33,19 @@ function PageErrorFallback({ error, reset }: ErrorBoundaryFallbackProps) {
  */
 export function PageBoundary({ children, fallback = <PageSkeleton />, header, clientOnly = true }: PageBoundaryProps) {
   return (
-    <QueryErrorResetBoundary>
-      {({ reset }) => (
-        <ErrorBoundary onReset={reset} fallback={PageErrorFallback}>
-          {/* 페이지 셸은 경계 안쪽에 있어 fallback·에러도 같은 셸로 감쌈 */}
-          <Suspense clientOnly={clientOnly} fallback={<PageShell header={header}>{fallback}</PageShell>}>
-            {children}
-          </Suspense>
-        </ErrorBoundary>
-      )}
-    </QueryErrorResetBoundary>
+    // 페이지 이동 때만 짧게 디졸브(globals.css의 page-fade). 페이지 안의 로딩→내용 전환은 애니메이션 없음
+    // 레이아웃에 key를 걸면 Next가 Activity로 보존하는 페이지 상태가 초기화되어 페이지마다 둠
+    <ViewTransition enter="page-fade" exit="page-fade" default="none">
+      <QueryErrorResetBoundary>
+        {({ reset }) => (
+          <ErrorBoundary onReset={reset} fallback={PageErrorFallback}>
+            {/* 페이지 셸은 경계 안쪽에 있어 fallback·에러도 같은 셸로 감쌈 */}
+            <Suspense clientOnly={clientOnly} fallback={<PageShell header={header}>{fallback}</PageShell>}>
+              {children}
+            </Suspense>
+          </ErrorBoundary>
+        )}
+      </QueryErrorResetBoundary>
+    </ViewTransition>
   );
 }
