@@ -239,3 +239,43 @@ body {
     black var(--nav-cutout-radius)
   );
 }
+
+/* 스크롤은 유지하고 스크롤바만 숨김 (모바일처럼 데스크톱에서도 안 보이게) */
+@utility scrollbar-none {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* 탭 이동 디졸브 (NavigationLayout의 ViewTransition) */
+::view-transition-old(.page-fade),
+::view-transition-new(.page-fade) {
+  animation-duration: 100ms;
+}
+
+/* 본문 스냅샷이 겹쳐 있는 하단 내비게이션을 덮지 않게, 내비게이션은 그대로 맨 위에 고정 */
+::view-transition-group(bottom-nav) {
+  z-index: 1;
+  animation: none;
+}
+::view-transition-old(bottom-nav) {
+  display: none;
+}
+::view-transition-new(bottom-nav) {
+  animation: none;
+}
+
+/* 전환 중에도 클릭이 아래 실제 화면으로 가게 함 */
+::view-transition {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
