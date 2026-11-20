@@ -23,6 +23,8 @@
 
 `booths[]`: `boothId`, `boothName`(팀 이름, 부스에 프로젝트가 없으면 null), `boothNumber`, `collected`, `collectedAt`
 
+참가자 스탬프판에서는 `GET /api/v1/projects/me`의 `zone`·`boothNumber`와 일치하는 칸을 제외하고, 남은 목록에서 전체·구역별 현황을 계산한다. 두 필드의 조합은 부스마다 유일하다. 내 프로젝트나 부스가 없으면(`PROJECT_NOT_FOUND`·`BOOTH_NOT_FOUND`) 전체 목록을 표시한다.
+
 ### StampCollectResponse
 
 `boothId`, `collectedCount`, `remainingToLuckyDraw`, `luckyDrawEntered`, `luckyDrawJustEntered`, `alreadyCollected`

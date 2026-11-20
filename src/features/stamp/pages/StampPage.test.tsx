@@ -1,14 +1,18 @@
 import { screen } from "@testing-library/react";
-import { expect, it, vi } from "vitest";
+import { beforeEach, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/shared/test/render";
 
-import { getStampBoard } from "../api/stamp.api";
+import { getMyStampBooth, getStampBoard } from "../api/stamp.api";
 import { makeStampBoard } from "../stamp.fixtures";
 import { StampPage } from "./StampPage";
 
 vi.mock("next/navigation", () => ({ useSearchParams: () => new URLSearchParams() }));
 vi.mock("../api/stamp.api");
+
+beforeEach(() => {
+  vi.mocked(getMyStampBooth).mockResolvedValue(null);
+});
 
 it("모은 스탬프 수로 럭키드로우까지 남은 개수를 보여준다", async () => {
   vi.mocked(getStampBoard).mockResolvedValue(makeStampBoard({ collectedCount: 2 }));

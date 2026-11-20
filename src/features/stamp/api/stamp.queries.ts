@@ -1,10 +1,11 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
 
-import { collectStamp, getOperatorBooth, getStampBoard, issueStampToken } from "./stamp.api";
+import { collectStamp, getMyStampBooth, getOperatorBooth, getStampBoard, issueStampToken } from "./stamp.api";
 
 export const stampQueries = {
   all: () => ["stamps"] as const,
   board: () => queryOptions({ queryKey: [...stampQueries.all(), "board"], queryFn: getStampBoard }),
+  myBooth: () => queryOptions({ queryKey: [...stampQueries.all(), "my-booth"], queryFn: getMyStampBooth }),
   operatorBooth: () => queryOptions({ queryKey: [...stampQueries.all(), "operator-booth"], queryFn: getOperatorBooth }),
 };
 
