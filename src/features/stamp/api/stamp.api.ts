@@ -80,22 +80,10 @@ export async function getOperatorBooth(): Promise<OperatorBooth> {
   return { serviceName: response.data.title };
 }
 
-interface QrTokenResponse {
-  token: string;
-  ttlSeconds: number;
-}
-
 /** 팀 계정 부스의 스탬프 QR 토큰을 새로 발급한다. 서버가 계정의 프로젝트로 부스를 찾는다 (STAMP-01-2) */
 export async function issueStampToken(): Promise<StampToken> {
-  const response = await api.post("api/v1/qr-tokens").json<ApiResponse<QrTokenResponse>>();
-  // 서버 expiresAt은 타임존 없는 시각이고 서버가 LocalDateTime.now()(JVM 기본 시간대)로 만들어 기기 시각과 어긋날 수 있음.
-  // 받은 시점 + ttlSeconds로 기기 기준 만료 시각을 만듦
-  const expiresAt = new Date(Date.now() + response.data.ttlSeconds * 1000);
-  return { token: response.data.token, expiresAt: toLocalDateTime(expiresAt) };
-}
-
-/** 화면이 기기 로컬 시각으로 읽는, 타임존 없는 시각 문자열 */
-export function toLocalDateTime(date: Date): string {
-  const offsetMs = date.getTimezoneOffset() * 60_000;
-  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 19);
+  const { data } = await api.post("api/v1/qr-tokens").json<ApiResponse<StampToken>>();
+  // KST로 내려오는 만료 시각을 밀리초까지만 사용한다.
+  const expiresAt = data.expiresAt.slice(0, 23);
+  return { token: data.token, expiresAt: `${expiresAt}+09:00` };
 }

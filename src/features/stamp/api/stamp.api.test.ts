@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { collectStamp, toLocalDateTime } from "./stamp.api";
+import { collectStamp, issueStampToken } from "./stamp.api";
 
 // collectStamp가 공용 api 인스턴스를 써서 fetch를 주입할 수 없어 전역 fetch로 서버 응답을 대신함
 function respondWith(body: unknown, status = 200) {
@@ -73,11 +73,11 @@ describe("collectStamp", () => {
   });
 });
 
-describe("toLocalDateTime", () => {
-  it("기기 로컬 시각으로 다시 읽으면 같은 초를 가리키는 타임존 없는 문자열을 만든다", () => {
-    const date = new Date(2026, 10, 21, 13, 0, 59, 500);
+it.each([
+  ["2026-11-21T13:01:00.039072194", "2026-11-21T13:01:00.039+09:00"],
+  ["2026-11-21T13:01:00", "2026-11-21T13:01:00+09:00"],
+])("서버 만료 시각 %s를 밀리초까지 사용하고 한국 시간을 적용한다", async (expiresAt, expected) => {
+  respondWith({ data: { token: "token", expiresAt, ttlSeconds: 60 } });
 
-    expect(toLocalDateTime(date)).toBe("2026-11-21T13:00:59");
-    expect(new Date(toLocalDateTime(date)).getTime()).toBe(new Date(2026, 10, 21, 13, 0, 59).getTime());
-  });
+  await expect(issueStampToken()).resolves.toEqual({ token: "token", expiresAt: expected });
 });

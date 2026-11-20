@@ -34,7 +34,7 @@ export interface OperatorBooth {
   serviceName: string;
 }
 
-/** 부스 운영자가 발급한 스탬프 QR 토큰. expiresAt은 서버 LocalDateTime 형식 */
+/** 부스 운영자가 발급한 스탬프 QR 토큰. expiresAt은 시간대 오프셋을 포함한 ISO 문자열 */
 export interface StampToken {
   token: string;
   expiresAt: string;
