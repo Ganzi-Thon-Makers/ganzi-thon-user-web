@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 
+import { env } from "@/shared/config/env";
+
 import "@/styles/globals.css";
 
 import { Providers } from "./providers";
 
 export const metadata: Metadata = {
-  title: "간지톤 사용자 웹",
-  description: "간지톤 사용자 웹",
+  metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
+  title: "양갱즈",
+  description: "2026 간지톤 참가자를 위한 서비스",
+  openGraph: {
+    title: "양갱즈",
+    description: "2026 간지톤 참가자를 위한 서비스",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
