@@ -63,7 +63,13 @@ async function scan(text: string) {
 }
 
 it("스탬프 QR을 인식하면 적립하고 모달을 닫은 뒤 그 부스 구역을 펼친 스탬프판으로 보낸다", async () => {
-  vi.mocked(collectStamp).mockResolvedValue({ status: "collected", boothId: 4, luckyDrawJustEntered: false });
+  vi.mocked(collectStamp).mockResolvedValue({
+    status: "collected",
+    boothId: 4,
+    collectedCount: 1,
+    luckyDrawEntered: false,
+    luckyDrawJustEntered: false,
+  });
   await openScanner();
 
   await scan(STAMP_URL);
@@ -75,7 +81,13 @@ it("스탬프 QR을 인식하면 적립하고 모달을 닫은 뒤 그 부스 �
 });
 
 it("이미 받은 부스 QR이면 이미 수집했다고 알리고 그 구역을 펼친다", async () => {
-  vi.mocked(collectStamp).mockResolvedValue({ status: "already-collected", boothId: 2 });
+  vi.mocked(collectStamp).mockResolvedValue({
+    status: "already-collected",
+    boothId: 2,
+    collectedCount: 1,
+    luckyDrawEntered: false,
+    luckyDrawJustEntered: false,
+  });
   await openScanner();
 
   await scan(STAMP_URL);
@@ -116,7 +128,13 @@ it("인식에 실패하면 잠시 쉬었다가 다시 인식한다", async () =>
   await scan(STAMP_URL);
   expect(collectStamp).not.toHaveBeenCalled();
 
-  vi.mocked(collectStamp).mockResolvedValue({ status: "collected", boothId: 1, luckyDrawJustEntered: false });
+  vi.mocked(collectStamp).mockResolvedValue({
+    status: "collected",
+    boothId: 1,
+    collectedCount: 1,
+    luckyDrawEntered: false,
+    luckyDrawJustEntered: false,
+  });
   await act(async () => {
     vi.advanceTimersByTime(1500);
   });
@@ -136,7 +154,13 @@ it("적립 응답 전에 모달을 닫으면 응답이 와도 스탬프판으로
   const pendingScan = scanner.onDecode?.({ data: STAMP_URL });
   await user.click(screen.getByRole("button", { name: "닫기" }));
   await act(async () => {
-    response.resolve({ status: "collected", boothId: 4, luckyDrawJustEntered: false });
+    response.resolve({
+      status: "collected",
+      boothId: 4,
+      collectedCount: 1,
+      luckyDrawEntered: false,
+      luckyDrawJustEntered: false,
+    });
     await pendingScan;
   });
 
@@ -151,18 +175,30 @@ it("모달을 닫으면 카메라를 끈다", async () => {
   await waitFor(() => expect(scanner.destroy).toHaveBeenCalled());
 });
 
-it("만료되거나 잘못된 토큰은 다시 인식돼도 서버에 다시 보내지 않고, 모달을 다시 열면 보낸다", async () => {
+it("같은 만료 QR은 안내가 닫힌 뒤 다시 표시하고 적립을 재요청하지 않는다", async () => {
   vi.mocked(collectStamp).mockResolvedValue({ status: "expired" });
   const { user } = await openScanner();
   vi.useFakeTimers({ shouldAdvanceTime: true });
 
   await scan(STAMP_URL);
-  expect(await screen.findByText("QR 코드를 인식 못했어요. 다시 스캔해 주세요.")).toBeInTheDocument();
+  expect(
+    await screen.findByText("만료된 QR 코드예요. 부스 운영자에게 새 QR 발급을 요청해 주세요."),
+  ).toBeInTheDocument();
   await act(async () => {
     vi.advanceTimersByTime(1500);
   });
   await scan(STAMP_URL);
+  const notice = "만료된 QR 코드예요. 부스 운영자에게 새 QR 발급을 요청해 주세요.";
+  expect(screen.getAllByText(notice)).toHaveLength(1);
+  await act(async () => {
+    await vi.advanceTimersByTimeAsync(3700);
+  });
+  expect(screen.queryByText(notice)).not.toBeInTheDocument();
+
+  await scan(STAMP_URL);
+  expect(await screen.findByText(notice)).toBeInTheDocument();
   expect(collectStamp).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText("QR 코드를 인식 못했어요. 다시 스캔해 주세요.")).not.toBeInTheDocument();
 
   vi.useRealTimers();
   await user.click(screen.getByRole("button", { name: "닫기" }));
@@ -186,7 +222,13 @@ it("연속 적립 제한에 걸리면 안내하고 모달을 닫는다", async (
 });
 
 it("앱 스캔으로 처음 응모하면 이동한 스탬프판에서 안내를 보여준다", async () => {
-  vi.mocked(collectStamp).mockResolvedValue({ status: "collected", boothId: 4, luckyDrawJustEntered: true });
+  vi.mocked(collectStamp).mockResolvedValue({
+    status: "collected",
+    boothId: 4,
+    collectedCount: 15,
+    luckyDrawEntered: true,
+    luckyDrawJustEntered: true,
+  });
   vi.mocked(getStampBoard).mockResolvedValue(makeStampBoard({ collectedCount: 15 }));
   const scannerView = await openScanner();
 
@@ -198,4 +240,13 @@ it("앱 스캔으로 처음 응모하면 이동한 스탬프판에서 안내를 
   renderWithProviders(<LuckyDrawProgress />);
 
   expect(await screen.findByRole("dialog", { name: "럭키드로우 자동 응모되었습니다!" })).toBeInTheDocument();
+});
+
+it("서버에 존재하지 않는 QR은 인식 실패로 안내한다", async () => {
+  vi.mocked(collectStamp).mockResolvedValue({ status: "invalid-token" });
+  await openScanner();
+
+  await scan(STAMP_URL);
+
+  expect(await screen.findByText("QR 코드를 인식 못했어요. 다시 스캔해 주세요.")).toBeInTheDocument();
 });

@@ -38,10 +38,11 @@ it("내 스탬프를 구역별 수집 현황과 전체 개수로 보여준다", 
 });
 
 it("내 부스를 스탬프 칸과 전체·구역별 현황에서 제외한다", async () => {
-  vi.mocked(getMyStampBooth).mockResolvedValue({ zone: "ZONE1", boothNumber: 1 });
+  vi.mocked(getMyStampBooth).mockResolvedValue({ zone: "ZONE1", boothNumber: 1, teamName: "1팀" });
   const zone1 = makeZoneStatus("ZONE1", [1, 2, 3, 4, 5, 6, 7, 8]);
   const zone2 = makeZoneStatus("ZONE2", [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]);
   const zone3 = makeZoneStatus("ZONE3", [20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30]);
+  zone1.booths[1].boothNumber = 1;
   zone2.booths[0].boothNumber = 1;
   vi.mocked(getStampBoard).mockResolvedValue(makeStampBoard({ zoneStatuses: [zone1, zone2, zone3] }));
 

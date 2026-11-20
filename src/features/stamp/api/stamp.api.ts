@@ -11,6 +11,7 @@ export async function getStampBoard(): Promise<StampBoard> {
 }
 
 interface MyStampBooth {
+  teamName: string;
   zone: StampZoneCode;
   boothNumber: number;
 }
@@ -30,13 +31,14 @@ export async function getMyStampBooth(): Promise<MyStampBooth | null> {
 interface StampCollectResponse {
   boothId: number;
   alreadyCollected: boolean;
+  collectedCount: number;
+  luckyDrawEntered: boolean;
   luckyDrawJustEntered: boolean;
 }
 
 /** QR 토큰으로 스탬프를 받은 결과. 화면이 경우마다 다르게 안내해서 에러 대신 결과로 돌려준다 */
 export type CollectStampResult =
-  | { status: "collected"; boothId: number; luckyDrawJustEntered: boolean }
-  | { status: "already-collected"; boothId: number }
+  | (Omit<StampCollectResponse, "alreadyCollected"> & { status: "collected" | "already-collected" })
   | { status: "expired" }
   | { status: "invalid-token" }
   | { status: "cooldown" }
@@ -54,8 +56,13 @@ const COLLECT_FAILURE_BY_CODE: Record<string, Exclude<CollectStampResult, { boot
 export async function collectStamp(token: string): Promise<CollectStampResult> {
   try {
     const { data } = await api.post("api/v1/stamps", { json: { token } }).json<ApiResponse<StampCollectResponse>>();
-    if (data.alreadyCollected) return { status: "already-collected", boothId: data.boothId };
-    return { status: "collected", boothId: data.boothId, luckyDrawJustEntered: data.luckyDrawJustEntered };
+    return {
+      status: data.alreadyCollected ? "already-collected" : "collected",
+      boothId: data.boothId,
+      collectedCount: data.collectedCount,
+      luckyDrawEntered: data.luckyDrawEntered,
+      luckyDrawJustEntered: data.luckyDrawJustEntered,
+    };
   } catch (error) {
     const failure = COLLECT_FAILURE_BY_CODE[toApiError(error).code];
     if (failure) return failure;

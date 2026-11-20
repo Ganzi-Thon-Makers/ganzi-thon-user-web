@@ -27,7 +27,7 @@ export const projectQueries = {
     queryOptions({
       queryKey: [...projectQueries.all(), "vote-period"],
       queryFn: getVotePeriod,
-      // ponytail: 화면에 머무는 동안 개시·일시중지·마감을 반영하려고 30초마다 다시 조회. 더 정확해야 하면 serverTime 기준으로 계산
+      // 관리자가 투표를 일시중지하거나 재개하는 경우 반영
       refetchInterval: 30_000,
     }),
 };
