@@ -124,6 +124,8 @@ it("서버가 토큰을 받지 않으면(만료) 보관한 토큰을 지운다",
 
   renderPage();
 
-  expect(await screen.findByText("QR 코드를 인식 못했어요. 다시 스캔해 주세요.")).toBeInTheDocument();
+  expect(
+    await screen.findByText("만료된 QR 코드예요. 부스 운영자에게 새 QR 발급을 요청해 주세요."),
+  ).toBeInTheDocument();
   expect(readPendingStampToken()).toBeNull();
 });
