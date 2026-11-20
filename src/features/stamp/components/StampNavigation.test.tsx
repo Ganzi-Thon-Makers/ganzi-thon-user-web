@@ -4,7 +4,9 @@ import { beforeEach, expect, it, vi } from "vitest";
 import { renderWithProviders } from "@/shared/test/render";
 import { ToastProvider } from "@/shared/ui/Toast";
 
-import { type CollectStampResult, collectStamp } from "../api/stamp.api";
+import { type CollectStampResult, collectStamp, getStampBoard } from "../api/stamp.api";
+import { makeStampBoard } from "../stamp.fixtures";
+import { LuckyDrawProgress } from "./LuckyDrawProgress";
 import { StampNavigation } from "./StampNavigation";
 
 const scanner = vi.hoisted(() => ({
@@ -23,8 +25,12 @@ vi.mock("qr-scanner", () => ({
   },
 }));
 
-const router = vi.hoisted(() => ({ replace: vi.fn<(href: string) => void>() }));
-vi.mock("next/navigation", () => ({ useRouter: () => router, usePathname: () => "/stamp" }));
+const router = vi.hoisted(() => ({ replace: vi.fn<(href: string) => void>(), searchParams: new URLSearchParams() }));
+vi.mock("next/navigation", () => ({
+  useRouter: () => router,
+  usePathname: () => "/stamp",
+  useSearchParams: () => router.searchParams,
+}));
 vi.mock("../api/stamp.api");
 
 const STAMP_URL = "https://ganzithon.com/stamp/collect?token=booth-token";
@@ -33,6 +39,7 @@ beforeEach(() => {
   scanner.onDecode = null;
   scanner.start.mockResolvedValue();
   router.replace.mockClear();
+  router.searchParams = new URLSearchParams();
   scanner.destroy.mockClear();
   vi.useRealTimers();
 });
@@ -56,7 +63,7 @@ async function scan(text: string) {
 }
 
 it("스탬프 QR을 인식하면 적립하고 모달을 닫은 뒤 그 부스 구역을 펼친 스탬프판으로 보낸다", async () => {
-  vi.mocked(collectStamp).mockResolvedValue({ status: "collected", boothId: 4 });
+  vi.mocked(collectStamp).mockResolvedValue({ status: "collected", boothId: 4, luckyDrawJustEntered: false });
   await openScanner();
 
   await scan(STAMP_URL);
@@ -109,7 +116,7 @@ it("인식에 실패하면 잠시 쉬었다가 다시 인식한다", async () =>
   await scan(STAMP_URL);
   expect(collectStamp).not.toHaveBeenCalled();
 
-  vi.mocked(collectStamp).mockResolvedValue({ status: "collected", boothId: 1 });
+  vi.mocked(collectStamp).mockResolvedValue({ status: "collected", boothId: 1, luckyDrawJustEntered: false });
   await act(async () => {
     vi.advanceTimersByTime(1500);
   });
@@ -129,7 +136,7 @@ it("적립 응답 전에 모달을 닫으면 응답이 와도 스탬프판으로
   const pendingScan = scanner.onDecode?.({ data: STAMP_URL });
   await user.click(screen.getByRole("button", { name: "닫기" }));
   await act(async () => {
-    response.resolve({ status: "collected", boothId: 4 });
+    response.resolve({ status: "collected", boothId: 4, luckyDrawJustEntered: false });
     await pendingScan;
   });
 
@@ -176,4 +183,19 @@ it("연속 적립 제한에 걸리면 안내하고 모달을 닫는다", async (
   ).toBeInTheDocument();
   expect(router.replace).toHaveBeenCalledWith("/stamp");
   await waitFor(() => expect(screen.queryByRole("dialog", { name: "스탬프 QR 스캔" })).not.toBeInTheDocument());
+});
+
+it("앱 스캔으로 처음 응모하면 이동한 스탬프판에서 안내를 보여준다", async () => {
+  vi.mocked(collectStamp).mockResolvedValue({ status: "collected", boothId: 4, luckyDrawJustEntered: true });
+  vi.mocked(getStampBoard).mockResolvedValue(makeStampBoard({ collectedCount: 15 }));
+  const scannerView = await openScanner();
+
+  await scan(STAMP_URL);
+  const href = router.replace.mock.calls.at(-1)?.[0];
+  expect(href).toBeDefined();
+  router.searchParams = new URL(href ?? "", STAMP_URL).searchParams;
+  scannerView.unmount();
+  renderWithProviders(<LuckyDrawProgress />);
+
+  expect(await screen.findByRole("dialog", { name: "럭키드로우 자동 응모되었습니다!" })).toBeInTheDocument();
 });
