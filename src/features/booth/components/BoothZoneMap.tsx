@@ -6,8 +6,9 @@ import { BoothDetailModal } from "./BoothDetailModal";
 import { BoothRoomMap } from "./BoothRoomMap";
 import { ClassroomTabList } from "./ClassroomTabList";
 
-// 키보드로 이동할 때 포커스된 요소가 위에 붙은 Zone 탭(h-12) 아래로 숨지 않게 함
-const MAP_PANEL_CLASS = "mx-1.5 mt-4.5 [&_:focus-visible]:scroll-mt-12";
+// 키보드로 이동할 때 패널과 그 안의 포커스 요소가 위에 붙은 Zone 탭(h-12 + 상단 안전 영역) 아래로 숨지 않게 함
+const MAP_PANEL_CLASS =
+  "mx-1.5 mt-4.5 scroll-mt-[calc(--spacing(12)+env(safe-area-inset-top,0px))] [&_:focus-visible]:scroll-mt-[calc(--spacing(12)+env(safe-area-inset-top,0px))]";
 const MAP_ROOM_CLASS = "flex min-h-112.5 flex-col rounded-lg bg-gray800 p-5";
 const ROOM_LABEL_CLASS = "mx-auto rounded-full py-1.5 text-body-sb-14";
 const ZONE_LABELS: Record<BoothZoneCode, string> = { ZONE1: "Zone1", ZONE2: "Zone2", ZONE3: "Zone3" };
