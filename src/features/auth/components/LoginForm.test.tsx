@@ -60,10 +60,14 @@ it("돌아갈 경로가 허용 목록에 없으면 타임라인으로 보낸다"
   await waitFor(() => expect(replace).toHaveBeenCalledExactlyOnceWith("/timeline"));
 });
 
-it("팀 계정은 돌아갈 경로가 있어도 QR 발급 화면으로 보낸다", async () => {
+it.each([
+  ["TEAM", "/operator/qr"],
+  ["ADMIN", "/timeline"],
+  ["SUPER_ADMIN", "/timeline"],
+])("스탬프를 못 모으는 %s 계정은 돌아갈 경로가 있어도 %s로 보낸다", async (role, path) => {
   window.history.replaceState(null, "", "/?next=%2Fstamp%2Fcollect");
 
-  await submitLoginAs("TEAM");
+  await submitLoginAs(role);
 
-  await waitFor(() => expect(replace).toHaveBeenCalledExactlyOnceWith("/operator/qr"));
+  await waitFor(() => expect(replace).toHaveBeenCalledExactlyOnceWith(path));
 });
