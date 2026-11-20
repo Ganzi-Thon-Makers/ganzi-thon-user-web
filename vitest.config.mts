@@ -12,6 +12,7 @@ export default defineConfig({
     include: ["src/**/*.test.{ts,tsx}"],
     env: {
       NEXT_PUBLIC_API_URL: "https://api.test",
+      NEXT_PUBLIC_SITE_URL: "https://site.test",
     },
   },
 });
