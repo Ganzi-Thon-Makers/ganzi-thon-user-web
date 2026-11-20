@@ -182,3 +182,21 @@ it("다른 호실의 부스도 상세를 조회하고 닫기 버튼으로 닫을
     expect(trigger).toHaveFocus();
   });
 });
+
+it("처음 열 부스가 주어지면 그 부스의 호실을 보여 주고 상세를 연다", async () => {
+  mockGetBoothDetail.mockResolvedValueOnce(secondBooth);
+  renderWithProviders(<BoothZoneMap zones={zones} initialBoothId={303} />);
+
+  expect(await screen.findByRole("dialog", { name: "두 번째 프로젝트" })).toBeInTheDocument();
+  expect(mockGetBoothDetail).toHaveBeenCalledWith(303);
+  // 모달이 열려 배치도는 보조기술에서 숨겨짐
+  expect(screen.getByRole("tab", { name: "105호", selected: true, hidden: true })).toBeInTheDocument();
+});
+
+it("처음 열 부스가 배치도에 없으면 상세를 열지 않는다", () => {
+  renderWithProviders(<BoothZoneMap zones={zones} initialBoothId={999} />);
+
+  expect(screen.getByRole("tab", { name: "104호", selected: true })).toBeInTheDocument();
+  expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  expect(mockGetBoothDetail).not.toHaveBeenCalled();
+});

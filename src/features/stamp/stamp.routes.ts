@@ -1,5 +1,4 @@
-// TODO: 부스 화면이 위치를 받는 방식(경로·파라미터 이름)이 정해지면 맞춘다.
-// 지금은 부스 배치도(/booths)가 쿼리로 부스 id를 받아 해당 위치를 보여준다고 가정한다.
+// 부스 배치도(BoothPage)가 읽는 쿼리 이름과 같아야 함
 const BOOTH_MAP_PATH = "/booths";
 const BOOTH_ID_PARAM = "boothId";
 
