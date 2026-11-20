@@ -1,5 +1,5 @@
 import { act, screen, waitFor, within } from "@testing-library/react";
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
 import { renderWithProviders } from "@/shared/test/render";
 import { ToastProvider } from "@/shared/ui/Toast";
@@ -15,7 +15,12 @@ function makeProject(id: number, title: string, isVoted = false): Project {
   return { id, title, summary: `${title} 소개`, platform: "WEB", thumbnailUrl: "/thumbnail.webp", isVoted };
 }
 
-const openPeriod: VotePeriod = { status: "IN_PROGRESS", startTime: "2026-11-21T14:00:00" };
+const openPeriod: VotePeriod = {
+  status: "IN_PROGRESS",
+  startTime: "2026-11-21T14:00:00",
+  endTime: "2026-11-21T18:00:00",
+  serverTime: "2026-11-21T14:00:00",
+};
 const myProject: ProjectDetail = {
   id: 2,
   title: "우리팀",
@@ -352,4 +357,43 @@ it("투표한 프로젝트가 있는 구역 탭을 먼저 보여 주고 그 카�
 
   await user.click(screen.getByRole("tab", { name: "Zone1" }));
   expect(screen.getByRole("tab", { name: "Zone1" })).toHaveAttribute("aria-selected", "true");
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+it("서버 기준 시작 시각에 투표 상태를 다시 조회한다", async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  vi.setSystemTime(new Date("2026-11-21T08:00:00Z"));
+  vi.mocked(getVotePeriod)
+    .mockResolvedValueOnce({ ...openPeriod, status: "NOT_STARTED", serverTime: "2026-11-21T13:59:55" })
+    .mockResolvedValue(openPeriod);
+  renderPage();
+
+  expect(await screen.findByRole("button", { name: "오후 2시부터 투표할 수 있어요." })).toHaveAttribute(
+    "aria-disabled",
+    "true",
+  );
+  await act(() => vi.advanceTimersByTimeAsync(5000));
+
+  expect(await findEnabledVoteButton()).toHaveAttribute("aria-disabled", "false");
+});
+
+it("서버 기준 마감 시각에 재조회 응답을 기다리지 않고 확인 모달을 닫는다", async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  vi.setSystemTime(new Date("2026-11-21T08:00:00Z"));
+  vi.mocked(getVotePeriod)
+    .mockResolvedValueOnce({ ...openPeriod, serverTime: "2026-11-21T17:59:25" })
+    .mockReturnValue(deferred<VotePeriod>().promise);
+  const { user } = renderPage();
+
+  await user.click(await findEnabledVoteButton());
+  await user.click(screen.getByRole("button", { name: "Framey 선택" }));
+  await user.click(screen.getByRole("button", { name: "투표하기" }));
+  expect(await screen.findByRole("dialog")).toBeInTheDocument();
+  await act(() => vi.advanceTimersByTimeAsync(35_000));
+
+  expect(await screen.findByRole("button", { name: "투표가 마감됐어요." })).toHaveAttribute("aria-disabled", "true");
+  await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument());
 });

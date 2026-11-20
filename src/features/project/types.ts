@@ -45,4 +45,6 @@ export type VoteStatus = "NOT_STARTED" | "IN_PROGRESS" | "PAUSED" | "ENDED";
 export interface VotePeriod {
   status: VoteStatus;
   startTime: string | null;
+  endTime: string | null;
+  serverTime: string;
 }
