@@ -3,6 +3,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 
+import { isLoginRedirectPending } from "@/shared/api/client";
 import { ErrorIcon, SuccessIcon } from "@/shared/ui/icons";
 import { useToast } from "@/shared/ui/Toast";
 
@@ -51,6 +52,8 @@ export function useCollectStamp() {
 
     const result = await mutateAsync(token).catch(() => null);
     if (!result) {
+      // 로그인 화면으로 가는 중이면 로그인 뒤 다시 적립하므로 실패를 알리지 않음
+      if (isLoginRedirectPending()) return false;
       // TODO: 요청 실패 문구가 디자인에 없어 임시 문구
       toast.error("스탬프를 받지 못했어요. 잠시 후 다시 시도해 주세요.", {
         id: COLLECT_FAILED_TOAST_ID,

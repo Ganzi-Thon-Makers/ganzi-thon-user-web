@@ -1,5 +1,5 @@
 import { screen, waitFor } from "@testing-library/react";
-import { beforeEach, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, expect, it, vi } from "vitest";
 
 import { clearAccessToken } from "@/shared/api/token";
 import { renderWithProviders } from "@/shared/test/render";
@@ -16,9 +16,22 @@ function accessTokenFor(role: string) {
   return `header.${Buffer.from(JSON.stringify({ role })).toString("base64url")}.signature`;
 }
 
+async function submitLoginAs(role: string) {
+  vi.mocked(login).mockResolvedValue({ accessToken: accessTokenFor(role) });
+  const { user } = renderWithProviders(<LoginForm />);
+
+  await user.type(screen.getByLabelText("아이디"), "id");
+  await user.type(screen.getByLabelText("비밀번호"), "pw");
+  await user.click(screen.getByRole("button", { name: "로그인" }));
+}
+
 beforeEach(() => {
   clearAccessToken();
   replace.mockClear();
+});
+
+afterEach(() => {
+  window.history.replaceState(null, "", "/");
 });
 
 it.each([
@@ -26,12 +39,35 @@ it.each([
   ["PARTICIPANT", "/timeline"],
   ["ADMIN", "/timeline"],
 ])("%s 계정은 로그인하면 %s로 이동한다", async (role, path) => {
-  vi.mocked(login).mockResolvedValue({ accessToken: accessTokenFor(role) });
-  const { user } = renderWithProviders(<LoginForm />);
-
-  await user.type(screen.getByLabelText("아이디"), "id");
-  await user.type(screen.getByLabelText("비밀번호"), "pw");
-  await user.click(screen.getByRole("button", { name: "로그인" }));
+  await submitLoginAs(role);
 
   await waitFor(() => expect(replace).toHaveBeenCalledWith(path));
+});
+
+it("스탬프 QR로 들어와 로그인하면 적립 화면으로 돌아간다", async () => {
+  window.history.replaceState(null, "", "/?next=%2Fstamp%2Fcollect");
+
+  await submitLoginAs("PARTICIPANT");
+
+  await waitFor(() => expect(replace).toHaveBeenCalledExactlyOnceWith("/stamp/collect"));
+});
+
+it("돌아갈 경로가 허용 목록에 없으면 타임라인으로 보낸다", async () => {
+  window.history.replaceState(null, "", "/?next=%2F%2Fevil.com");
+
+  await submitLoginAs("PARTICIPANT");
+
+  await waitFor(() => expect(replace).toHaveBeenCalledExactlyOnceWith("/timeline"));
+});
+
+it.each([
+  ["TEAM", "/operator/qr"],
+  ["ADMIN", "/timeline"],
+  ["SUPER_ADMIN", "/timeline"],
+])("스탬프를 못 모으는 %s 계정은 돌아갈 경로가 있어도 %s로 보낸다", async (role, path) => {
+  window.history.replaceState(null, "", "/?next=%2Fstamp%2Fcollect");
+
+  await submitLoginAs(role);
+
+  await waitFor(() => expect(replace).toHaveBeenCalledExactlyOnceWith(path));
 });
